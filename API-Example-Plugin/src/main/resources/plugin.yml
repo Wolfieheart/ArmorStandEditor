@@ -1,6 +1,6 @@
 name: ArmorStandEditor-APITester
 main: io.github.rypofalem.apiexample.ArmorStandEditorAPITest
-version: 1.20.1-43.2
+version: 1.21-47
 api-version: "1.13"
 website: https://www.spigotmc.org/resources/94503/
 authors: [Wolfstorm, Pinnkk]

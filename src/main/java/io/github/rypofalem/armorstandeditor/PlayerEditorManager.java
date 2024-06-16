@@ -169,7 +169,7 @@ public class PlayerEditorManager implements Listener {
                     //change it 1 tick later to apply formatting without it being overwritten
                     Scheduler.runTaskLater(plugin, () -> {
                         as.setCustomName(name);
-                        as.setCustomNameVisible(true);
+                        as.setCustomNameVisible(false);
                     }, 1);
                 }
             }
