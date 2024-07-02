@@ -20,18 +20,19 @@
 package io.github.rypofalem.armorstandeditor;
 
 import com.google.common.collect.ImmutableList;
-
 import io.github.rypofalem.armorstandeditor.api.ArmorStandRenameEvent;
 import io.github.rypofalem.armorstandeditor.api.ItemFrameGlowEvent;
 import io.github.rypofalem.armorstandeditor.menu.ASEHolder;
 import io.github.rypofalem.armorstandeditor.protections.*;
-
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
-import org.bukkit.event.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -333,13 +334,29 @@ public class PlayerEditorManager implements Listener {
         return itemFrames;
     }
 
-
-    boolean canEdit(Player player, Entity entity) {
-        //Get the Entity being checked for editing
-        Block block = entity.getLocation().getBlock();
-
-        // Check if all protections allow this edit, if one fails, don't allow edit
-        return protections.stream().allMatch(protection -> protection.checkPermission(block, player));
+    static boolean canEdit(Player player, Entity entity) {
+        return canEdit(player, entity.getLocation());
+    }
+    
+    static boolean canEdit(Player player, Location location) {
+        Block block = location.getBlock();
+        
+        // TODO Deconstruct unused restriction-system checks in "protections/" folder. 
+        //  Only 'asedit.ignoreProtection.<plugin>' check is necessary now.
+        
+/*        // Check if all protections allow this edit, if one fails, don't allow edit
+        return protections.stream().allMatch(protection -> protection.checkPermission(block, player));*/
+        
+        // Creating test place-event for the target location. (Works also for Fine Adjustment.)
+        // Used 'BlockPlaceEvent', because e.g. 'EntityPlaceEvent' is not handled the same for every restriction system.
+        BlockPlaceEvent placeEvent = new BlockPlaceEvent(block, block.getState(), location.getBlock(), 
+                player.getActiveItem(), player, false, player.getActiveItemHand());
+        
+        // Checking build permission by test-event. (The block is generally not placed via 'callEvent()' method.)
+        Bukkit.getServer().getPluginManager().callEvent(placeEvent);
+        // An event-cancel afterward would have no effect.
+        
+        return !placeEvent.isCancelled();
     }
 
     void applyLeftTool(Player player, ArmorStand as) {
