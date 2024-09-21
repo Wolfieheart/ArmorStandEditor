@@ -284,6 +284,10 @@ public class PlayerEditor {
                 loc.add(0, 0, movChange);
                 break;
         }
+        
+        // Checking the building permission for the target location:
+        if (!PlayerEditorManager.canEdit(getPlayer(), loc)) return;
+        
         Scheduler.teleport(armorStand, loc);
     }
 
@@ -301,6 +305,10 @@ public class PlayerEditor {
                 loc.subtract(0, 0, movChange);
                 break;
         }
+        
+        // Checking the building permission for the target location:
+        if (!PlayerEditorManager.canEdit(getPlayer(), loc)) return;
+        
         Scheduler.teleport(armorStand, loc);
     }
 
