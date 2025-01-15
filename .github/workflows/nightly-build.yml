@@ -27,7 +27,7 @@ jobs:
 
       # Cache SonarCloud for analysis
       - name: Cache SonarCloud for Analysis
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4.2.0
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
@@ -35,7 +35,7 @@ jobs:
 
       # Cache Maven packages to speed up build
       - name: Cache the Maven Packages to speed up build
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4.2.0
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
