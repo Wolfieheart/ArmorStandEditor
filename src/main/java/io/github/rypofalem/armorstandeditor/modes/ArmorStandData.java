@@ -19,6 +19,7 @@
 
 package io.github.rypofalem.armorstandeditor.modes;
 
+import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
@@ -29,6 +30,7 @@ public class ArmorStandData {
     public boolean visible, size, basePlate, gravity, showArms;
     public ItemStack head, body, legs, feetsies, rightHand, leftHand;
     public double attributeScale;
+    private ArmorStandEditorPlugin plugin = ArmorStandEditorPlugin.instance();
 
     ArmorStandData(ArmorStand as) {
         this.headPos = as.getHeadPose();
@@ -38,7 +40,9 @@ public class ArmorStandData {
         this.leftLegPos = as.getLeftLegPose();
         this.rightLegPos = as.getRightLegPose();
         this.size = as.isSmall();
-        this.attributeScale = as.getAttribute(Attribute.SCALE).getValue();
+        if (plugin.getServer().getMinecraftVersion().compareTo("1.21.4") >= 0 || plugin.getNmsVersion().compareTo("v1_21_R3") >= 0) {
+            this.attributeScale = as.getAttribute(Attribute.SCALE).getValue();
+        }
         this.basePlate = as.hasBasePlate();
         this.gravity = as.hasGravity();
         this.showArms = as.hasArms();
