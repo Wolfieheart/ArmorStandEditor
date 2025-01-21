@@ -4,7 +4,7 @@
     <groupId>io.github.rypofalem.armorstandeditor</groupId>
     <artifactId>armorstandeditor</artifactId>
     <packaging>jar</packaging>
-    <version>1.21.4-48</version>
+    <version>1.21.4-48.1</version>
     <name>armorstandeditor</name>
     <url>https://maven.apache.org</url>
 
