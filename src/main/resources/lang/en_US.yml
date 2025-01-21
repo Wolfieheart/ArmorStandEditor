@@ -433,7 +433,7 @@ scaleremove12:
 scaleadd110:
   msg: Scale + 0.1 (Fine)
   description:
-    msg: Remove 0.5 to the current Scale of your ArmorStand
+    msg: Add 0.1 to the current Scale of your ArmorStand
 scaleremove110:
   msg: Scale - 0.1 (Fine)
   description:
