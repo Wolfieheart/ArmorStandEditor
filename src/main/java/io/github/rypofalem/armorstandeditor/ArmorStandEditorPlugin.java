@@ -457,7 +457,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     //Will be useful for later.....
     public String getMinecraftVersion() {
-        return getServer().getMinecraftVersion();
+        return this.nmsVersion;
     }
 
     public String getArmorStandEditorVersion() {
