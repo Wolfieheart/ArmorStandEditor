@@ -8,6 +8,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -24,6 +25,7 @@ public final class ArmorStandEditorPlugin extends JavaPlugin {
 
     // Classes
     private static ArmorStandEditorPlugin instance;
+    private NamespacedKey iconKey;
     private Debug debug = new Debug(this);
     MetricsHandler metricsHandler;
     protected PlayerEditorManager editorManager;
@@ -89,7 +91,7 @@ public final class ArmorStandEditorPlugin extends JavaPlugin {
 
         debug.log("Enabling ASE, Getting ASE Version and logging Server Checks");
 
-        aseVersion = getConfig().getString("version");
+        aseVersion = getASEVersion();
         aseVersionToLog = String.format("Plugin Version: v%s", aseVersion);
         getLogger().log(Level.INFO,"======= ArmorStandEditor =======");
         getLogger().log(Level.INFO, aseVersionToLog );
@@ -274,6 +276,9 @@ public final class ArmorStandEditorPlugin extends JavaPlugin {
 
     // Config Methods as Getters - Useful for Config Reload etc.
     public boolean isDebug() { return getConfig().getBoolean("debugFlag"); }
+    public String getASEVersion() {
+        return getConfig().getString("version");
+    }
     public boolean getRequireToolNameConfig() { return getConfig().getBoolean("requireToolName", false); }
     public boolean getRequireToolDataConfig() { return getConfig().getBoolean("requireToolData", false); }
     public boolean getRequireToolLoreConfig() { return getConfig().getBoolean("requireToolLore", false); }
@@ -282,24 +287,24 @@ public final class ArmorStandEditorPlugin extends JavaPlugin {
     public boolean getInvisibleArmorStandsConfig() { return getConfig().getBoolean("armorStandVisibility", false); }
     public boolean getInvisibleItemFramesConfig() { return getConfig().getBoolean("invisibleItemFrames", false); }
     public boolean getSendToActionBarConfig() { return getConfig().getBoolean("sendMessagesToActionBar", false); }
-
     public double getCoarseConfig() { return getConfig().getDouble("coarse"); }
     public double getFineConfig() { return getConfig().getDouble("fine"); }
     public double getMinScaleConfig() { return getConfig().getDouble("minScaleValue"); }
     public double getMaxScaleConfig() { return getConfig().getDouble("maxScaleValue"); }
-
     public String getToolTypeConfig() { return getConfig().getString("tool");}
     public String getToolNameConfig() { return getConfig().getString("editToolName");}
     public String getToolLoreConfig(){ return getConfig().getString("toolLore", null); }
     public String getLanguageConfig(){ return getConfig().getString("lang"); }
-
     public Integer getEditToolDataConfig() { return getConfig().getInt("toolData", Integer.MIN_VALUE); }
     public List<?> getAllowedWorldListConfig(){ return getConfig().getList("allowed-worlds", null); }
-
     public Lang getLanguage(){
         return language;
     }
 
+    public NamespacedKey getIconKey() {
+        if (iconKey == null) iconKey = new NamespacedKey(this, "command_icon");
+        return iconKey;
+    }
 
 
 }
