@@ -421,11 +421,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     public String getNmsVersion() {
-        if(getHasSpigot()){
-            return this.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-        } else{
-            return this.getServer().getMinecraftVersion();
-        }
+        return nmsVersion;
     }
 
     public boolean getHasSpigot() {
