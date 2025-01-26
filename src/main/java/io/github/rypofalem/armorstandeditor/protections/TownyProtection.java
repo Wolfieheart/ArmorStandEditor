@@ -19,32 +19,55 @@
 package io.github.rypofalem.armorstandeditor.protections;
 
 import com.palmergames.bukkit.towny.TownyAPI;
-import com.palmergames.bukkit.towny.event.executors.TownyActionEventExecutor;
 
+import com.palmergames.bukkit.towny.object.Resident;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownBlock;
+import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
+import io.github.rypofalem.armorstandeditor.Debug;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 //FIX for https://github.com/Wolfieheart/ArmorStandEditor-Issues/issues/15
 public class TownyProtection implements Protection {
     private final boolean tEnabled;
+    private Debug debug;
+    private ArmorStandEditorPlugin plugin;
 
 
     public TownyProtection() {
+        plugin = ArmorStandEditorPlugin.instance();
+        debug = new Debug(plugin);
         tEnabled = Bukkit.getPluginManager().isPluginEnabled("Towny");
     }
 
     public boolean checkPermission(Block block, Player player) {
+        TownyAPI towny;
         if (!tEnabled) return true;
         if (player.isOp()) return true;
         if (player.hasPermission("asedit.ignoreProtection.towny")) return true; //Add Additional Permission
 
+        towny = TownyAPI.getInstance();
         Location playerLoc = player.getLocation();
+        Location asLoc = block.getLocation();
 
-        if (TownyAPI.getInstance().isWilderness(playerLoc)) return false;
-        return TownyActionEventExecutor.canDestroy(player, block.getLocation(), Material.ARMOR_STAND);
+        if(towny.isWilderness(playerLoc) && player.hasPermission("asedit.townyProtection.canEditInWild")){
+            debug.log(" User is in the Wilderness and Can Edit.");
+            return true;
+        } else if(towny.isWilderness(playerLoc) && !player.hasPermission("asedit.townyProtection.canEditInWild")) {
+            player.sendMessage(plugin.getLang().getMessage("townyNoWildEdit","warn"));
+            return false;
+        }
+
+        Resident resident = towny.getResident(player);
+        TownBlock townBlock = towny.getTownBlock(asLoc);
+        Town town = townBlock.getTownOrNull();
+
+        if(resident == null || town == null) return true;
+        if(townBlock.hasResident(resident) || townBlock.hasTrustedResident(resident)) return true;
+        return town.hasResident(resident);
     }
 }
 

@@ -40,7 +40,7 @@ public class ArmorStandData {
         this.leftLegPos = as.getLeftLegPose();
         this.rightLegPos = as.getRightLegPose();
         this.size = as.isSmall();
-        if (plugin.getServer().getMinecraftVersion().compareTo("1.21.4") >= 0 || plugin.getNmsVersion().compareTo("v1_21_R3") >= 0) {
+        if (plugin.getNmsVersion().compareTo("1.21.4") >= 0 || plugin.getNmsVersion().compareTo("v1_21_R3") >= 0) {
             this.attributeScale = as.getAttribute(Attribute.SCALE).getValue();
         }
         this.basePlate = as.hasBasePlate();
