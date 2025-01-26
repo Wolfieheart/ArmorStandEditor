@@ -141,7 +141,6 @@ permissions:
       asedit.ignoreProtection.lands: true
       asedit.ignoreProtection.bentobox: true
       asedit.ignoreProtection.itemAdder: true
-      asedit.townyProtection.canEditInWild: true
 
   asedit.permpack.dontIgnoreProtections:
     children:
@@ -154,7 +153,6 @@ permissions:
       asedit.ignoreProtection.lands: false
       asedit.ignoreProtection.bentobox: false
       asedit.ignoreProtection.itemAdder: false
-      asedit.townyProtection.canEditInWild: true
 
   asedit.permpack.basic:
     default: true
