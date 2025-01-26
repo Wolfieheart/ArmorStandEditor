@@ -124,6 +124,10 @@ permissions:
     description: Allows user to ignore ItemAdder/LoneDev Protection Limitations.
     default: false
 
+  asedit.townyProtection.canEditInWild:
+    description: Allows for editing in the Wilderness - ONLY use IF you have Towny
+    default: false
+
   asedit.ignoreProtection.*:
     description: Ignore all Protection Limitations
     default: op
@@ -137,6 +141,7 @@ permissions:
       asedit.ignoreProtection.lands: true
       asedit.ignoreProtection.bentobox: true
       asedit.ignoreProtection.itemAdder: true
+      asedit.townyProtection.canEditInWild: true
 
   asedit.permpack.dontIgnoreProtections:
     children:
@@ -149,6 +154,7 @@ permissions:
       asedit.ignoreProtection.lands: false
       asedit.ignoreProtection.bentobox: false
       asedit.ignoreProtection.itemAdder: false
+      asedit.townyProtection.canEditInWild: true
 
   asedit.permpack.basic:
     default: true

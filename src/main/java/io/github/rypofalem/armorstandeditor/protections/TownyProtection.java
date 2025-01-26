@@ -19,11 +19,12 @@
 package io.github.rypofalem.armorstandeditor.protections;
 
 import com.palmergames.bukkit.towny.TownyAPI;
-import com.palmergames.bukkit.towny.event.executors.TownyActionEventExecutor;
 
+import com.palmergames.bukkit.towny.object.Resident;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -37,14 +38,26 @@ public class TownyProtection implements Protection {
     }
 
     public boolean checkPermission(Block block, Player player) {
+        TownyAPI towny;
         if (!tEnabled) return true;
         if (player.isOp()) return true;
         if (player.hasPermission("asedit.ignoreProtection.towny")) return true; //Add Additional Permission
 
+        towny = TownyAPI.getInstance();
         Location playerLoc = player.getLocation();
+        if(towny.isWilderness(playerLoc) && player.hasPermission("asedit.townyProtection.canEditInWild")){
+            return true;
+        } else if(towny.isWilderness(playerLoc) && !player.hasPermission("asedit.townyProtection.canEditInWild")) {
+            return false;
+        }
 
-        if (TownyAPI.getInstance().isWilderness(playerLoc)) return false;
-        return TownyActionEventExecutor.canDestroy(player, block.getLocation(), Material.ARMOR_STAND);
+        Resident resident = towny.getResident(player);
+        TownBlock townBlock = towny.getTownBlock(block.getLocation());
+        Town town = townBlock.getTownOrNull();
+
+        if(resident == null || town == null) return true;
+        if(townBlock.hasResident(resident) || townBlock.hasTrustedResident(resident)) return true;
+        return town.hasResident(resident);
     }
 }
 
