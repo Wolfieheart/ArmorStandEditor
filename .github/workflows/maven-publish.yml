@@ -56,7 +56,7 @@ jobs:
 
       #6 Upload Artifacts (Debug Purposes)
       - name: Upload Artifact for Debugging
-        uses: actions/upload-artifact@v4.5.0
+        uses: actions/upload-artifact@v4.6.0
         with:
           name: artifact
           path: /home/runner/work/ArmorStandEditor/ArmorStandEditor/target/armorstandeditor-*-*.jar
