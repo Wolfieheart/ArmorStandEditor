@@ -1,6 +1,6 @@
 name: ArmorStandEditor
 main: io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin
-version: 1.21.4-48
+version: 1.21.4-48.1
 api-version: "1.17"
 folia-supported: true
 website: https://www.spigotmc.org/resources/94503/
@@ -122,6 +122,10 @@ permissions:
     default: false
   asedit.ignoreProtection.itemAdder:
     description: Allows user to ignore ItemAdder/LoneDev Protection Limitations.
+    default: false
+
+  asedit.townyProtection.canEditInWild:
+    description: Allows for editing in the Wilderness - ONLY use IF you have Towny
     default: false
 
   asedit.ignoreProtection.*:

@@ -157,7 +157,8 @@ noconsolecom:
   msg: Sorry but this command only works from in-game and not from Console!
 renamestopped:
   msg: Please make sure you have the ability/permission to give your ArmorStand Colored Names.
-
+townyNoWildEdit:
+  msg: Unable to change this ArmorStand as you are not allowed to edit in the wild.
 
 #menutitle
 mainmenutitle:
@@ -433,7 +434,7 @@ scaleremove12:
 scaleadd110:
   msg: Scale + 0.1 (Fine)
   description:
-    msg: Remove 0.5 to the current Scale of your ArmorStand
+    msg: Add 0.1 to the current Scale of your ArmorStand
 scaleremove110:
   msg: Scale - 0.1 (Fine)
   description:

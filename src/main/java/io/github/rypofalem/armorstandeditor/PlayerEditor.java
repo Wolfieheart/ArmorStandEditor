@@ -236,6 +236,7 @@ public class PlayerEditor {
         if(team != null && !team.hasEntry(armorStandInUseId.toString())){
             debug.log("ArmorStand Not on a Team and Player '" + getPlayer().getDisplayName() + "' has triggered to Open the Equipment Menu, Adding to In Use Team");
             team.addEntry(armorStandInUseId.toString());
+            getPlayer().closeInventory();
             equipMenu = new EquipmentMenu(this, armorStand);
             equipMenu.openMenu();
         } else {
@@ -246,6 +247,7 @@ public class PlayerEditor {
     private void choosePreset(ArmorStand armorStand) {
         if (!getPlayer().hasPermission("asedit.basic")) return;
         debug.log("Player '" + getPlayer().getDisplayName() + "' has triggered the Preset Poses Menu");
+        getPlayer().closeInventory();
         presetPoseMenu = new PresetArmorPosesMenu(this, armorStand);
         presetPoseMenu.openMenu();
     }
@@ -256,9 +258,10 @@ public class PlayerEditor {
             sendMessage("nopermoption", "warn", "size");
             return;
         } else {
-            if (plugin.getServer().getMinecraftVersion().compareTo("1.21.4") >= 0 || plugin.getNmsVersion().compareTo("v1_21_R3") >= 0) {
+            if (plugin.getNmsVersion().compareTo("1.21.4") >= 0 || plugin.getNmsVersion().compareTo("v1_21_R3") >= 0) {
                 //NOTE: New Sizing Menu ONLY WORKS IN 1.21.3 and HIGHER
                 debug.log("Player '" + getPlayer().getDisplayName() + "' has triggered the AS Attribute Size Menu");
+                getPlayer().closeInventory();
                 sizeModificationMenu = new SizeMenu(this, armorStand);
                 sizeModificationMenu.openMenu();
             } else {
@@ -391,7 +394,7 @@ public class PlayerEditor {
             armorStand.setLeftLegPose(data.leftLegPos);
             armorStand.setRightLegPose(data.rightLegPos);
 
-            if (plugin.getServer().getMinecraftVersion().compareTo("1.21.4") >= 0 || plugin.getNmsVersion().compareTo("v1_21_R3") >= 0) {
+            if (plugin.getNmsVersion().compareTo("1.21.4") >= 0 || plugin.getNmsVersion().compareTo("v1_21_R3") >= 0) {
                 armorStand.getAttribute(Attribute.SCALE).setBaseValue(data.attributeScale);
             } else {
                 armorStand.setSmall(data.size);
