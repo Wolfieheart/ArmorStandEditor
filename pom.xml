@@ -241,6 +241,16 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- residence -->
+        <dependency>
+            <groupId>zrips.residence</groupId>
+            <artifactId>Residence</artifactId>
+            <version>5.0.1.7</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/Residence5.0.1.7.jar</systemPath>
+        </dependency>
+
+
     </dependencies>
     <!--Java 8-->
 
