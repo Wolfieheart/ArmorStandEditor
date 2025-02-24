@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 
 public class ResidenceProtection implements Protection {
     private final boolean resEnabled;
-    private Residence resInstance;
 
     public ResidenceProtection() {
         resEnabled = Bukkit.getPluginManager().isPluginEnabled("Residence");
