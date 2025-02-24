@@ -78,6 +78,7 @@ public class PlayerEditorManager implements Listener {
         new SkyblockProtection(),
         new TownyProtection(),
         new WorldGuardProtection(),
+        new ResidenceProtection(),
         new itemAdderProtection(),
         new BentoBoxProtection());
 
@@ -112,7 +113,7 @@ public class PlayerEditorManager implements Listener {
             if (canEdit(player, as))
                 applyLeftTool(player, as);
         } else if (event.getEntity() instanceof ItemFrame) {
-            debug.log(" Player '" + player.getDisplayName() + "' has rght clicked on an ItemFrame");
+            debug.log(" Player '" + player.getDisplayName() + "' has right clicked on an ItemFrame");
             ItemFrame itemf = (ItemFrame) event.getEntity();
             getPlayerEditor(player.getUniqueId()).cancelOpenMenu();
             event.setCancelled(true);
