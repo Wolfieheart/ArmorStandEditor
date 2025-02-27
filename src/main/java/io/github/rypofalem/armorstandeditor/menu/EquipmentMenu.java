@@ -21,7 +21,6 @@ package io.github.rypofalem.armorstandeditor.menu;
 
 import io.github.rypofalem.armorstandeditor.Debug;
 import io.github.rypofalem.armorstandeditor.PlayerEditor;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
@@ -47,7 +46,7 @@ public class EquipmentMenu {
         this.armorstand = as;
         this.debug = new Debug(pe.plugin);
         name = pe.plugin.getLang().getMessage("equiptitle", "menutitle");
-        menuInv = Bukkit.createInventory(pe.getManager().getEquipmentHolder(), 18, name);
+        menuInv = Bukkit.createInventory(pe.getManager().getEquipmentHolder(as), 18, name);
     }
 
     private void fillInventory() {
