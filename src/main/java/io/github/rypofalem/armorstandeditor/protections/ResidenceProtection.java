@@ -12,10 +12,15 @@ import org.bukkit.entity.Player;
 
 public class ResidenceProtection implements Protection {
     private final boolean resEnabled;
+    private final Residence resInstance;
 
     public ResidenceProtection() {
         resEnabled = Bukkit.getPluginManager().isPluginEnabled("Residence");
-        if (!resEnabled) return;
+        if (Bukkit.getPluginManager().isPluginEnabled("Residence")) {
+            resInstance = null;
+            return;
+        }
+        resInstance = Residence.getInstance();
     }
 
     @Override
@@ -23,9 +28,6 @@ public class ResidenceProtection implements Protection {
         if (!resEnabled) return true;
         if (player.isOp()) return true;
         if (player.hasPermission("asedit.ignoreProtection.residence")) return true; //Add Additional Permission
-
-        Residence resInstance = Residence.getInstance();
-        if (resInstance == null) return true;
 
         final Location eLocation = block.getLocation();
         final ClaimedResidence residence = resInstance.getResidenceManager().getByLoc(eLocation);
