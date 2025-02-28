@@ -24,12 +24,13 @@ public class ResidenceProtection implements Protection {
         if (player.isOp()) return true;
         if (player.hasPermission("asedit.ignoreProtection.residence")) return true; //Add Additional Permission
 
-        final Location eLocation = block.getLocation();
-        final ClaimedResidence residence = Residence.getInstance().getResidenceManager().getByLoc(eLocation);
+        Residence resInstance = Residence.getInstance();
+        if (resInstance == null) return true;
 
+        final Location eLocation = block.getLocation();
+        final ClaimedResidence residence = resInstance.getResidenceManager().getByLoc(eLocation);
         if (residence == null) return true;
 
-        Residence resInstance = Residence.getInstance();
         ResidencePermissions perms = residence.getPermissions();
         boolean hasPermission = perms.playerHas(player.getName(), "build", true);
         if (!hasPermission) resInstance.msg(player, lm.Flag_Deny, Flags.build);
