@@ -19,13 +19,16 @@ public class ResidenceProtection implements Protection {
         if (Bukkit.getPluginManager().isPluginEnabled("Residence")) {
             resInstance = null;
             return;
+        } else {
+            resInstance = Residence.getInstance();
+            return;
         }
-        resInstance = Residence.getInstance();
     }
 
     @Override
     public boolean checkPermission(Block block, Player player) {
         if (!resEnabled) return true;
+        if (resInstance == null) return true;
         if (player.isOp()) return true;
         if (player.hasPermission("asedit.ignoreProtection.residence")) return true; //Add Additional Permission
 
