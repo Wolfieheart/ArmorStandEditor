@@ -55,20 +55,21 @@ public class PresetArmorPosesMenu {
     }
 
     //PRESET NAMES
-    final String SITTING = plugin.getLang().getMessage("sitting").replace("§6", "§2§n");
-    final String WAVING = plugin.getLang().getMessage("waving").replace("§6", "§2§n");
-    final String GREETING_1 = plugin.getLang().getMessage("greeting 1").replace("§6", "§2§n");
-    final String GREETING_2 = plugin.getLang().getMessage("greeting 2").replace("§6", "§2§n");
-    final String CHEERS = plugin.getLang().getMessage("cheers").replace("§6", "§2§n");
-    final String ARCHER = plugin.getLang().getMessage("archer").replace("§6", "§2§n");
-    final String DANCING = plugin.getLang().getMessage("dancing").replace("§6", "§2§n");
-    final String HANGING = plugin.getLang().getMessage("hanging").replace("§6", "§2§n");
-    final String PRESENTING = plugin.getLang().getMessage("present").replace("§6", "§2§n");
-    final String FISHING = plugin.getLang().getMessage("fishing").replace("§6", "§2§n");
+    final String VALUETOREPLACE = "§"+plugin.getLang().getFormat("info");
+    final String SITTING = plugin.getLang().getMessage("sitting").replace(VALUETOREPLACE, "§2§n");
+    final String WAVING = plugin.getLang().getMessage("waving").replace(VALUETOREPLACE, "§2§n");
+    final String GREETING_1 = plugin.getLang().getMessage("greeting 1").replace(VALUETOREPLACE, "§2§n");
+    final String GREETING_2 = plugin.getLang().getMessage("greeting 2").replace(VALUETOREPLACE, "§2§n");
+    final String CHEERS = plugin.getLang().getMessage("cheers").replace(VALUETOREPLACE, "§2§n");
+    final String ARCHER = plugin.getLang().getMessage("archer").replace(VALUETOREPLACE, "§2§n");
+    final String DANCING = plugin.getLang().getMessage("dancing").replace(VALUETOREPLACE, "§2§n");
+    final String HANGING = plugin.getLang().getMessage("hanging").replace(VALUETOREPLACE, "§2§n");
+    final String PRESENTING = plugin.getLang().getMessage("present").replace(VALUETOREPLACE, "§2§n");
+    final String FISHING = plugin.getLang().getMessage("fishing").replace(VALUETOREPLACE, "§2§n");
 
     //Menu Stuff
-    final String BACKTOMENU = plugin.getLang().getMessage("backtomenu").replace("§6", "§2§n");
-    final String HOWTO = plugin.getLang().getMessage("howtopreset").replace("§6", "§2§n");
+    final String BACKTOMENU = plugin.getLang().getMessage("backtomenu").replace(VALUETOREPLACE, "§2§n");
+    final String HOWTO = plugin.getLang().getMessage("howtopreset").replace(VALUETOREPLACE, "§2§n");
 
     private void fillInventory() {
         menuInv.clear();
