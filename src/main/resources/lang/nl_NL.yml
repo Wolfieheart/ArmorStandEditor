@@ -1,8 +1,9 @@
 #Translation by Sikatsu1997
 
 #NOTE from Author:
-# AUB geen extra &[a-f,0-9] kleuren bij icons (Preset) want dat zal de Preset Menu en de interne translatie tussen
+# AUB geen extra &[a-f,0-9] kleuren bij icons (Preset en Size Menu) want dat zal de Preset Menu en de interne translatie tussen
 # de plugin en hoe wij activeer een Preset. Dank u voor uw begrijp!
+# Als we wilt kleuren voor die hebben, verander de info formatting aub. LET OP: Dat zal een globaal effect heeft!
 
 #formatting
 #A section symbol will be inserted between each character in this section
