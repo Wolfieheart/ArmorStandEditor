@@ -374,7 +374,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     //Implement Glow Effects for Wolfstorm/ArmorStandEditor-Issues#5 - Add Disable Slots with Different Glow than Default
     private void registerScoreboards(Scoreboard scoreboard) {
         getServer().getLogger().info("Registering Scoreboards required for Glowing Effects");
+
+        //Register the In Use Team First - It doesnt require a Glow Effect
         scoreboard.registerNewTeam(inUseTeam);
+
         //Fix for Scoreboard Issue reported by Starnos - Wolfst0rm/ArmorStandEditor-Issues/issues/18
         if (scoreboard.getTeam(lockedTeam) == null) {
             scoreboard.registerNewTeam(lockedTeam);
@@ -388,6 +391,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     private void unregisterScoreboards(Scoreboard scoreboard) {
         getLogger().info("Removing Scoreboards required for Glowing Effects when Disabling Slots...");
 
+        // Locked Team Removal
         team = scoreboard.getTeam(lockedTeam);
         if (team != null) { //Basic Sanity Check to ensure that the team is there
             team.unregister();
@@ -395,6 +399,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             getLogger().severe("Team Already Appears to be removed. Please do not do this manually!");
         }
 
+        //ASE-InUse Team Removal
         team = scoreboard.getTeam(inUseTeam);
         if (team != null) { //Basic Sanity Check to ensure that the team is there
             team.unregister();
