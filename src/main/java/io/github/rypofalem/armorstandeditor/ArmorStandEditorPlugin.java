@@ -375,7 +375,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     private void registerScoreboards(Scoreboard scoreboard) {
         getServer().getLogger().info("Registering Scoreboards required for Glowing Effects");
 
-        //Register the In Use Team First - It doesnt require a Glow Effect
+        //Register the In Use Team First - It doesnt require a Glow Effect;'/
         scoreboard.registerNewTeam(inUseTeam);
 
         //Fix for Scoreboard Issue reported by Starnos - Wolfst0rm/ArmorStandEditor-Issues/issues/18
