@@ -147,7 +147,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     // https://github.com/Wolfieheart/ArmorStandEditor-Issues/issues/35 &
     // https://github.com/Wolfieheart/ArmorStandEditor-Issues/issues/30 - See Remarks OTHER
     private void commandGive(Player player) {
-        if (plugin.getAllowCustomModelData() || checkPermission(player, "give", true)) {
+        if (player.hasPermission("asedit.give")) {
             ItemStack stack = new ItemStack(plugin.getEditTool()); //Only Support EditTool at the MOMENT
             ItemMeta meta = stack.getItemMeta();
             Objects.requireNonNull(meta).setCustomModelData(plugin.getCustomModelDataInt());
