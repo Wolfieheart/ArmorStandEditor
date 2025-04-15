@@ -122,8 +122,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         if (!Scheduler.isFolia())
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
 
-        // Get ASEs Version Number from the config....
-        aseVersion = this.getConfig().getString("version");
+        // Get ASEs Version Number - HARDCODED
+        aseVersion = "1.21.5-48.2";
 
         //Load Messages in Console
         getLogger().info("======= ArmorStandEditor =======");
@@ -333,7 +333,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     private void runUpdateCheckerConsoleUpdateCheck() {
-        if (getArmorStandEditorVersion().contains(".x")) {
+        if (aseVersion.contains(".x")) {
             getLogger().warning("Note from the development team: ");
             getLogger().warning("It appears that you are using the development version of ArmorStandEditor");
             getLogger().warning("This version can be unstable and is not recommended for Production Environments.");
@@ -352,7 +352,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     private void runUpdateCheckerWithOPNotifyOnJoinEnabled() {
-        if (getArmorStandEditorVersion().contains(".x")) {
+        if (aseVersion.contains(".x")) {
             getLogger().warning("Note from the development team: ");
             getLogger().warning("It appears that you are using the development version of ArmorStandEditor");
             getLogger().warning("This version can be unstable and is not recommended for Production Environments.");
@@ -464,10 +464,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     //Will be useful for later.....
     public String getMinecraftVersion() {
         return this.nmsVersion;
-    }
-
-    public String getArmorStandEditorVersion() {
-        return getConfig().getString("version");
     }
 
     public boolean getArmorStandVisibility() {
