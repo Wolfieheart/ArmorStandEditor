@@ -112,7 +112,7 @@ public class PlayerEditorManager implements Listener {
             if (canEdit(player, as))
                 applyLeftTool(player, as);
         } else if (event.getEntity() instanceof ItemFrame) {
-            debug.log(" Player '" + player.getDisplayName() + "' has rght clicked on an ItemFrame");
+            debug.log(" Player '" + player.getDisplayName() + "' has right clicked on an ItemFrame");
             ItemFrame itemf = (ItemFrame) event.getEntity();
             getPlayerEditor(player.getUniqueId()).cancelOpenMenu();
             event.setCancelled(true);
@@ -391,7 +391,7 @@ public class PlayerEditorManager implements Listener {
         if (!player.hasPermission("asedit.basic")) return;
         if (plugin.enablePerWorld && (!plugin.allowedWorldList.contains(player.getWorld().getName()))) {
             //Implementation for Per World ASE
-                getPlayerEditor(player.getUniqueId()).sendMessage("notincorrectworld", "warn");
+            getPlayerEditor(player.getUniqueId()).sendMessage("notincorrectworld", "warn");
             e.setCancelled(true);
             return;
         }

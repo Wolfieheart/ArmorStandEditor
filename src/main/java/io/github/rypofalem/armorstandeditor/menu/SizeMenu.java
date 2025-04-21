@@ -37,25 +37,29 @@ public class SizeMenu extends ASEHolder {
         menuInv = Bukkit.createInventory(pe.getManager().getSizeMenuHolder(), 27, name);
     }
 
-    //PRESET NAMES
-    final String SCALE1 = plugin.getLang().getMessage("scale1").replace("§6", "§2§n");
-    final String SCALE2 = plugin.getLang().getMessage("scale2").replace("§6", "§2§n");
-    final String SCALE3 = plugin.getLang().getMessage("scale3").replace("§6", "§2§n");
-    final String SCALE4 = plugin.getLang().getMessage("scale4").replace("§6", "§2§n");
-    final String SCALE5 = plugin.getLang().getMessage("scale5").replace("§6", "§2§n");
-    final String SCALE6 = plugin.getLang().getMessage("scale6").replace("§6", "§2§n");
-    final String SCALE7 = plugin.getLang().getMessage("scale7").replace("§6", "§2§n");
-    final String SCALE8 = plugin.getLang().getMessage("scale8").replace("§6", "§2§n");
-    final String SCALE9 = plugin.getLang().getMessage("scale9").replace("§6", "§2§n");
-    final String SCALE10 = plugin.getLang().getMessage("scale10").replace("§6", "§2§n");
-    final String SCALEPLUS12 = plugin.getLang().getMessage("scaleadd12").replace("§6", "§2§n");
-    final String SCALEMINUS12 = plugin.getLang().getMessage("scaleremove12").replace("§6", "§2§n");
-    final String SCALEPLUS110 = plugin.getLang().getMessage("scaleadd110").replace("§6", "§2§n");
-    final String SCALEMINUS110 = plugin.getLang().getMessage("scaleremove110").replace("§6", "§2§n");
+    //Replace Values.
+    final String VALUETOREPLACE = "§"+plugin.getLang().getFormat("info");
+    final String VALUEWEWANT = "§"+plugin.getLang().getFormat("info")+"§n";
+
+    //Preset Strings.
+    final String SCALE1 = plugin.getLang().getMessage("scale1").replace(VALUETOREPLACE, VALUEWEWANT);
+    final String SCALE2 = plugin.getLang().getMessage("scale2").replace(VALUETOREPLACE, VALUEWEWANT);
+    final String SCALE3 = plugin.getLang().getMessage("scale3").replace(VALUETOREPLACE, VALUEWEWANT);
+    final String SCALE4 = plugin.getLang().getMessage("scale4").replace(VALUETOREPLACE, VALUEWEWANT);
+    final String SCALE5 = plugin.getLang().getMessage("scale5").replace(VALUETOREPLACE, VALUEWEWANT);
+    final String SCALE6 = plugin.getLang().getMessage("scale6").replace(VALUETOREPLACE, VALUEWEWANT);
+    final String SCALE7 = plugin.getLang().getMessage("scale7").replace(VALUETOREPLACE, VALUEWEWANT);
+    final String SCALE8 = plugin.getLang().getMessage("scale8").replace(VALUETOREPLACE, VALUEWEWANT);
+    final String SCALE9 = plugin.getLang().getMessage("scale9").replace(VALUETOREPLACE, VALUEWEWANT);
+    final String SCALE10 = plugin.getLang().getMessage("scale10").replace(VALUETOREPLACE, VALUEWEWANT);
+    final String SCALEPLUS12 = plugin.getLang().getMessage("scaleadd12").replace(VALUETOREPLACE, VALUEWEWANT);
+    final String SCALEMINUS12 = plugin.getLang().getMessage("scaleremove12").replace(VALUETOREPLACE, VALUEWEWANT);
+    final String SCALEPLUS110 = plugin.getLang().getMessage("scaleadd110").replace(VALUETOREPLACE, VALUEWEWANT);
+    final String SCALEMINUS110 = plugin.getLang().getMessage("scaleremove110").replace(VALUETOREPLACE, VALUEWEWANT);
 
     //Menu Stuff
-    final String BACKTOMENU = plugin.getLang().getMessage("backtomenu").replace("§6", "§2§n");
-    final String RESET = plugin.getLang().getMessage("reset").replace("§6", "§2§n");
+    final String BACKTOMENU = plugin.getLang().getMessage("backtomenu").replace(VALUETOREPLACE, VALUEWEWANT);
+    final String RESET = plugin.getLang().getMessage("reset").replace(VALUETOREPLACE, VALUEWEWANT);
 
 
     private void fillInventory() {

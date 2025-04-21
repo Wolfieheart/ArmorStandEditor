@@ -515,6 +515,7 @@ public class PlayerEditor {
     void toggleGlowing(ArmorStand armorStand) {
         if (getPlayer().hasPermission("asedit.togglearmorstandglow")) {
             debug.log("Toggling the Glowing Ability of an ArmorStand near player: " + getPlayer().getDisplayName());
+
             //Will only make it glow white - Not something we can do like with Locking. Do not request this!
             //Otherwise, this simple function becomes a mess to maintain. As you would need a Team generated with each
             //Color and I ain't going to impose that on servers.

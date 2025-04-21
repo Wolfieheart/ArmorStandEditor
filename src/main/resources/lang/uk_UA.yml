@@ -1,10 +1,11 @@
 #NOTE from Author:
-# Do NOT Add CustomColors to icons (PresetMenu) as it will break how presets work and do the translation
+# Do NOT Add CustomColors to icons (PresetMenu or SizeMenu) as it will break how presets work and do the translation
+# Please change the info number if you want to mess with the color of those - It will change it globally however.
 
 #Translated by Cool_boy
 iconname: 2n
 icondescription: 5
-info: 2
+info: 6
 warn: c
 menutitle: 8
 
