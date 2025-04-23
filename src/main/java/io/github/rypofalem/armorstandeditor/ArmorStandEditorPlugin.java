@@ -59,7 +59,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public boolean hasFolia = false;
     String nmsVersionNotLatest = null;
 
-    String aseVersion;
+    //Hardcode the ASE Version
+    public static final String aseVersion = "1.21.5-48.3";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;
@@ -121,9 +122,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         if (!Scheduler.isFolia())
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
-
-        // Get ASEs Version Number - HARDCODED
-        aseVersion = "1.21.5-48.3";
 
         //Load Messages in Console
         getLogger().info("======= ArmorStandEditor =======");

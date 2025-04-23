@@ -25,6 +25,7 @@ permissions:
       asedit.permpack.admin: true
       asedit.ignoreProtection.*: true
       asedit.head: true
+      asedit.townyProtection.canEditInTheWild: true
 
   asedit.basic:
     description: Allow use armorstand edit functions. If set to false it will override all other functions.
