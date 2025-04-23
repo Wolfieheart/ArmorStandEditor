@@ -123,7 +123,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
 
         // Get ASEs Version Number - HARDCODED
-        aseVersion = "1.21.5-48.3";
+        aseVersion = "1.21.5-48.2";
 
         //Load Messages in Console
         getLogger().info("======= ArmorStandEditor =======");
