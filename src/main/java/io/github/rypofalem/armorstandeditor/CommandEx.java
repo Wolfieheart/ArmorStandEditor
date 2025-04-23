@@ -277,8 +277,8 @@ public class CommandEx implements CommandExecutor, TabCompleter {
         if (!(checkPermission(player, "update", true))) return;
 
         //Only Run if the Update Command Works
-        debug.log("Current ArmorStandEditor Version is: " + plugin.aseVersion);
-        if (plugin.aseVersion.contains(".x")) {
+        debug.log("Current ArmorStandEditor Version is: " + plugin.ASE_VERSION);
+        if (plugin.ASE_VERSION.contains(".x")) {
             debug.log("Plugin version is DEVELOPMENT");
             player.sendMessage(ChatColor.YELLOW + "[ArmorStandEditor] Update Checker will not work on Development Versions.");
             player.sendMessage(ChatColor.YELLOW + "[ArmorStandEditor] Report all bugs to: https://github.com/Wolfieheart/ArmorStandEditor/issues");
@@ -299,12 +299,12 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     private void commandVersion(Player player) {
         debug.log("Player '" + player.getDisplayName() + "' permission check for asedit.update: " + getPermissionUpdate(player));
         if (!(getPermissionUpdate(player))) return;
-        String verString = plugin.aseVersion;
+        String verString = plugin.ASE_VERSION;
         player.sendMessage(ChatColor.YELLOW + "[ArmorStandEditor] Version: " + verString);
     }
 
     private void commandVersionConsole(CommandSender sender) {
-        String verString = plugin.aseVersion;
+        String verString = plugin.ASE_VERSION;
         sender.sendMessage(ChatColor.YELLOW + "[ArmorStandEditor] Version: " + verString);
     }
 
