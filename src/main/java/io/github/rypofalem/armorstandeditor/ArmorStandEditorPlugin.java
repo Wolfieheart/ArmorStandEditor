@@ -59,7 +59,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public boolean hasFolia = false;
     String nmsVersionNotLatest = null;
 
-    String aseVersion;
+    //Hardcode the ASE Version
+    public static final String ASE_VERSION = "1.21.5-48.3";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;
@@ -122,12 +123,9 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         if (!Scheduler.isFolia())
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
 
-        // Get ASEs Version Number - HARDCODED
-        aseVersion = "1.21.5-48.2";
-
         //Load Messages in Console
         getLogger().info("======= ArmorStandEditor =======");
-        getLogger().info("Plugin Version: v" + aseVersion);
+        getLogger().info("Plugin Version: v" + ASE_VERSION);
 
         //Spigot Check
         hasSpigot = getHasSpigot();
@@ -333,7 +331,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     private void runUpdateCheckerConsoleUpdateCheck() {
-        if (aseVersion.contains(".x")) {
+        if (ASE_VERSION.contains(".x")) {
             getLogger().warning("Note from the development team: ");
             getLogger().warning("It appears that you are using the development version of ArmorStandEditor");
             getLogger().warning("This version can be unstable and is not recommended for Production Environments.");
@@ -352,7 +350,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     private void runUpdateCheckerWithOPNotifyOnJoinEnabled() {
-        if (aseVersion.contains(".x")) {
+        if (ASE_VERSION.contains(".x")) {
             getLogger().warning("Note from the development team: ");
             getLogger().warning("It appears that you are using the development version of ArmorStandEditor");
             getLogger().warning("This version can be unstable and is not recommended for Production Environments.");
