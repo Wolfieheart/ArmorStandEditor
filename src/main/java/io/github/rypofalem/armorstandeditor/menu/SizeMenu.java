@@ -38,8 +38,9 @@ public class SizeMenu extends ASEHolder {
     }
 
     //Replace Values.
-    final String VALUETOREPLACE = "§"+plugin.getLang().getFormat("info");
-    final String VALUEWEWANT = "§"+plugin.getLang().getFormat("info")+"§n";
+    final String VALUETOREPLACE = "§" + plugin.getLang().getFormat("info"); //VALUE WE DONT WANT: §6
+    final String VALUEWEWANT = "§" +plugin.getLang().getFormat("iconname").substring(0, 1) +
+            "§" + plugin.getLang().getFormat("iconname").substring(1); //VALUE WE WANT IS: §2§nScale = 9
 
     //Preset Strings.
     final String SCALE1 = plugin.getLang().getMessage("scale1").replace(VALUETOREPLACE, VALUEWEWANT);
