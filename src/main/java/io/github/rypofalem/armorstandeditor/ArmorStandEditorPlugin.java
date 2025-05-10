@@ -59,7 +59,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public boolean hasFolia = false;
     String nmsVersionNotLatest = null;
 
-    String aseVersion;
+    //Hardcode the ASE Version
+    public static final String ASE_VERSION = "1.21.5-48.3";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;
@@ -122,12 +123,9 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         if (!Scheduler.isFolia())
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
 
-        // Get ASEs Version Number from the config....
-        aseVersion = this.getConfig().getString("version");
-
         //Load Messages in Console
         getLogger().info("======= ArmorStandEditor =======");
-        getLogger().info("Plugin Version: v" + aseVersion);
+        getLogger().info("Plugin Version: v" + ASE_VERSION);
 
         //Spigot Check
         hasSpigot = getHasSpigot();
@@ -333,7 +331,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     private void runUpdateCheckerConsoleUpdateCheck() {
-        if (getArmorStandEditorVersion().contains(".x")) {
+        if (ASE_VERSION.contains(".x")) {
             getLogger().warning("Note from the development team: ");
             getLogger().warning("It appears that you are using the development version of ArmorStandEditor");
             getLogger().warning("This version can be unstable and is not recommended for Production Environments.");
@@ -352,7 +350,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     private void runUpdateCheckerWithOPNotifyOnJoinEnabled() {
-        if (getArmorStandEditorVersion().contains(".x")) {
+        if (ASE_VERSION.contains(".x")) {
             getLogger().warning("Note from the development team: ");
             getLogger().warning("It appears that you are using the development version of ArmorStandEditor");
             getLogger().warning("This version can be unstable and is not recommended for Production Environments.");
@@ -373,33 +371,39 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     //Implement Glow Effects for Wolfstorm/ArmorStandEditor-Issues#5 - Add Disable Slots with Different Glow than Default
     private void registerScoreboards(Scoreboard scoreboard) {
-        for (String teamToBeRegistered : asTeams) {
-            scoreboard.registerNewTeam(teamToBeRegistered);
-            team = scoreboard.getTeam(teamToBeRegistered);
-            if (team != null) {
-                if (teamToBeRegistered == lockedTeam) {
-                    getServer().getLogger().info("Registering Scoreboards required for Glowing Effects when Disabling Slots...");
-                    scoreboard.getTeam(teamToBeRegistered).setColor(ChatColor.RED);
-                }
-            } else {
-                getServer().getLogger().info("Scoreboard for Team '" + teamToBeRegistered + "' Already exists. Continuing to load");
-            }
+        getServer().getLogger().info("Registering Scoreboards required for Glowing Effects");
 
+        //Register the In Use Team First - It doesnt require a Glow Effect;'/
+        scoreboard.registerNewTeam(inUseTeam);
+
+        //Fix for Scoreboard Issue reported by Starnos - Wolfst0rm/ArmorStandEditor-Issues/issues/18
+        if (scoreboard.getTeam(lockedTeam) == null) {
+            scoreboard.registerNewTeam(lockedTeam);
+            scoreboard.getTeam(lockedTeam).setColor(ChatColor.RED);
+        } else {
+            getServer().getLogger().info("Scoreboard for ASLocked Already exists. Continuing to load");
         }
+
     }
 
     private void unregisterScoreboards(Scoreboard scoreboard) {
         getLogger().info("Removing Scoreboards required for Glowing Effects when Disabling Slots...");
-        for (String teamToBeRegistered : asTeams) {
-            team = scoreboard.getTeam(teamToBeRegistered);
-            if (team != null) {
-                team.unregister();
-            } else {
-                getServer().getLogger().severe("Team '" + teamToBeRegistered + "' already appears to be removed. Avoid manual removal to prevent errors!");
-            }
+
+        // Locked Team Removal
+        team = scoreboard.getTeam(lockedTeam);
+        if (team != null) { //Basic Sanity Check to ensure that the team is there
+            team.unregister();
+        } else {
+            getLogger().severe("Team Already Appears to be removed. Please do not do this manually!");
         }
 
-
+        //ASE-InUse Team Removal
+        team = scoreboard.getTeam(inUseTeam);
+        if (team != null) { //Basic Sanity Check to ensure that the team is there
+            team.unregister();
+        } else {
+            getLogger().severe("Team Already Appears to be removed. Please do not do this manually!");
+        }
     }
 
     private void updateConfig(String folder, String config) {
@@ -458,10 +462,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     //Will be useful for later.....
     public String getMinecraftVersion() {
         return this.nmsVersion;
-    }
-
-    public String getArmorStandEditorVersion() {
-        return getConfig().getString("version");
     }
 
     public boolean getArmorStandVisibility() {

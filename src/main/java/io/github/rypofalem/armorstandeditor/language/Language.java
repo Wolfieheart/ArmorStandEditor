@@ -81,6 +81,7 @@ public class Language {
         return message;
     }
 
+
     public String getMessage(String path, String format) {
         return getMessage(path, format, null);
     }
@@ -119,12 +120,12 @@ public class Language {
             obfuscated, bold, strikethrough, underlined, italic);
     }
 
-    private String getFormat(String format) {
+    public String getFormat(String format) {
         format = getString(format);
         return format == null ? "" : format;
     }
 
-    private String getString(String path) {
+    public String getString(String path) {
         String message = null;
         if (langConfig.contains(path)) {
             message = langConfig.getString(path);
