@@ -18,29 +18,19 @@
  */
 package io.github.rypofalem.armorstandeditor;
 
-import io.github.rypofalem.armorstandeditor.menu.SizeMenu;
+import io.github.rypofalem.armorstandeditor.api.*;
+import io.github.rypofalem.armorstandeditor.menu.*;
+import io.github.rypofalem.armorstandeditor.modes.Axis;
+import io.github.rypofalem.armorstandeditor.modes.*;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-
-import io.github.rypofalem.armorstandeditor.api.*;
-import io.github.rypofalem.armorstandeditor.menu.EquipmentMenu;
-import io.github.rypofalem.armorstandeditor.menu.Menu;
-import io.github.rypofalem.armorstandeditor.menu.PresetArmorPosesMenu;
-
-//Do not optimize these..... This will no work properly
-import io.github.rypofalem.armorstandeditor.modes.AdjustmentMode;
-import io.github.rypofalem.armorstandeditor.modes.ArmorStandData;
-import io.github.rypofalem.armorstandeditor.modes.Axis;
-import io.github.rypofalem.armorstandeditor.modes.CopySlots;
-import io.github.rypofalem.armorstandeditor.modes.EditMode;
-import io.github.rypofalem.armorstandeditor.Debug;
-
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Team;
@@ -243,11 +233,20 @@ public class PlayerEditor {
             } else {
                 sendMessage("asinuse", "warn");
             }
-        } else { 
+        } else {
+            boolean inUse = Boolean.TRUE.equals(armorStand.getPersistentDataContainer().get(new NamespacedKey(plugin, "inuse"), PersistentDataType.BOOLEAN));
+
+            debug.log("Is ArmorStand currently in use by another player?: " + inUse);
+
+            if (inUse) {
+                sendMessage("asinuse", "warn");
+            } else {
                 debug.log("ArmorStand Not on a Team and Player '" + getPlayer().getDisplayName() + "' has triggered to Open the Equipment Menu. Folia.");
                 getPlayer().closeInventory();
+                armorStand.getPersistentDataContainer().set(new NamespacedKey(plugin, "inuse"), PersistentDataType.BOOLEAN, true);
                 equipMenu = new EquipmentMenu(this, armorStand);
                 equipMenu.openMenu();
+            }
         }
     }
 
@@ -269,7 +268,7 @@ public class PlayerEditor {
                 //NOTE: New Sizing Menu ONLY WORKS IN 1.21.3 and HIGHER
                 debug.log("Player '" + getPlayer().getDisplayName() + "' has triggered the AS Attribute Size Menu");
                 getPlayer().closeInventory();
-                sizeModificationMenu = new SizeMenu(this, armorStand);
+                sizeModificationMenu = new SizeMenu(ASEHolder.HolderType.SIZE_MENU, this, armorStand);
                 sizeModificationMenu.openMenu();
             } else {
                 armorStand.setSmall(!armorStand.isSmall());

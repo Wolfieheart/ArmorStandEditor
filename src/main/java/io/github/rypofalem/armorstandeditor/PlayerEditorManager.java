@@ -20,18 +20,18 @@
 package io.github.rypofalem.armorstandeditor;
 
 import com.google.common.collect.ImmutableList;
-
-import io.github.rypofalem.armorstandeditor.Debug;
 import io.github.rypofalem.armorstandeditor.api.ArmorStandRenameEvent;
 import io.github.rypofalem.armorstandeditor.api.ItemFrameGlowEvent;
 import io.github.rypofalem.armorstandeditor.menu.ASEHolder;
+import io.github.rypofalem.armorstandeditor.menu.ASEHolder.HolderType;
 import io.github.rypofalem.armorstandeditor.protections.*;
-
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
-import org.bukkit.event.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -53,10 +53,10 @@ public class PlayerEditorManager implements Listener {
     private Debug debug;
     private ArmorStandEditorPlugin plugin;
     private HashMap<UUID, PlayerEditor> players;
-    private ASEHolder menuHolder = new ASEHolder(); //Inventory holder that owns the main ase menu inventories for the plugin
-    private ASEHolder equipmentHolder = new ASEHolder(); //Inventory holder that owns the equipment menu
-    private ASEHolder presetHolder = new ASEHolder(); //Inventory Holder that owns the PresetArmorStand Post Menu
-    private ASEHolder sizeMenuHolder = new ASEHolder(); //Inventory Holder that owns the PresetArmorStand Post Menu
+    private ASEHolder menuHolder = new ASEHolder(HolderType.MENU); //Inventory holder that owns the main ase menu inventories for the plugin
+    private ASEHolder equipmentHolder = new ASEHolder(HolderType.EQUIPMENT); //Inventory holder that owns the equipment menu
+    private ASEHolder presetHolder = new ASEHolder(HolderType.PRESET); //Inventory Holder that owns the PresetArmorStand Post Menu
+    private ASEHolder sizeMenuHolder = new ASEHolder(HolderType.SIZE_MENU); //Inventory Holder that owns the PresetArmorStand Post Menu
     double coarseAdj;
     double fineAdj;
     double coarseMov;
@@ -78,6 +78,7 @@ public class PlayerEditorManager implements Listener {
         new SkyblockProtection(),
         new TownyProtection(),
         new WorldGuardProtection(),
+        new ResidenceProtection(),
         new itemAdderProtection(),
         new BentoBoxProtection());
 
@@ -418,7 +419,7 @@ public class PlayerEditorManager implements Listener {
     void onPlayerMenuSelect(InventoryClickEvent e) {
         if (e.getInventory().getHolder() == null) return;
         if (!(e.getInventory().getHolder() instanceof ASEHolder)) return;
-        if (e.getInventory().getHolder() == menuHolder) {
+        if (((ASEHolder) e.getInventory().getHolder()).getType() == HolderType.MENU) {
             e.setCancelled(true);
             ItemStack item = e.getCurrentItem();
             if (item != null && item.hasItemMeta()) {
@@ -430,7 +431,7 @@ public class PlayerEditorManager implements Listener {
                 }
             }
         }
-        if (e.getInventory().getHolder() == equipmentHolder) {
+        if (((ASEHolder) e.getInventory().getHolder()).getType() == HolderType.EQUIPMENT) {
             ItemStack item = e.getCurrentItem();
             if (item == null) return;
             if (item.getItemMeta() == null) return;
@@ -439,7 +440,7 @@ public class PlayerEditorManager implements Listener {
             }
         }
 
-        if (e.getInventory().getHolder() == presetHolder) {
+        if (((ASEHolder) e.getInventory().getHolder()).getType() == HolderType.PRESET) {
             e.setCancelled(true);
             ItemStack item = e.getCurrentItem();
             if (item != null && item.hasItemMeta()) {
@@ -450,7 +451,7 @@ public class PlayerEditorManager implements Listener {
             }
         }
 
-        if (e.getInventory().getHolder() == sizeMenuHolder) {
+        if (((ASEHolder) e.getInventory().getHolder()).getType() == HolderType.SIZE_MENU) {
             e.setCancelled(true);
             ItemStack item = e.getCurrentItem();
             if (item != null && item.hasItemMeta()) {
@@ -467,7 +468,7 @@ public class PlayerEditorManager implements Listener {
     void onPlayerMenuClose(InventoryCloseEvent e) {
         if (e.getInventory().getHolder() == null) return;
         if (!(e.getInventory().getHolder() instanceof ASEHolder)) return;
-        if (e.getInventory().getHolder() == equipmentHolder) {
+        if (((ASEHolder) e.getInventory().getHolder()).getType() == HolderType.EQUIPMENT) {
             PlayerEditor pe = players.get(e.getPlayer().getUniqueId());
             pe.equipMenu.equipArmorstand();
 
@@ -477,6 +478,8 @@ public class PlayerEditorManager implements Listener {
                 if (team != null) {
                     team.removeEntry(pe.armorStandInUseId.toString());
                 }
+            } else {
+                ((ASEHolder) e.getInventory().getHolder()).getArmorStand().getPersistentDataContainer().set(new NamespacedKey(plugin, "inuse"), PersistentDataType.BOOLEAN, false);
             }
         }
     }
@@ -504,8 +507,10 @@ public class PlayerEditorManager implements Listener {
         return menuHolder;
     }
 
-    public ASEHolder getEquipmentHolder() {
-        return equipmentHolder;
+    public ASEHolder getEquipmentHolder(ArmorStand armorStand) {
+        ASEHolder equipHolderWithAS = equipmentHolder;
+        equipHolderWithAS.setArmorStand(armorStand);
+        return equipHolderWithAS;
     }
 
     public ASEHolder getSizeMenuHolder() {

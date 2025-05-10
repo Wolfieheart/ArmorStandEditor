@@ -3,7 +3,6 @@ package io.github.rypofalem.armorstandeditor.menu;
 import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
 import io.github.rypofalem.armorstandeditor.Debug;
 import io.github.rypofalem.armorstandeditor.PlayerEditor;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -29,7 +28,8 @@ public class SizeMenu extends ASEHolder {
     private ArmorStand as;
     static String name = "Size Menu";
 
-    public SizeMenu(PlayerEditor pe, ArmorStand as) {
+    public SizeMenu(HolderType type, PlayerEditor pe, ArmorStand as) {
+        super(type);
         this.pe = pe;
         this.as = as;
         this.debug = new Debug(pe.plugin);

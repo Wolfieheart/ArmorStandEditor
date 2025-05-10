@@ -19,15 +19,39 @@
 
 package io.github.rypofalem.armorstandeditor.menu;
 
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
 
 public class ASEHolder implements InventoryHolder {
+    public enum HolderType {
+        MENU,
+        EQUIPMENT,
+        PRESET,
+        SIZE_MENU
+    }
+    private final HolderType holderType;
+    private ArmorStand armorStand;
+
+    public ASEHolder(HolderType type) {
+        holderType = type;
+    }
 
     @Override
     public Inventory getInventory() {
         return null;
     }
 
+    public HolderType getType() {
+        return holderType;
+    }
+
+    public ArmorStand getArmorStand() {
+        return armorStand;
+    }
+
+    public void setArmorStand(ArmorStand armorStand) {
+        this.armorStand = armorStand;
+    }
 }
