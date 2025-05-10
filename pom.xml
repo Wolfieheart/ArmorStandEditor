@@ -311,6 +311,15 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>zrips.residence:Residence</artifact>
+                                    <excludes>
+                                        <exclude>plugin.yml</exclude>
+                                        <exclude>META-INF/**</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                             <relocations>
                                 <relocation>
                                     <pattern>com.jeff_media.updatechecker</pattern>
