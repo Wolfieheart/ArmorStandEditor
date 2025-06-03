@@ -38,6 +38,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scoreboard.Team;
@@ -416,9 +417,11 @@ public class PlayerEditorManager implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     void onPlayerMenuSelect(InventoryClickEvent e) {
-        if (e.getInventory().getHolder() == null) return;
-        if (!(e.getInventory().getHolder() instanceof ASEHolder)) return;
-        if (e.getInventory().getHolder() == menuHolder) {
+        final InventoryHolder holder = e.getInventory().getHolder();
+
+        if (holder == null) return;
+        if (!(holder instanceof ASEHolder)) return;
+        if (holder == menuHolder) {
             e.setCancelled(true);
             ItemStack item = e.getCurrentItem();
             if (item != null && item.hasItemMeta()) {
@@ -430,7 +433,7 @@ public class PlayerEditorManager implements Listener {
                 }
             }
         }
-        if (e.getInventory().getHolder() == equipmentHolder) {
+        if (holder == equipmentHolder) {
             ItemStack item = e.getCurrentItem();
             if (item == null) return;
             if (item.getItemMeta() == null) return;
@@ -439,7 +442,7 @@ public class PlayerEditorManager implements Listener {
             }
         }
 
-        if (e.getInventory().getHolder() == presetHolder) {
+        if (holder == presetHolder) {
             e.setCancelled(true);
             ItemStack item = e.getCurrentItem();
             if (item != null && item.hasItemMeta()) {
@@ -450,7 +453,7 @@ public class PlayerEditorManager implements Listener {
             }
         }
 
-        if (e.getInventory().getHolder() == sizeMenuHolder) {
+        if (holder == sizeMenuHolder) {
             e.setCancelled(true);
             ItemStack item = e.getCurrentItem();
             if (item != null && item.hasItemMeta()) {
@@ -465,9 +468,11 @@ public class PlayerEditorManager implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     void onPlayerMenuClose(InventoryCloseEvent e) {
-        if (e.getInventory().getHolder() == null) return;
-        if (!(e.getInventory().getHolder() instanceof ASEHolder)) return;
-        if (e.getInventory().getHolder() == equipmentHolder) {
+        final InventoryHolder holder = e.getInventory().getHolder();
+
+        if (holder == null) return;
+        if (!(holder instanceof ASEHolder)) return;
+        if (holder == equipmentHolder) {
             PlayerEditor pe = players.get(e.getPlayer().getUniqueId());
             pe.equipMenu.equipArmorstand();
 
