@@ -20,9 +20,8 @@ package io.github.rypofalem.armorstandeditor.protections;
 
 import com.palmergames.bukkit.towny.TownyAPI;
 
-import com.palmergames.bukkit.towny.object.Resident;
-import com.palmergames.bukkit.towny.object.Town;
-import com.palmergames.bukkit.towny.object.TownBlock;
+import com.palmergames.bukkit.towny.object.TownyPermission;
+import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
 import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
 import io.github.rypofalem.armorstandeditor.Debug;
 import org.bukkit.Bukkit;
@@ -61,13 +60,7 @@ public class TownyProtection implements Protection {
             return false;
         }
 
-        Resident resident = towny.getResident(player);
-        TownBlock townBlock = towny.getTownBlock(asLoc);
-        Town town = townBlock.getTownOrNull();
-
-        if(resident == null || town == null) return true;
-        if(townBlock.hasResident(resident) || townBlock.hasTrustedResident(resident)) return true;
-        return town.hasResident(resident);
+        return PlayerCacheUtil.getCachePermission(player, asLoc, block.getType(), TownyPermission.ActionType.BUILD);
     }
 }
 
