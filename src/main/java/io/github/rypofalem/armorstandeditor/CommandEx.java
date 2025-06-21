@@ -450,12 +450,12 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                     if (plugin.getNmsVersion().compareTo("1.21.4") >= 0 || plugin.getNmsVersion().compareTo("v1_21_R3") >= 0) {
                         player.sendMessage(ChatColor.YELLOW + "Size: " + ChatColor.AQUA + sizeAttribute + "/" + plugin.getMaxScaleValue() + ". "
                                 + ChatColor.YELLOW + "Is Glowing: " + ChatColor.AQUA + isGlowing + ". "
-                                + ChatColor.YELLOW + "Is Locked: " + ChatColor.AQUA + isLocked + "."
+                                + ChatColor.YELLOW + "Is Locked: " + ChatColor.AQUA + isLocked + ". "
                                 + ChatColor.YELLOW + "Is InUse: " + ChatColor.AQUA + isInUse);
                     } else {
                         player.sendMessage(ChatColor.YELLOW + "Is Small: " + ChatColor.AQUA + isSmall + ". "
                                 + ChatColor.YELLOW + "Is Glowing: " + ChatColor.AQUA + isGlowing + ". "
-                                + ChatColor.YELLOW + "Is Locked: " + ChatColor.AQUA + isLocked+ "."
+                                + ChatColor.YELLOW + "Is Locked: " + ChatColor.AQUA + isLocked+ ". "
                                 + ChatColor.YELLOW + "Is InUse: " + ChatColor.AQUA + isInUse);
                     }
                     player.sendMessage(ChatColor.YELLOW + "----------------------------------------------");
