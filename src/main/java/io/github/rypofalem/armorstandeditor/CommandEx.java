@@ -22,6 +22,7 @@ package io.github.rypofalem.armorstandeditor;
 import com.jeff_media.updatechecker.UpdateCheckSource;
 import com.jeff_media.updatechecker.UpdateChecker;
 
+import com.plotsquared.core.configuration.caption.ChatFormatter;
 import io.github.rypofalem.armorstandeditor.modes.AdjustmentMode;
 import io.github.rypofalem.armorstandeditor.modes.Axis;
 import io.github.rypofalem.armorstandeditor.modes.EditMode;
@@ -428,7 +429,9 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                     boolean isSmall = as.isSmall();
                     boolean isGlowing = as.isGlowing();
                     boolean isLocked = plugin.scoreboard.getTeam(plugin.lockedTeam).hasEntry(as.getUniqueId().toString());
+                    boolean isInUse = plugin.scoreboard.getTeam(plugin.inUseTeam).hasEntry(as.getUniqueId().toString());
 
+                    // Send messages
                     player.sendMessage(ChatColor.YELLOW + "----------- Armor Stand Statistics -----------");
                     player.sendMessage(ChatColor.YELLOW + plugin.getLang().getMessage("stats"));
                     player.sendMessage(ChatColor.YELLOW + "Head: " + ChatColor.AQUA + headX + " / " + headY + " / " + headZ);
@@ -437,13 +440,23 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                     player.sendMessage(ChatColor.YELLOW + "Left Arm: " + ChatColor.AQUA + leftArmX + " / " + leftArmY + " / " + leftArmZ);
                     player.sendMessage(ChatColor.YELLOW + "Right Leg: " + ChatColor.AQUA + rightLegX + " / " + rightLegY + " / " + rightLegZ);
                     player.sendMessage(ChatColor.YELLOW + "Left Leg: " + ChatColor.AQUA + leftLegX + " / " + leftLegY + " / " + leftLegZ);
-                    player.sendMessage(ChatColor.YELLOW + "Coordinates: " + ChatColor.AQUA + " X: " + locationX + " / Y: " + locationY + " / Z: " + locationZ);
-                    player.sendMessage(ChatColor.YELLOW + "Is Visible: " + ChatColor.AQUA + isVisible + ". " + ChatColor.YELLOW + "Arms Visible: " + ChatColor.AQUA + armsVisible + ". " + ChatColor.YELLOW + "Base Plate Visible: " + ChatColor.AQUA + basePlateVisible);
-                    player.sendMessage(ChatColor.YELLOW + "Is Vulnerable: " + ChatColor.AQUA + isVulnerable + ". " + ChatColor.YELLOW + "Affected by Gravity: " + ChatColor.AQUA + hasGravity);
+                    player.sendMessage(ChatColor.YELLOW + "Coordinates: " + ChatColor.AQUA + "X: " + locationX + " / Y: " + locationY + " / Z: " + locationZ);
+                    player.sendMessage(ChatColor.YELLOW + "Is Visible: " + ChatColor.AQUA + isVisible + ". "
+                            + ChatColor.YELLOW + "Arms Visible: " + ChatColor.AQUA + armsVisible + ". "
+                            + ChatColor.YELLOW + "Base Plate Visible: " + ChatColor.AQUA + basePlateVisible);
+                    player.sendMessage(ChatColor.YELLOW + "Is Vulnerable: " + ChatColor.AQUA + isVulnerable + ". "
+                            + ChatColor.YELLOW + "Affected by Gravity: " + ChatColor.AQUA + hasGravity);
+
                     if (plugin.getNmsVersion().compareTo("1.21.4") >= 0 || plugin.getNmsVersion().compareTo("v1_21_R3") >= 0) {
-                        player.sendMessage(ChatColor.YELLOW + "Size: " + ChatColor.AQUA + sizeAttribute + "/" + plugin.getMaxScaleValue() + ". " + ChatColor.YELLOW + "Is Glowing: " + ChatColor.AQUA + isGlowing + ". " + ChatColor.YELLOW + "Is Locked: " + ChatColor.AQUA + isLocked);
+                        player.sendMessage(ChatColor.YELLOW + "Size: " + ChatColor.AQUA + sizeAttribute + "/" + plugin.getMaxScaleValue() + ". "
+                                + ChatColor.YELLOW + "Is Glowing: " + ChatColor.AQUA + isGlowing + ". "
+                                + ChatColor.YELLOW + "Is Locked: " + ChatColor.AQUA + isLocked + "."
+                                + ChatColor.YELLOW + "Is InUse: " + ChatColor.AQUA + isInUse);
                     } else {
-                        player.sendMessage(ChatColor.YELLOW + "Is Small: " + ChatColor.AQUA + isSmall + ". " + ChatColor.YELLOW + "Is Glowing: " + ChatColor.AQUA + isGlowing + ". " + ChatColor.YELLOW + "Is Locked: " + ChatColor.AQUA + isLocked);
+                        player.sendMessage(ChatColor.YELLOW + "Is Small: " + ChatColor.AQUA + isSmall + ". "
+                                + ChatColor.YELLOW + "Is Glowing: " + ChatColor.AQUA + isGlowing + ". "
+                                + ChatColor.YELLOW + "Is Locked: " + ChatColor.AQUA + isLocked+ "."
+                                + ChatColor.YELLOW + "Is InUse: " + ChatColor.AQUA + isInUse);
                     }
                     player.sendMessage(ChatColor.YELLOW + "----------------------------------------------");
 
