@@ -178,7 +178,7 @@ public class SizeMenu extends ASEHolder {
 
     private void setArmorStandScale(Player player, String itemName, double scaleValue) {
         debug.log("Setting the Scale of the ArmorStand");
-        double currentScaleValue = as.getAttribute(Attribute.SCALE).getBaseValue();
+        double currentScaleValue = 0;
         double newScaleValue;
 
         if(!as.isValid()) return;
@@ -203,7 +203,7 @@ public class SizeMenu extends ASEHolder {
 
             // Add either 0.1 or 0.5 to the current
         } else if (itemName.equals(SCALEPLUS12) || itemName.equals(SCALEPLUS110)) {
-            currentScaleValue = as.getAttribute(Attribute.SCALE).getBaseValue();
+            currentScaleValue = as.getAttribute(Attribute.SCALE).getBaseValue(); //Get the current Value
             newScaleValue = currentScaleValue + scaleValue; // Add for increments
             debug.log("Result of the scale Calculation: " + newScaleValue);
             if (newScaleValue > plugin.getMaxScaleValue()) {
