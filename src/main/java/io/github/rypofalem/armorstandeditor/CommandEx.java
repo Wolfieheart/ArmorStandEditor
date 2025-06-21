@@ -61,7 +61,6 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     private Debug debug;
 
     public CommandEx(ArmorStandEditorPlugin armorStandEditorPlugin) {
-
         this.plugin = armorStandEditorPlugin;
         this.debug = new Debug(armorStandEditorPlugin);
     }
