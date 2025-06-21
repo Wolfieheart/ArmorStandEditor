@@ -22,11 +22,9 @@ package io.github.rypofalem.armorstandeditor;
 import com.jeff_media.updatechecker.UpdateCheckSource;
 import com.jeff_media.updatechecker.UpdateChecker;
 
-import com.plotsquared.core.configuration.caption.ChatFormatter;
 import io.github.rypofalem.armorstandeditor.modes.AdjustmentMode;
 import io.github.rypofalem.armorstandeditor.modes.Axis;
 import io.github.rypofalem.armorstandeditor.modes.EditMode;
-import io.github.rypofalem.armorstandeditor.Debug;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
