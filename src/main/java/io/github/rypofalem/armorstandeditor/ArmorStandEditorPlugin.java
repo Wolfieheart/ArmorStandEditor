@@ -60,7 +60,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String nmsVersionNotLatest = null;
 
     //Hardcode the ASE Version
-    public static final String ASE_VERSION = "1.21.5-48.3";
+    public static final String ASE_VERSION = "1.21.6-48.4_rc1";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;
