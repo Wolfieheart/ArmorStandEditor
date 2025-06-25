@@ -27,6 +27,7 @@ import io.github.rypofalem.armorstandeditor.api.ItemFrameGlowEvent;
 import io.github.rypofalem.armorstandeditor.menu.ASEHolder;
 import io.github.rypofalem.armorstandeditor.protections.*;
 
+import io.papermc.lib.PaperLib;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -417,7 +418,7 @@ public class PlayerEditorManager implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     void onPlayerMenuSelect(InventoryClickEvent e) {
-        final InventoryHolder holder = e.getInventory().getHolder();
+        final InventoryHolder holder = PaperLib.getHolder(e.getInventory(), false).getHolder();
 
         if (holder == null) return;
         if (!(holder instanceof ASEHolder)) return;
@@ -468,7 +469,7 @@ public class PlayerEditorManager implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     void onPlayerMenuClose(InventoryCloseEvent e) {
-        final InventoryHolder holder = e.getInventory().getHolder();
+        final InventoryHolder holder = PaperLib.getHolder(e.getInventory(), false).getHolder();
 
         if (holder == null) return;
         if (!(holder instanceof ASEHolder)) return;
