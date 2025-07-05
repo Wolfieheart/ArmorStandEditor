@@ -648,7 +648,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         enablePerWorld = getConfig().getBoolean("enablePerWorldSupport", false);
         if (enablePerWorld) {
             allowedWorldList = getConfig().getList("allowed-worlds", null);
-            if (allowedWorldList != null && allowedWorldList.get(0).equals("*")) {
+            if (allowedWorldList != null && allowedWorldList.getFirst().equals("*")) {
                 allowedWorldList = getServer().getWorlds().stream().map(World::getName).toList();
             }
         }
