@@ -152,6 +152,8 @@ noconsolecom:
   msg: Невозможно выполнить из консоли.
 renamestopped:
   msg: Пожалуйста, убедись, что у тебя достаточно прав что бы давать стойке для брони цветные имена.
+blackGlassClick:
+  msg: Clicking this item will have no effect. Please choose another item.
 
 #menutitle
 mainmenutitle:

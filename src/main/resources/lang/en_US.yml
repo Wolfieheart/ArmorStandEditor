@@ -160,6 +160,8 @@ renamestopped:
   msg: Please make sure you have the ability/permission to give your ArmorStand Colored Names.
 townyNoWildEdit:
   msg: Unable to change this ArmorStand as you are not allowed to edit in the wild.
+blackGlassClick:
+  msg: Clicking this item will have no effect. Please choose another item.
 
 #menutitle
 mainmenutitle:
@@ -444,3 +446,4 @@ scalemaxwarn:
   msg: Please choose a different size, as this against the server maximum scale limits
 scaleminwarn:
   msg: Please choose a different size, as this against the server minimum scale limits
+

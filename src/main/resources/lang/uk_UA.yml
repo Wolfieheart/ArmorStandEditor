@@ -113,6 +113,8 @@ nomodecom:
   msg: Оберіть режим!
 nogive:
   msg: You have no permission to use the give command!
+blackGlassClick:
+  msg: Clicking this item will have no effect. Please choose another item.
 
 #menutitle
 mainmenutitle:

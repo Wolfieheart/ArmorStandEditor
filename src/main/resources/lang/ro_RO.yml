@@ -116,6 +116,10 @@ notincorrectworld:
   msg: Sorry but you are not in the correct world to use ArmorStandEditor.
 unabledestroycreative:
   msg: Unable to Destroy this Invulnerable ArmorStand in Creative Mode.
+blackGlassClick:
+  msg: Clicking this item will have no effect. Please choose another item.
+
+
 #menutitle
 mainmenutitle:
   msg: Armor Stand Editor Menu
