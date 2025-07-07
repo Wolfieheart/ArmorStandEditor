@@ -18,6 +18,7 @@
  */
 package io.github.rypofalem.armorstandeditor;
 
+import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -102,7 +103,7 @@ public class Scheduler {
     }
 
     public static void teleport(Entity entity, Location location) {
-        if (isFolia()) callMethod(Entity.class, entity, "teleportAsync", new Class[]{Location.class}, location);
+        if (isFolia()) PaperLib.teleportAsync(entity, location);
         else entity.teleport(location);
     }
 }
