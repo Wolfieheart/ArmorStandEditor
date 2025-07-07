@@ -232,6 +232,12 @@
             <version>3.6.1</version>
             <scope>provided</scope>
         </dependency>
+        <!-- PaperLib -->
+        <dependency>
+            <groupId>io.papermc</groupId>
+            <artifactId>paperlib</artifactId>
+            <version>1.0.8</version>
+        </dependency>
 
         <!-- Lombok Support -->
         <dependency>
@@ -307,6 +313,10 @@
                                 <relocation>
                                     <pattern>com.jeff_media.updatechecker</pattern>
                                     <shadedPattern>io.github.rypofalem.armorstandeditor.updatechecker</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>io.papermc.lib</pattern>
+                                    <shadedPattern>io.github.rypofalem.armorstandeditor.libs.paperlib</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
