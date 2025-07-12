@@ -148,6 +148,8 @@ noreloadcom:
   msg: 你没有权限运行重载命令!
 nogive:
   msg: 你没有权限运行给予命令!
+blackGlassClick:
+  msg: Clicking this item will have no effect. Please choose another item.
 
 #菜单标题
 mainmenutitle:

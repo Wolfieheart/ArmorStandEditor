@@ -1,5 +1,5 @@
 /*
- * ArmorStandEditor: Bukkit plugin to allow editing armor stand attributes
+ * armorstandeditor: Bukkit plugin to allow editing armor stand attributes
  * Copyright (C) 2016-2023  RypoFalem
  *
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
@@ -43,12 +42,12 @@ public class PresetArmorPosesMenu {
     private Debug debug;
     private final PlayerEditor pe;
     public ArmorStandEditorPlugin plugin = ArmorStandEditorPlugin.instance();
-    private ArmorStand armorstand;
+    private ArmorStand armorStand;
     static String name;
 
     public PresetArmorPosesMenu(PlayerEditor pe, ArmorStand as) {
         this.pe = pe;
-        this.armorstand = as;
+        this.armorStand = as;
         this.debug = new Debug(pe.plugin);
         name = plugin.getLang().getMessage("presettitle", "menutitle");
         menuInv = Bukkit.createInventory(pe.getManager().getPresetHolder(), 36, name);
@@ -76,7 +75,7 @@ public class PresetArmorPosesMenu {
 
         /*
           Menu Set up in a similar way as to how we do it for
-          the actual ArmorStand menu
+          the actual armorStand menu
          */
 
         //Blank Slots
@@ -132,7 +131,7 @@ public class PresetArmorPosesMenu {
     public void openMenu() {
         if (pe.getPlayer().hasPermission("asedit.basic")) {
             fillInventory();
-            debug.log("Player '" + pe.getPlayer().getDisplayName() + "' has opened the ArmorStand Preset Menu");
+            debug.log("Player '" + pe.getPlayer().getDisplayName() + "' has opened the armorStand Preset Menu");
             pe.getPlayer().openInventory(menuInv);
         }
     }
@@ -207,53 +206,43 @@ public class PresetArmorPosesMenu {
         double headRoll, double headYaw, double headPitch,
         double bodyRoll, double bodyYaw, double bodyPitch) {
 
-        for (Entity theArmorStand : player.getNearbyEntities(1, 1, 1)) {
-            if (theArmorStand instanceof ArmorStand armorStand) {
-                if (!player.hasPermission("asedit.basic")) return;
+        if (!armorStand.isValid()) return;
+        if (!player.hasPermission("asedit.basic")) return;
 
-                //Do the right positions based on what is given
-                rightArmRoll = Math.toRadians(rightArmRoll);
-                rightArmYaw = Math.toRadians(rightArmYaw);
-                rightArmPitch = Math.toRadians(rightArmPitch);
-                EulerAngle rightArmEulerAngle = new EulerAngle(rightArmRoll, rightArmYaw, rightArmPitch);
-                armorStand.setRightArmPose(rightArmEulerAngle);
+        //Do the right positions based on what is given
+        armorStand.setRightArmPose(new EulerAngle(
+                Math.toRadians(rightArmRoll),
+                Math.toRadians(rightArmYaw),
+                Math.toRadians(rightArmPitch)
+        ));
 
-                // Calculate and set left arm settings
-                leftArmRoll = Math.toRadians(leftArmRoll);
-                leftArmYaw = Math.toRadians(leftArmYaw);
-                leftArmPitch = Math.toRadians(leftArmPitch);
-                EulerAngle leftArmEulerAngle = new EulerAngle(leftArmRoll, leftArmYaw, leftArmPitch);
-                armorStand.setLeftArmPose(leftArmEulerAngle);
+        armorStand.setLeftArmPose(new EulerAngle(
+                Math.toRadians(leftArmRoll),
+                Math.toRadians(leftArmYaw),
+                Math.toRadians(leftArmPitch)
+        ));
 
-                // Calculate and set right leg settings
-                rightLegRoll = Math.toRadians(rightLegRoll);
-                rightLegYaw = Math.toRadians(rightLegYaw);
-                rightLegPitch = Math.toRadians(rightLegPitch);
-                EulerAngle rightLegEulerAngle = new EulerAngle(rightLegRoll, rightLegYaw, rightLegPitch);
-                armorStand.setRightLegPose(rightLegEulerAngle);
+        armorStand.setRightLegPose(new EulerAngle(
+                Math.toRadians(rightLegRoll),
+                Math.toRadians(rightLegYaw),
+                Math.toRadians(rightLegPitch)));
 
-                // Calculate and set left leg settings
-                leftLegRoll = Math.toRadians(leftLegRoll);
-                LeftLegYaw = Math.toRadians(LeftLegYaw);
-                llp_yaw = Math.toRadians(llp_yaw);
-                EulerAngle leftLegEulerAngle = new EulerAngle(leftLegRoll, LeftLegYaw, llp_yaw);
-                armorStand.setLeftLegPose(leftLegEulerAngle);
+        armorStand.setLeftLegPose(new EulerAngle(
+                Math.toRadians(leftLegRoll),
+                Math.toRadians(LeftLegYaw),
+                Math.toRadians(llp_yaw)));
 
-                // Calculate and set body settings
-                bodyRoll = Math.toRadians(bodyRoll);
-                bodyYaw = Math.toRadians(bodyYaw);
-                bodyPitch = Math.toRadians(bodyPitch);
-                EulerAngle bodyEulerAngle = new EulerAngle(bodyRoll, bodyYaw, bodyPitch);
-                armorStand.setBodyPose(bodyEulerAngle);
+        armorStand.setBodyPose(new EulerAngle(
+                Math.toRadians(bodyRoll),
+                Math.toRadians(bodyYaw),
+                Math.toRadians(bodyPitch)));
 
-                // Calculate and set head settings
-                headRoll = Math.toRadians(headRoll);
-                headYaw = Math.toRadians(headYaw);
-                headPitch = Math.toRadians(headPitch);
-                EulerAngle headEulerAngle = new EulerAngle(headRoll, headYaw, headPitch);
-                armorStand.setHeadPose(headEulerAngle);
-            }
-        }
+        armorStand.setHeadPose(new EulerAngle(
+                Math.toRadians(headRoll),
+                Math.toRadians(headYaw),
+                Math.toRadians(headPitch)));
+
+        
 
 
     }

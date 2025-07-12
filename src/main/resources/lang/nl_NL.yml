@@ -146,6 +146,8 @@ nogive:
   msg: Sorry, je hebt geen tostemming om dit command te gebruiken!
 noplayerhead:
   msg: Schakel de mogelijkheid in om een player head op te halen in het configuratiebestand.
+blackGlassClick:
+  msg: Klikken op dit item heeft geen effect. Kies een andere item aub!
 
 #menutitle
 mainmenutitle:

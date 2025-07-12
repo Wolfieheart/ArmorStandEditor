@@ -111,6 +111,8 @@ playerhead:
   msg: Player Head retrieved.
 playerheaderror:
   msg: Unable to Retrieve Player Head.
+blackGlassClick:
+  msg: Clicking this item will have no effect. Please choose another item.
 
 #warn
 cantedit:

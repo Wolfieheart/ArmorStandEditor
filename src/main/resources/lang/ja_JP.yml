@@ -110,6 +110,8 @@ helpurl:
   msg: "More info: https://github.com/RypoFalem/ArmorStandEditor/wiki"
 give:
   msg: Player given Item with CustomModelData
+blackGlassClick:
+  msg: Clicking this item will have no effect. Please choose another item.
 
 #warn
 cantedit:

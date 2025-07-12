@@ -61,7 +61,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String nmsVersionNotLatest = null;
 
     //Hardcode the ASE Version
-    public static final String ASE_VERSION = "1.21.5-48.3";
+    public static final String ASE_VERSION = "1.21.7-49";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;
@@ -374,8 +374,13 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     private void registerScoreboards(Scoreboard scoreboard) {
         getServer().getLogger().info("Registering Scoreboards required for Glowing Effects");
 
-        //Register the In Use Team First - It doesnt require a Glow Effect;'/
-        scoreboard.registerNewTeam(inUseTeam);
+        //Register the In Use Team First - It doesnt require a Glow Effect
+        // Add better handing for InUse already there. This should stop the errors re - Team already registered appearing
+        if(scoreboard.getTeam(inUseTeam) == null) {
+            scoreboard.registerNewTeam(inUseTeam);
+        } else {
+            getServer().getLogger().info("Scoreboard for AS-InUse Already exists. Continuing to load");
+        }
 
         //Fix for Scoreboard Issue reported by Starnos - Wolfst0rm/ArmorStandEditor-Issues/issues/18
         if (scoreboard.getTeam(lockedTeam) == null) {
@@ -646,7 +651,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         enablePerWorld = getConfig().getBoolean("enablePerWorldSupport", false);
         if (enablePerWorld) {
             allowedWorldList = getConfig().getList("allowed-worlds", null);
-            if (allowedWorldList != null && allowedWorldList.get(0).equals("*")) {
+            if (allowedWorldList != null && allowedWorldList.getFirst().equals("*")) {
                 allowedWorldList = getServer().getWorlds().stream().map(World::getName).toList();
             }
         }

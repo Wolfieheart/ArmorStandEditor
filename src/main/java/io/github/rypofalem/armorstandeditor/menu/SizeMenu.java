@@ -9,7 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
@@ -179,64 +178,53 @@ public class SizeMenu extends ASEHolder {
 
     private void setArmorStandScale(Player player, String itemName, double scaleValue) {
         debug.log("Setting the Scale of the ArmorStand");
-        double currentScaleValue;
+        double currentScaleValue = 0;
         double newScaleValue;
 
-        for (Entity theArmorStand : player.getNearbyEntities(1, 1, 1)) {
-            if (theArmorStand instanceof ArmorStand as) {
+        if(!as.isValid()) return;
 
-                // Permission Check
-                if (!player.hasPermission("asedit.togglesize")) return;
+        if(!player.hasPermission("asedit.togglesize")) return;
 
-                // Can be overwritten
-                currentScaleValue = 0;
+        // Basically go from 0 directly to ItemSize
+        if (itemName.equals(SCALE1) || itemName.equals(SCALE2) || itemName.equals(SCALE3)
+                || itemName.equals(SCALE4) || itemName.equals(SCALE5) || itemName.equals(SCALE6)
+                || itemName.equals(SCALE7) || itemName.equals(SCALE8) || itemName.equals(SCALE9)
+                || itemName.equals(SCALE10)) {
+            newScaleValue = currentScaleValue + scaleValue;
+            debug.log("Result of the scale Calculation: " + newScaleValue);
 
-                // Basically go from 0 directly to ItemSize
-                if (itemName.equals(SCALE1) || itemName.equals(SCALE2) || itemName.equals(SCALE3)
-                    || itemName.equals(SCALE4) || itemName.equals(SCALE5) || itemName.equals(SCALE6)
-                    || itemName.equals(SCALE7) || itemName.equals(SCALE8) || itemName.equals(SCALE9)
-                    || itemName.equals(SCALE10)) {
-                    newScaleValue = currentScaleValue + scaleValue;
-                    debug.log("Result of the scale Calculation: " + newScaleValue);
-                    if (newScaleValue > plugin.getMaxScaleValue()) {
-                        pe.getPlayer().sendMessage(plugin.getLang().getMessage("scalemaxwarn", "warn"));
-                        return;
-                    } else if (newScaleValue < plugin.getMinScaleValue()) {
-                        pe.getPlayer().sendMessage(plugin.getLang().getMessage("scaleminwarn", "warn"));
-                        return;
-                    } else {
-                        as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
-                    }
-                    // Add either 0.1 or 0.5 to the current
-                    } else if (itemName.equals(SCALEPLUS12) || itemName.equals(SCALEPLUS110)) {
-                    currentScaleValue = as.getAttribute(Attribute.SCALE).getBaseValue();
-                    newScaleValue = currentScaleValue + scaleValue; // Add for increments
-                    debug.log("Result of the scale Calculation: " + newScaleValue);
-                    if (newScaleValue > plugin.getMaxScaleValue()) {
-                        pe.getPlayer().sendMessage(plugin.getLang().getMessage("scalemaxwarn", "warn"));
-                        return;
-                    }
-                    as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
-                    //Subtract either 0.1 or 0.5 from the current
-                } else if (itemName.equals(SCALEMINUS12) || itemName.equals(SCALEMINUS110)) {
-                    currentScaleValue = as.getAttribute(Attribute.SCALE).getBaseValue();
-                    newScaleValue = currentScaleValue - scaleValue; // Subtract for decrements
-                    debug.log("Result of the scale Calculation: " + newScaleValue);
-                    if (newScaleValue < plugin.getMinScaleValue()) {
-                        pe.getPlayer().sendMessage(plugin.getLang().getMessage("scaleminwarn", "warn"));
-                        return;
-                    }
-                    as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
-                } else if (itemName.equals(RESET)) { // Set it back to 1
-                    newScaleValue = 1;
-                    as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
-                }
-
-
+            if (newScaleValue > plugin.getMaxScaleValue()) {
+                pe.getPlayer().sendMessage(plugin.getLang().getMessage("scalemaxwarn", "warn"));
+            } else if (newScaleValue < plugin.getMinScaleValue()) {
+                pe.getPlayer().sendMessage(plugin.getLang().getMessage("scaleminwarn", "warn"));
+            } else {
+                as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
             }
+
+            // Add either 0.1 or 0.5 to the current
+        } else if (itemName.equals(SCALEPLUS12) || itemName.equals(SCALEPLUS110)) {
+            currentScaleValue = as.getAttribute(Attribute.SCALE).getBaseValue(); //Get the current Value
+            newScaleValue = currentScaleValue + scaleValue; // Add for increments
+            debug.log("Result of the scale Calculation: " + newScaleValue);
+            if (newScaleValue > plugin.getMaxScaleValue()) {
+                pe.getPlayer().sendMessage(plugin.getLang().getMessage("scalemaxwarn", "warn"));
+                return;
+            }
+            as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
+            //Subtract either 0.1 or 0.5 from the current
+        } else if (itemName.equals(SCALEMINUS12) || itemName.equals(SCALEMINUS110)) {
+            currentScaleValue = as.getAttribute(Attribute.SCALE).getBaseValue();
+            newScaleValue = currentScaleValue - scaleValue; // Subtract for decrements
+            debug.log("Result of the scale Calculation: " + newScaleValue);
+            if (newScaleValue < plugin.getMinScaleValue()) {
+                pe.getPlayer().sendMessage(plugin.getLang().getMessage("scaleminwarn", "warn"));
+                return;
+            }
+            as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
+        } else if (itemName.equals(RESET)) { // Set it back to 1
+            newScaleValue = 1.0;
+            as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
         }
-
-
     }
 
     public void openMenu() {
