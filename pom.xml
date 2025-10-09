@@ -4,7 +4,7 @@
     <groupId>io.github.rypofalem.armorstandeditor</groupId>
     <artifactId>armorstandeditor</artifactId>
     <packaging>jar</packaging>
-    <version>1.21.9-49.2</version>
+    <version>1.21.10-49.2</version>
     <name>armorstandeditor</name>
     <url>https://maven.apache.org</url>
 
@@ -101,7 +101,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.9-rc1-R0.1-SNAPSHOT</version>
+            <version>1.21.10-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -114,7 +114,7 @@
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-api</artifactId>
-            <version>4.25.0-SNAPSHOT</version>
+            <version>4.25.0</version>
             <scope>provided</scope>
         </dependency>
 
