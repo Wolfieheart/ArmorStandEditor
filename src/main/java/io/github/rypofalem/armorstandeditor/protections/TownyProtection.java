@@ -26,8 +26,13 @@ import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
 import io.github.rypofalem.armorstandeditor.Debug;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.util.BoundingBox;
+
 
 //FIX for https://github.com/Wolfieheart/ArmorStandEditor-Issues/issues/15
 public class TownyProtection implements Protection {
@@ -43,24 +48,62 @@ public class TownyProtection implements Protection {
     }
 
     public boolean checkPermission(Block block, Player player) {
-        TownyAPI towny;
-        if (!tEnabled) return true;
-        if (player.isOp()) return true;
-        if (player.hasPermission("asedit.ignoreProtection.towny")) return true; //Add Additional Permission
 
-        towny = TownyAPI.getInstance();
+        // Bypasses - Towny is not detected, Player is Op or has Bypass Perms
+        if (!tEnabled || player.isOp() || player.hasPermission("asedit.ignoreProtection.towny")) return true;
+
+        TownyAPI towny = TownyAPI.getInstance();
         Location playerLoc = player.getLocation();
         Location asLoc = block.getLocation();
 
-        if(towny.isWilderness(playerLoc) && player.hasPermission("asedit.townyProtection.canEditInWild")){
-            debug.log(" User is in the Wilderness and Can Edit.");
+        // --- Get ArmorStand on the Block --
+        ArmorStand entityOnBlock = findArmorStandOnBlock(asLoc);
+        if (entityOnBlock == null) {
+            debug.log("No ArmorStand has been found therefore we will continue as intended");
             return true;
-        } else if(towny.isWilderness(playerLoc) && !player.hasPermission("asedit.townyProtection.canEditInWild")) {
-            player.sendMessage(plugin.getLang().getMessage("townyNoWildEdit","warn"));
-            return false;
         }
 
-        return PlayerCacheUtil.getCachePermission(player, asLoc, block.getType(), TownyPermission.ActionType.BUILD);
+        debug.log("Editing ArmorStand: " + entityOnBlock.getUniqueId());
+
+        // --- wilderness checks ---
+        if (towny.isWilderness(playerLoc)) {
+            if (player.hasPermission("asedit.townyProtection.canEditInWild")) {
+                debug.log("User '" + player.getDisplayName() + "' is in the Wilderness and has the permission asedit.townyProtection.canEditInWild set to TRUE. Edits are allowed!");
+                return true;
+            } else {
+                player.sendMessage(plugin.getLang().getMessage("townyNoWildEdit", "warn"));
+                return false;
+            }
+        }
+
+        // --- towny permission check ---
+        return PlayerCacheUtil.getCachePermission(
+                player,
+                entityOnBlock.getLocation(),            // use the stand's actual location
+                Material.ARMOR_STAND,                   // treat the target as an ArmorStand
+                TownyPermission.ActionType.BUILD
+        );
+    }
+
+    /**
+     * Utility: finds an ArmorStand sitting directly on top of the given block.
+     */
+    private ArmorStand findArmorStandOnBlock(Location asLoc) {
+        BoundingBox bbox = BoundingBox.of(asLoc, 1, 1, 1).shift(0, 1, 0);
+
+        for (Entity entity : asLoc.getWorld().getNearbyEntities(bbox)){
+            if(entity instanceof ArmorStand stand){
+                Location entityLoc = stand.getLocation();
+                debug.log("ArmorStand Found at X: " + entityLoc.getBlockX() + ", Y: " + entityLoc.getBlockY() + ", Z: " + entityLoc.getBlockZ());
+                if(entityLoc.getBlockX() == asLoc.getBlockX()
+                        && entityLoc.getBlockZ() == asLoc.getBlockZ()
+                        && entityLoc.getBlockY() == asLoc.getBlockY() + 1){
+                    return stand;
+                }
+            }
+        }
+        debug.log("Entity found at X: " + asLoc.getBlockX() + ", Y: " + asLoc.getBlockY()+1 + ", Z: " + asLoc.getBlockZ() +" is not an ArmorStand. So we will return NULL - Will do so for ItemFrames etc.");
+        return null;
     }
 }
 
