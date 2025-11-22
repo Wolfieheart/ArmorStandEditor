@@ -406,7 +406,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                     leftLegZ = Math.toDegrees(leftLegZ);
                     leftLegZ = Math.rint(leftLegZ);
 
-                    if (plugin.getNmsVersion().compareTo("1.21.4") >= 0 || plugin.getNmsVersion().compareTo("v1_21_R3") >= 0) {
+                    if (VersionUtil.isAtLeast(plugin.getNmsVersion(), "1.21.4")) {
                         sizeAttribute = Objects.requireNonNull(as.getAttribute(Attribute.SCALE)).getBaseValue();
                     } else {
                         sizeAttribute = 0;
@@ -444,7 +444,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                     player.sendMessage(ChatColor.YELLOW + "Is Vulnerable: " + ChatColor.AQUA + isVulnerable + ". "
                             + ChatColor.YELLOW + "Affected by Gravity: " + ChatColor.AQUA + hasGravity);
 
-                    if (plugin.getNmsVersion().compareTo("1.21.4") >= 0 || plugin.getNmsVersion().compareTo("v1_21_R3") >= 0) {
+                    if (VersionUtil.isAtLeast(plugin.getNmsVersion(), "1.21.4")) {
                         player.sendMessage(ChatColor.YELLOW + "Size: " + ChatColor.AQUA + sizeAttribute + "/" + plugin.getMaxScaleValue() + ". "
                                 + ChatColor.YELLOW + "Is Glowing: " + ChatColor.AQUA + isGlowing + ". "
                                 + ChatColor.YELLOW + "Is Locked: " + ChatColor.AQUA + isLocked + ". "

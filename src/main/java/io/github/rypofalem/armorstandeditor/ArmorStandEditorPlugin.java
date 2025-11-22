@@ -62,7 +62,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String nmsVersionNotLatest = null;
 
     //Hardcode the ASE Version
-    public static final String ASE_VERSION = "1.21.10-49.2";
+    public static final String ASE_VERSION = "1.21.10-49.3";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;
@@ -98,6 +98,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     boolean glowItemFrames = false;
     boolean invisibleItemFrames = true;
     boolean armorStandVisibility = true;
+    boolean defaultGravity = false;
 
     //Misc Options
     boolean allowedToRetrieveOwnPlayerHead = false;
@@ -280,6 +281,9 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             }
         }
 
+        // Get the Default Gravity Value - Default = True since we expect it to be the same as in vanilla
+        defaultGravity = getConfig().getBoolean("defaultGravitySetting", true);
+
         //Require Sneaking - Wolfst0rm/ArmorStandEditor#17
         requireSneaking = getConfig().getBoolean("requireSneaking", false);
 
@@ -422,9 +426,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-            /*if (PaperLib.getHolder(player.getOpenInventory().getTopInventory(), false).getHolder() == editorManager.getMenuHolder()) {
-                player.closeInventory();
-            }*/
             if(PaperLib.getHolder(player.getOpenInventory().getTopInventory(), false).getHolder() == editorManager.getMenuHolder()){
                 player.closeInventory(InventoryCloseEvent.Reason.DISCONNECT);
             }
@@ -437,7 +438,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     public String getNmsVersion() {
-        //  return this.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
         if (getHasPaper() || getHasFolia()){
             return this.getMinecraftVersion();
         } else { 
@@ -500,6 +500,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return this.getConfig().getBoolean("runTheUpdateChecker");
     }
 
+    public boolean getDefaultGravity(){
+        return this.getConfig().getBoolean("defaultGravitySetting");
+    }
+
     public Integer getCustomModelDataInt() {
         return this.getConfig().getInt("customModelDataInt");
     }
@@ -512,6 +516,17 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public boolean getAdminOnlyNotifications() {
         return this.getConfig().getBoolean("adminOnlyNotifications");
     }
+
+
+    public double getMinScaleValue() {
+        return this.getConfig().getDouble("minScaleValue");
+    }
+
+    public double getMaxScaleValue() {
+        return this.getConfig().getDouble("maxScaleValue");
+    }
+
+
 
     public boolean isEditTool(ItemStack itemStk) {
         if (itemStk == null) {
@@ -778,18 +793,11 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return iconKey;
     }
 
-    public double getMinScaleValue() {
-        return minScaleValue;
-    }
-
-    public double getMaxScaleValue() {
-        return maxScaleValue;
-    }
-
     /**
      * For debugging ASE - Do not use this outside of Development or stuff
      */
     public boolean isDebug() {
         return debugFlag;
     }
+
 }

@@ -82,6 +82,10 @@ armorStandVisibility: false
 #asedit.toggleitemframevisibility
 invisibleItemFrames: false
 
+# NEW: Allows the setting of Gravity when placing an ArmorStand
+# Default = true - to match the vanilla experience
+defaultGravitySetting: true
+
 #------ GUI Options
 
 #If true, the GUI will only open if the player is sneaking

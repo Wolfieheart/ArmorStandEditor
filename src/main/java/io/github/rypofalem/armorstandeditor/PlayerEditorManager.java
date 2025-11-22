@@ -35,6 +35,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
@@ -93,6 +94,20 @@ public class PlayerEditorManager implements Listener {
         fineMov = .03125; // 1/32
         counter = new TickCounter();
         Scheduler.runTaskTimer(plugin, counter, 1, 1);
+    }
+
+    //NOT TO BE COMMITED: POC CODE
+    @EventHandler(priority = EventPriority.LOWEST)
+    void onArmorStandPlace(EntityPlaceEvent event){
+        if(!(event.getEntity() instanceof ArmorStand)) return;
+        Player player = event.getPlayer();
+        if (!plugin.isEditTool(player.getInventory().getItemInMainHand())) return;
+        if (event.getEntity() instanceof ArmorStand){
+            debug.log("Player " + player.getDisplayName() + " is placing an ArmorStand");
+            ArmorStand armorStand = (ArmorStand) event.getEntity();
+            armorStand.setGravity(plugin.getDefaultGravity());
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
