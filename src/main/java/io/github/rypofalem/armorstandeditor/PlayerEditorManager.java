@@ -96,7 +96,7 @@ public class PlayerEditorManager implements Listener {
         Scheduler.runTaskTimer(plugin, counter, 1, 1);
     }
 
-    //NOT TO BE COMMITED: POC CODE
+/*    //NOT TO BE COMMITED: POC CODE
     @EventHandler(priority = EventPriority.LOWEST)
     void onArmorStandPlace(EntityPlaceEvent event){
         if(!(event.getEntity() instanceof ArmorStand)) return;
@@ -109,7 +109,7 @@ public class PlayerEditorManager implements Listener {
             event.setCancelled(true);
         }
     }
-
+*/
     @EventHandler(priority = EventPriority.LOWEST)
     void onArmorStandDamage(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player)) return;
