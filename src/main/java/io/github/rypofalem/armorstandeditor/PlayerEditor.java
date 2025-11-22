@@ -265,7 +265,7 @@ public class PlayerEditor {
             sendMessage("nopermoption", "warn", "size");
             return;
         } else {
-            if (plugin.getNmsVersion().compareTo("1.21.4") >= 0 || plugin.getNmsVersion().compareTo("v1_21_R3") >= 0) {
+            if (VersionUtil.isAtLeast(plugin.getNmsVersion(), "1.21.4")) {
                 //NOTE: New Sizing Menu ONLY WORKS IN 1.21.3 and HIGHER
                 debug.log("Player '" + getPlayer().getDisplayName() + "' has triggered the AS Attribute Size Menu");
                 getPlayer().closeInventory();
@@ -401,7 +401,7 @@ public class PlayerEditor {
             armorStand.setLeftLegPose(data.leftLegPos);
             armorStand.setRightLegPose(data.rightLegPos);
 
-            if (plugin.getNmsVersion().compareTo("1.21.4") >= 0 || plugin.getNmsVersion().compareTo("v1_21_R3") >= 0) {
+            if (VersionUtil.isAtLeast(plugin.getNmsVersion(), "1.21.4")) {
                 armorStand.getAttribute(Attribute.SCALE).setBaseValue(data.attributeScale);
             } else {
                 armorStand.setSmall(data.size);
@@ -748,4 +748,5 @@ public class PlayerEditor {
             chestMenu.openMenu();
         }
     }
+
 }

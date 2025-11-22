@@ -20,6 +20,7 @@
 package io.github.rypofalem.armorstandeditor.modes;
 
 import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
+import io.github.rypofalem.armorstandeditor.VersionUtil;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
@@ -40,7 +41,7 @@ public class ArmorStandData {
         this.leftLegPos = as.getLeftLegPose();
         this.rightLegPos = as.getRightLegPose();
         this.size = as.isSmall();
-        if (plugin.getNmsVersion().compareTo("1.21.4") >= 0 || plugin.getNmsVersion().compareTo("v1_21_R3") >= 0) {
+        if (VersionUtil.isAtLeast(plugin.getNmsVersion(), "1.21.4")) {
             this.attributeScale = as.getAttribute(Attribute.SCALE).getValue();
         }
         this.basePlate = as.hasBasePlate();
