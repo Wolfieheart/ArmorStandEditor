@@ -43,7 +43,7 @@ public class ArmorStandData {
         this.rightLegPos = as.getRightLegPose();
         this.size = as.isSmall();
 
-        if(VersionUtil.fromString(plugin.getMinecraftVersion()).isNewerThanOrEquals(VersionUtil.fromString(MinecraftVersion.MINECRAFT_1_21_3))){
+        if(VersionUtil.fromString(plugin.getMinecraftVersion()).isNewerThanOrEquals(VersionUtil.fromString(String.valueOf(MinecraftVersion.MINECRAFT_1_21_3)))){
             this.attributeScale = as.getAttribute(Attribute.SCALE).getValue();
         }
 

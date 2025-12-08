@@ -267,7 +267,7 @@ public class PlayerEditor {
             sendMessage("nopermoption", "warn", "size");
             return;
         } else {
-            if(VersionUtil.fromString(plugin.getMinecraftVersion()).isNewerThanOrEquals(VersionUtil.fromString(MinecraftVersion.MINECRAFT_1_21_3))){
+            if(VersionUtil.fromString(plugin.getMinecraftVersion()).isNewerThanOrEquals(VersionUtil.fromString(String.valueOf(MinecraftVersion.MINECRAFT_1_21_3)))){
                 //NOTE: New Sizing Menu ONLY WORKS IN 1.21.3 and HIGHER
                 debug.log("Player '" + getPlayer().getDisplayName() + "' has triggered the AS Attribute Size Menu");
                 getPlayer().closeInventory();
@@ -403,7 +403,7 @@ public class PlayerEditor {
             armorStand.setLeftLegPose(data.leftLegPos);
             armorStand.setRightLegPose(data.rightLegPos);
 
-            if(VersionUtil.fromString(plugin.getMinecraftVersion()).isNewerThanOrEquals(VersionUtil.fromString(MinecraftVersion.MINECRAFT_1_21_3))){
+            if(VersionUtil.fromString(plugin.getMinecraftVersion()).isNewerThanOrEquals(VersionUtil.fromString(String.valueOf(MinecraftVersion.MINECRAFT_1_21_3)))){
                 armorStand.getAttribute(Attribute.SCALE).setBaseValue(data.attributeScale);
             } else {
                 armorStand.setSmall(data.size);

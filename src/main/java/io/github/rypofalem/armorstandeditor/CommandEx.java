@@ -26,6 +26,7 @@ import io.github.rypofalem.armorstandeditor.modes.AdjustmentMode;
 import io.github.rypofalem.armorstandeditor.modes.Axis;
 import io.github.rypofalem.armorstandeditor.modes.EditMode;
 
+import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.Util;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 import org.bukkit.ChatColor;
@@ -408,7 +409,12 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                     leftLegZ = Math.toDegrees(leftLegZ);
                     leftLegZ = Math.rint(leftLegZ);
 
-                    if (VersionUtil.isAtLeast(plugin.getNmsVersion(), "1.21.4")) {
+                    /*if (VersionUtil.isAtLeast(plugin.getNmsVersion(), "1.21.4")) {
+                        sizeAttribute = Objects.requireNonNull(as.getAttribute(Attribute.SCALE)).getBaseValue();
+                    } else {
+                        sizeAttribute = 0;
+                    }*/
+                    if(VersionUtil.fromString(plugin.getMinecraftVersion()).isNewerThanOrEquals(VersionUtil.fromString(String.valueOf(MinecraftVersion.MINECRAFT_1_21_3)))){
                         sizeAttribute = Objects.requireNonNull(as.getAttribute(Attribute.SCALE)).getBaseValue();
                     } else {
                         sizeAttribute = 0;
@@ -446,7 +452,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                     player.sendMessage(ChatColor.YELLOW + "Is Vulnerable: " + ChatColor.AQUA + isVulnerable + ". "
                             + ChatColor.YELLOW + "Affected by Gravity: " + ChatColor.AQUA + hasGravity);
 
-                    if (VersionUtil.isAtLeast(plugin.getNmsVersion(), "1.21.4")) {
+                    if(VersionUtil.fromString(plugin.getMinecraftVersion()).isNewerThanOrEquals(VersionUtil.fromString(String.valueOf(MinecraftVersion.MINECRAFT_1_21_3)))){
                         player.sendMessage(ChatColor.YELLOW + "Size: " + ChatColor.AQUA + sizeAttribute + "/" + plugin.getMaxScaleValue() + ". "
                                 + ChatColor.YELLOW + "Is Glowing: " + ChatColor.AQUA + isGlowing + ". "
                                 + ChatColor.YELLOW + "Is Locked: " + ChatColor.AQUA + isLocked + ". "
