@@ -64,7 +64,7 @@ public class TownyProtection implements Protection {
             return PlayerCacheUtil.getCachePermission(
                     player,
                     playerLoc,            // use the stand's actual location
-                    target,                   // treat the target as an ArmorStand
+                    target,              // use the actual block material instead of null
                     TownyPermission.ActionType.BUILD
             );
         }
