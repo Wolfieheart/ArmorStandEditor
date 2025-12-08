@@ -20,7 +20,8 @@
 package io.github.rypofalem.armorstandeditor.modes;
 
 import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
-import io.github.rypofalem.armorstandeditor.VersionUtil;
+import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
+import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
@@ -41,9 +42,11 @@ public class ArmorStandData {
         this.leftLegPos = as.getLeftLegPose();
         this.rightLegPos = as.getRightLegPose();
         this.size = as.isSmall();
-        if (VersionUtil.isAtLeast(plugin.getNmsVersion(), "1.21.4")) {
+
+        if(VersionUtil.fromString(plugin.getMinecraftVersion()).isNewerThanOrEquals(VersionUtil.fromString(MinecraftVersion.MINECRAFT_1_21_3))){
             this.attributeScale = as.getAttribute(Attribute.SCALE).getValue();
         }
+
         this.basePlate = as.hasBasePlate();
         this.gravity = as.hasGravity();
         this.showArms = as.hasArms();

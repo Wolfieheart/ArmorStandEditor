@@ -26,6 +26,8 @@ import io.github.rypofalem.armorstandeditor.modes.AdjustmentMode;
 import io.github.rypofalem.armorstandeditor.modes.Axis;
 import io.github.rypofalem.armorstandeditor.modes.EditMode;
 
+import io.github.rypofalem.armorstandeditor.utils.Util;
+import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;

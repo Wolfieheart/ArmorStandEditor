@@ -1,7 +1,13 @@
-package io.github.rypofalem.armorstandeditor;
+package io.github.rypofalem.armorstandeditor.utils;
 
-public final class VersionUtil {
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public final class VersionUtil  implements  Comparable<VersionUtil>{
+/*
     private VersionUtil() {}
 
     /**
@@ -12,7 +18,7 @@ public final class VersionUtil {
      *  - "v1_21_R3" (Spigot/Bukkit NMS package)
      *
      * target should be a normal MC version like "1.21.4".
-     */
+
     public static boolean isAtLeast(String current, String target) {
         String normCurrent = normalize(current);
         String normTarget  = normalize(target);
@@ -37,7 +43,7 @@ public final class VersionUtil {
      *  - Paper/Folia style "1.21.10", "1.21.10-pre4", "1.21.10-SNAPSHOT"
      *  - Spigot NMS style "v1_21_R3"
      * into a "major.minor.patch" string.
-     */
+
     private static String normalize(String version) {
         if (version == null) return "0.0.0";
         version = version.trim();
@@ -140,5 +146,79 @@ public final class VersionUtil {
             }
         }
         return result;
+    }*/
+
+    private final String version;
+    private static final Pattern SEPARATOR = Pattern.compile("\\.");
+    private static final Pattern VERSION_NUMBER = Pattern.compile("[0-9]+(" + SEPARATOR + "[0-9]+)*");
+    private final String[] versionComponents;
+
+    private VersionUtil(String version){
+        this.version = version;
+        versionComponents = version.split(SEPARATOR.pattern());
+    }
+
+    public static String fromString(String version){
+        if (version == null)
+            throw new IllegalArgumentException("Version can not be null");
+
+        Matcher matcher = VERSION_NUMBER.matcher(version);
+
+        if(!matcher.find())
+            throw new IllegalArgumentException("Invalid Version Format: " + version);
+
+        return new VersionUtil(matcher.group(0));
+    }
+
+    public int compareTo(@NotNull VersionUtil that){
+        int length = Math.max(versionComponents.length, that.versionComponents.length);
+        for(int i = 0; i < length; i++) {
+            int thisPart = i < versionComponents.length ? Integer.parseInt(versionComponents[i]) : 0;
+            int thatPart = i < that.versionComponents.length ? Integer.parseInt(that.versionComponents[i]) : 0;
+
+            if (thisPart < thatPart) {
+                return -1;
+            }
+
+            if (thisPart > thatPart) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof VersionUtil)) return false;
+        VersionUtil version1 = (VersionUtil) o;
+        return Objects.equals(version, version1.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(version);
+    }
+
+    @Override
+    public String toString() {
+        return version;
+    }
+
+    @NotNull
+    public String[] getComponents() {
+        return versionComponents;
+    }
+
+    public boolean isPreRelease() {
+        try {
+            return Integer.parseInt(this.versionComponents[versionComponents.length-1]) != 0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    public boolean isNewerThanOrEquals(@NotNull VersionUtil other) {
+        return this.compareTo(other) >= 0;
     }
 }

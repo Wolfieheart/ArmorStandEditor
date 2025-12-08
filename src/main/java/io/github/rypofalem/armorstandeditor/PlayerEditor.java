@@ -19,6 +19,9 @@
 package io.github.rypofalem.armorstandeditor;
 
 import io.github.rypofalem.armorstandeditor.menu.SizeMenu;
+import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
+import io.github.rypofalem.armorstandeditor.utils.Util;
+import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 
@@ -33,7 +36,6 @@ import io.github.rypofalem.armorstandeditor.modes.ArmorStandData;
 import io.github.rypofalem.armorstandeditor.modes.Axis;
 import io.github.rypofalem.armorstandeditor.modes.CopySlots;
 import io.github.rypofalem.armorstandeditor.modes.EditMode;
-import io.github.rypofalem.armorstandeditor.Debug;
 
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -265,7 +267,7 @@ public class PlayerEditor {
             sendMessage("nopermoption", "warn", "size");
             return;
         } else {
-            if (VersionUtil.isAtLeast(plugin.getNmsVersion(), "1.21.4")) {
+            if(VersionUtil.fromString(plugin.getMinecraftVersion()).isNewerThanOrEquals(VersionUtil.fromString(MinecraftVersion.MINECRAFT_1_21_3))){
                 //NOTE: New Sizing Menu ONLY WORKS IN 1.21.3 and HIGHER
                 debug.log("Player '" + getPlayer().getDisplayName() + "' has triggered the AS Attribute Size Menu");
                 getPlayer().closeInventory();
@@ -401,7 +403,7 @@ public class PlayerEditor {
             armorStand.setLeftLegPose(data.leftLegPos);
             armorStand.setRightLegPose(data.rightLegPos);
 
-            if (VersionUtil.isAtLeast(plugin.getNmsVersion(), "1.21.4")) {
+            if(VersionUtil.fromString(plugin.getMinecraftVersion()).isNewerThanOrEquals(VersionUtil.fromString(MinecraftVersion.MINECRAFT_1_21_3))){
                 armorStand.getAttribute(Attribute.SCALE).setBaseValue(data.attributeScale);
             } else {
                 armorStand.setSmall(data.size);
@@ -687,7 +689,7 @@ public class PlayerEditor {
     void sendMessage(String path, String format, String option) {
         String message = plugin.getLang().getMessage(path, format, option);
         if (plugin.sendToActionBar) {
-            if (ArmorStandEditorPlugin.instance().getHasPaper() || ArmorStandEditorPlugin.instance().getHasSpigot()) { //Paper and Spigot having the same Interaction for sendToActionBar
+            if (ArmorStandEditorPlugin.instance().getHasPaper()) { //Paper and Spigot having the same Interaction for sendToActionBar
                 plugin.getServer().getPlayer(getUUID()).spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
             } else {
                 String rawText = plugin.getLang().getRawMessage(path, format, option);
