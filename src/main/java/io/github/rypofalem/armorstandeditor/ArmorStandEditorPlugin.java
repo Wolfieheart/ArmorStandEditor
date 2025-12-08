@@ -47,7 +47,7 @@ import java.util.logging.Level;
 public class ArmorStandEditorPlugin extends JavaPlugin {
 
     //!!! DO NOT REMOVE THESE UNDER ANY CIRCUMSTANCES - Required for BStats and UpdateChecker !!!
-    public static final int SPIGOT_RESOURCE_ID = 94503;  //Used for Update Checker
+    public static final String HANGAR_RESOURCE_ID = "Wolfieheart/ArmorStandEditor-Reborn/Release";  //Used for Update Checker
     private static final int PLUGIN_ID = 12668;		     //Used for BStats Metrics
     private Debug debug = new Debug(this);
 
@@ -318,9 +318,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             getLogger().warning("This warning is intended to be displayed when using a Dev build and is NOT A BUG!");
             getLogger().info("Update Checker does not work on Development Builds.");
         } else {
-            new UpdateChecker(this, UpdateCheckSource.SPIGET, "" + SPIGOT_RESOURCE_ID + "")
-                .setDownloadLink("https://www.spigotmc.org/resources/armorstandeditor-reborn.94503/")
-                .setChangelogLink("https://www.spigotmc.org/resources/armorstandeditor-reborn.94503/history")
+            new UpdateChecker(this, UpdateCheckSource.HANGAR, HANGAR_RESOURCE_ID)
+                .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
                 .setColoredConsoleOutput(true)
                 .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())
                 .checkEveryXHours(updateCheckerInterval)
@@ -328,7 +327,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         }
     }
 
-    private void runUpdateCheckerWithOPNotifyOnJoinEnabled() {
+    public void runUpdateCheckerWithOPNotifyOnJoinEnabled() {
         if (ASE_VERSION.contains(".x")) {
             getLogger().warning("Note from the development team: ");
             getLogger().warning("It appears that you are using the development version of ArmorStandEditor");
@@ -337,9 +336,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             getLogger().warning("This warning is intended to be displayed when using a Dev build and is NOT A BUG!");
             getLogger().info("Update Checker does not work on Development Builds.");
         } else {
-            new UpdateChecker(this, UpdateCheckSource.SPIGET, "" + SPIGOT_RESOURCE_ID + "")
-                .setDownloadLink("https://www.spigotmc.org/resources/armorstandeditor-reborn.94503/")
-                .setChangelogLink("https://www.spigotmc.org/resources/armorstandeditor-reborn.94503/history")
+            new UpdateChecker(this, UpdateCheckSource.HANGAR, HANGAR_RESOURCE_ID)
+                .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
                 .setColoredConsoleOutput(true)
                 .setNotifyOpsOnJoin(true)
                 .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())

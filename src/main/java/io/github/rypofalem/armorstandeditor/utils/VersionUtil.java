@@ -77,17 +77,6 @@ public class VersionUtil implements Comparable<VersionUtil> {
         return version;
     }
 
-    /**
-     * Returns the components of the version separated by .'s
-     *
-     * @return A string array of the components.
-     */
-    @NotNull
-    public String[] getComponents() {
-        return components;
-    }
-
-
     public boolean isNewerThanOrEquals(@NotNull VersionUtil other) {
         return this.compareTo(other) >= 0;
     }
