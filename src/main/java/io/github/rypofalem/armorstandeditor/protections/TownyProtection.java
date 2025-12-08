@@ -60,7 +60,7 @@ public class TownyProtection implements Protection {
         // --- Get ArmorStand on the Block --
         ArmorStand entityOnBlock = findArmorStandOnBlock(asLoc);
         if (entityOnBlock == null) {
-            debug.log("No ArmorStand has been found - Check if the Player can build at th");
+            debug.log("No Valid ArmorStand has been found - Check if the Player can build at th");
             return PlayerCacheUtil.getCachePermission(
                     player,
                     playerLoc,            // use the stand's actual location
