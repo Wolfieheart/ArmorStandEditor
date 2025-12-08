@@ -163,7 +163,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     }
 
     private void commandGivePlayerHead(Player player) {
-        if (player.hasPermission("asedit.head")) {
+        if (player.hasPermission("asedit.head") || plugin.getallowedToRetrieveOwnPlayerHead()) {
             debug.log("Creating a player head for the OfflinePlayer '" + player.getDisplayName() + "'");
             OfflinePlayer offlinePlayer = player.getPlayer();
             ItemStack item = new ItemStack(Material.PLAYER_HEAD, 1, (short) 3);
@@ -284,9 +284,9 @@ public class CommandEx implements CommandExecutor, TabCompleter {
             player.sendMessage(ChatColor.YELLOW + "[ArmorStandEditor] Update Checker will not work on Development Versions.");
             player.sendMessage(ChatColor.YELLOW + "[ArmorStandEditor] Report all bugs to: https://github.com/Wolfieheart/ArmorStandEditor/issues");
         } else {
-            if (!plugin.getHasFolia() && plugin.getRunTheUpdateChecker()) {
-                debug.log("Plugin is on Server: Paper/Spigot or a fork thereof.");
-                new UpdateChecker(plugin, UpdateCheckSource.SPIGOT, "" + ArmorStandEditorPlugin.SPIGOT_RESOURCE_ID).checkNow(player); //Runs Update Check
+            if (plugin.getHasPaper() && plugin.getRunTheUpdateChecker()) {
+                debug.log("Plugin is on Server: Paper or a fork thereof.");
+                plugin.runUpdateCheckerWithOPNotifyOnJoinEnabled();//Runs Update Check
             } else if (plugin.getHasFolia()) {
                 debug.log("Plugin is on Folia");
                 player.sendMessage(ChatColor.YELLOW + "[ArmorStandEditor] Update Checker does not currently work on Folia.");
