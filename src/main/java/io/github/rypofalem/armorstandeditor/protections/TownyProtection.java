@@ -55,19 +55,18 @@ public class TownyProtection implements Protection {
         TownyAPI towny = TownyAPI.getInstance();
         Location playerLoc = player.getLocation();
         Location asLoc = block.getLocation();
+        Material target = block.getType();
 
         // --- Get ArmorStand on the Block --
         ArmorStand entityOnBlock = findArmorStandOnBlock(asLoc);
         if (entityOnBlock == null) {
-            debug.log("No Valid ArmorStand has been found - Check if the Player can build at their location");
-            boolean allowed =  PlayerCacheUtil.getCachePermission(
+            debug.log("No ArmorStand has been found - Check if the Player can build at th");
+            return PlayerCacheUtil.getCachePermission(
                     player,
                     playerLoc,            // use the stand's actual location
-                    null,                   // treat the target as an ArmorStand
+                    target,                   // treat the target as an ArmorStand
                     TownyPermission.ActionType.BUILD
             );
-            debug.log("Result of Permission Check: " + allowed);
-            return allowed;
         }
 
         debug.log("Editing ArmorStand: " + entityOnBlock.getUniqueId());
