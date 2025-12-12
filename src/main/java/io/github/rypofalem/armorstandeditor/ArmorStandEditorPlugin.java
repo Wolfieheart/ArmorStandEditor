@@ -62,8 +62,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public boolean hasPaper = false;
     public boolean hasFolia = false;
     String nmsVersionNotLatest = null;
-    String maxSupported = VersionUtil.fromString(String.valueOf(MinecraftVersion.MINECRAFT_1_21)));
-    String minSupported = VersionUtil.fromString(String.valueOf(MinecraftVersion.MINECRAFT_1_17)));
+    String maxSupported = VersionUtil.fromString(String.valueOf(MinecraftVersion.MINECRAFT_1_21));
+    String minSupported = VersionUtil.fromString(String.valueOf(MinecraftVersion.MINECRAFT_1_17));
     String versionLogPrefix = null;
 
     //Hardcode the ASE Version
