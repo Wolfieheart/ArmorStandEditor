@@ -14,7 +14,7 @@ public class Debug {
 
     private ArmorStandEditorPlugin plugin;
     private Logger logger;
-    private FileHandler fileHandler;
+    private static FileHandler fileHandler;
 
     public Debug(ArmorStandEditorPlugin plugin) {
         this.plugin = plugin;
@@ -26,7 +26,7 @@ public class Debug {
         try{
             File pluginDataFolder = plugin.getDataFolder();
             if(!pluginDataFolder.exists()){
-                folder.mkdirs();
+                pluginDataFolder.mkdirs();
             }
 
             File debugFolder = new File(pluginDataFolder, "debug");
@@ -70,15 +70,13 @@ public class Debug {
         String finalMsg = msg; // Timestamp handled by formatter for file
         logger.info(finalMsg);
 
-        // Write to console with timestamp
-        String consoleTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         Bukkit.getServer().getLogger().info("[ArmorStandEditor-Debug] " + msg);
     }
 
      /**
      * Optional: Call on plugin disable to flush and close file cleanly.
      */
-    public void shutdown() {
+    public static void shutdown() {
         if (fileHandler != null) {
             fileHandler.flush();
             fileHandler.close();

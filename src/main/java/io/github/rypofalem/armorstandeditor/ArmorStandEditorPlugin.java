@@ -42,7 +42,6 @@ import org.bukkit.scoreboard.Team;
 
 import java.io.File;
 import java.util.*;
-import java.util.logging.Level;
 
 public class ArmorStandEditorPlugin extends JavaPlugin {
 
@@ -62,8 +61,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public boolean hasPaper = false;
     public boolean hasFolia = false;
     String nmsVersionNotLatest = null;
-    String maxSupported = VersionUtil.fromString(String.valueOf(MinecraftVersion.MINECRAFT_1_21));
-    String minSupported = VersionUtil.fromString(String.valueOf(MinecraftVersion.MINECRAFT_1_17));
+    String maxSupported = String.valueOf(MinecraftVersion.MINECRAFT_1_21);
+    String minSupported = String.valueOf(MinecraftVersion.MINECRAFT_1_17);
     String versionLogPrefix = null;
 
     //Hardcode the ASE Version
@@ -146,7 +145,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         if(VersionUtil.fromString(nmsVersion).equals(maxSupported)) {
             getLogger().info(versionLogPrefix);
             getLogger().info("ArmorStandEditor is compatible with this version of Minecraft. Loading continuing.");    
-        } else if (VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(minSupported)) {
+        } else if (VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(VersionUtil.fromString(minSupported))) {
             getLogger().warning(versionLogPrefix);
             getLogger().warning("ArmorStandEditor is compatible with this version of Minecraft, but it is not the latest supported version.");
             getLogger().warning("Loading continuing, but please consider updating to the latest version.");
@@ -165,7 +164,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             getServer().getPluginManager().disablePlugin(this);
             return;
         } else {
-            getLogger().info("PaperMC: {0}", hasPaper);
+            getLogger().info("PaperMC: " + hasPaper);
         }
         getServer().getPluginManager().enablePlugin(this);
 
