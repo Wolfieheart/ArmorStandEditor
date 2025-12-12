@@ -60,7 +60,6 @@ public class Debug {
 
         } catch (IOException e) {
             Bukkit.getServer().getLogger().severe("[ArmorStandEditor] Could not create debug log file!");
-            e.printStackTrace();
         }
     }
 
