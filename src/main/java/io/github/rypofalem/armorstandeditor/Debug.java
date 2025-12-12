@@ -26,7 +26,7 @@ public class Debug {
         try{
             File pluginDataFolder = plugin.getDataFolder();
             if(!pluginDataFolder.exists()){
-                folder.mkdirs()
+                folder.mkdirs();
             }
 
             File debugFolder = new File(pluginDataFolder, "debug");

@@ -62,7 +62,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public boolean hasPaper = false;
     public boolean hasFolia = false;
     String nmsVersionNotLatest = null;
-    String maxSupported = VersionUtil.fromString(String.valueOf(MinecraftVersion.MINECRAFT_1_21)))
+    String maxSupported = VersionUtil.fromString(String.valueOf(MinecraftVersion.MINECRAFT_1_21)));
     String minSupported = VersionUtil.fromString(String.valueOf(MinecraftVersion.MINECRAFT_1_17)));
     String versionLogPrefix = null;
 
@@ -141,12 +141,12 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         //Get NMS Version
         nmsVersion = getServer().getMinecraftVersion();
-        versionLogPrefix = warningMCVer + nmsVersion
+        versionLogPrefix = warningMCVer + nmsVersion;
         
-        if(VersionUtil.fromString(nmsVersion).equals(maxSupported) {
+        if(VersionUtil.fromString(nmsVersion).equals(maxSupported)) {
             getLogger().info(versionLogPrefix);
             getLogger().info("ArmorStandEditor is compatible with this version of Minecraft. Loading continuing.");    
-        } else if (VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(minSupported) {
+        } else if (VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(minSupported)) {
             getLogger().warning(versionLogPrefix);
             getLogger().warning("ArmorStandEditor is compatible with this version of Minecraft, but it is not the latest supported version.");
             getLogger().warning("Loading continuing, but please consider updating to the latest version.");
