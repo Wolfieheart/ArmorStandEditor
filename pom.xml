@@ -4,7 +4,7 @@
     <groupId>io.github.rypofalem.armorstandeditor</groupId>
     <artifactId>armorstandeditor</artifactId>
     <packaging>jar</packaging>
-    <version>1.21.10-49.3</version>
+    <version>1.21.10-50-RC1</version>
     <name>armorstandeditor</name>
     <url>https://maven.apache.org</url>
 
@@ -246,7 +246,6 @@
             <version>1.18.34</version>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
     <!--Java 8-->
 
@@ -332,6 +331,16 @@
                     <tagNameFormat>@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
+            <!-- Hangar Publish Support -->
+            <plugin>
+                <groupId>io.papermc.hangar</groupId>
+                <artifactId>hangar-publish-plugin</artifactId>
+                <version>1.0.0</version> <!-- replace with latest -->
+                <configuration>
+                    <apiToken>${hangar.token}</apiToken>
+                    <projectId>YourProjectID</projectId>
+                </configuration>
+           </plugin>
         </plugins>
     </build>
 </project>
