@@ -20,7 +20,7 @@ jobs:
 
       # Set up the Java Development Kit (JDK)
       - name: Setup JDK ${{ matrix.java_version }}
-        uses: actions/setup-java@v4.7.0
+        uses: actions/setup-java@v4.8.0
         with:
           java-version: ${{ matrix.java_version }}
           distribution: 'zulu'
@@ -65,7 +65,7 @@ jobs:
 
       # Upload the renamed artifact for debugging
       - name: Upload Artifact for Debugging
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: artifact
           path: /home/runner/work/ArmorStandEditor/ArmorStandEditor/target/armorstandeditor-*-*-Java21.jar
