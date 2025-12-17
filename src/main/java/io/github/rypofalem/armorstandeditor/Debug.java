@@ -14,7 +14,7 @@ public class Debug {
 
     private ArmorStandEditorPlugin plugin;
     private Logger logger;
-    private static FileHandler fileHandler;
+    private FileHandler fileHandler;
 
     public Debug(ArmorStandEditorPlugin plugin) {
         this.plugin = plugin;
@@ -75,7 +75,7 @@ public class Debug {
      /**
      * Optional: Call on plugin disable to flush and close file cleanly.
      */
-    public static void shutdown() {
+    public void shutdown() {
         if (fileHandler != null) {
             fileHandler.flush();
             fileHandler.close();
