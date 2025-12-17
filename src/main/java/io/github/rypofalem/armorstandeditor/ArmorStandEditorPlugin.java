@@ -30,7 +30,11 @@ import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 import io.papermc.lib.PaperLib;
 import io.papermc.paper.ServerBuildInfo;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.*;
+import org.bukkit.entity.ComplexEntityPart;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
@@ -82,7 +86,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     int editToolData = Integer.MIN_VALUE;
     boolean requireToolData = false;
     boolean requireToolName = false;
-    String editToolName = null;
+
+    String editToolNameRaw = null;
+    Component editToolName = null;
+
     boolean requireToolLore = false;
     List<?> editToolLore = null;
     boolean enablePerWorld = false;
@@ -115,7 +122,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String lockedTeam = "ASLocked";
     String inUseTeam = "AS-InUse";
 
-    //Debugging Options.... Not Exposed
+    //Debugging Options.... Not Exposed globally
     boolean debugFlag;
 
     private static ArmorStandEditorPlugin plugin;
@@ -166,7 +173,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         } else {
             getLogger().info("PaperMC: " + hasPaper);
         }
-        getServer().getPluginManager().enablePlugin(this);
 
         if (!hasFolia) {
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
@@ -221,8 +227,9 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         //Do we require a custom tool name?
         requireToolName = getConfig().getBoolean("requireToolName", false);
         if (requireToolName) {
-            editToolName = getConfig().getString("toolName", null);
-            if (editToolName != null) editToolName = ChatColor.translateAlternateColorCodes('&', editToolName);
+            editToolNameRaw = getConfig().getString("toolName", null);
+            if (editToolNameRaw != null)
+                editToolName = LegacyComponentSerializer.legacyAmpersand().deserialize(editToolNameRaw);
         }
 
         //Custom Model Data
@@ -348,7 +355,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         //Fix for Scoreboard Issue reported by Starnos - Wolfst0rm/ArmorStandEditor-Issues/issues/18
         if (scoreboard.getTeam(lockedTeam) == null) {
             scoreboard.registerNewTeam(lockedTeam);
-            scoreboard.getTeam(lockedTeam).setColor(ChatColor.RED);
+            scoreboard.getTeam(lockedTeam).color(NamedTextColor.RED);
         } else {
             getLogger().info("Scoreboard for ASLocked Already exists. Continuing to load");
         }
@@ -503,7 +510,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             }
 
             //Get the name of the Edit Tool - If Null, return false
-            String itemName = itemMeta.getDisplayName();
+            Component itemName = itemMeta.displayName();
 
             //If the name of the Edit Tool is not the Name specified in Config then Return false
             if (!itemName.equals(editToolName)) {
@@ -520,7 +527,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             }
 
             //Get the lore of the Item and if it is null - Return False
-            List<String> itemLore = itemMeta.getLore();
+            List<Component> itemLore = itemMeta.lore();
 
             //If the Item does not have Lore - Return False
             boolean hasTheItemLore = itemMeta.hasLore();
@@ -529,7 +536,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             }
 
             //Get the localised ListString of editToolLore
-            List<String> listStringOfEditToolLore = (List<String>) editToolLore;
+            List<Component> listStringOfEditToolLore = (List<Component>) editToolLore;
 
             //Return False if itemLore on the item does not match what we expect in the config.
             if (!itemLore.equals(listStringOfEditToolLore)) {
@@ -543,7 +550,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             if (!itemStk.hasItemMeta()) {
                 return false;
             }
-            Integer itemCustomModel = itemMeta.getCustomModelData();
+            List<Float> itemCustomModel = itemMeta.getCustomModelDataComponent().getFloats();
             return itemCustomModel.equals(customModelDataInt);
         }
         return true;
@@ -594,8 +601,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         //Do we require a custom tool name?
         requireToolName = getConfig().getBoolean("requireToolName", false);
         if (requireToolName) {
-            editToolName = getConfig().getString("toolName", null);
-            if (editToolName != null) editToolName = ChatColor.translateAlternateColorCodes('&', editToolName);
+            editToolNameRaw = getConfig().getString("toolName", null);
+            if (editToolNameRaw != null) editToolName = LegacyComponentSerializer.legacyAmpersand().deserialize(editToolNameRaw);
         }
 
         //Custom Model Data
