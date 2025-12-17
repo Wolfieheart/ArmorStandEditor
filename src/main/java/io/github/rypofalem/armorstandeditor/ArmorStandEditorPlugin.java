@@ -48,7 +48,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     //!!! DO NOT REMOVE THESE UNDER ANY CIRCUMSTANCES - Required for BStats and UpdateChecker !!!
     public static final String HANGAR_RESOURCE_ID = "Wolfieheart/ArmorStandEditor-Reborn/Release";  //Used for Update Checker
     private static final int PLUGIN_ID = 12668;		     //Used for BStats Metrics
-    private Debug debug = new Debug(this);
+    private Debug debug;
 
     private NamespacedKey iconKey;
     private static ArmorStandEditorPlugin instance;
@@ -284,6 +284,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         debugFlag = getConfig().getBoolean("debugFlag", false);
         if (debugFlag) {
             getLogger().info("[ArmorStandEditor-Debug] ArmorStandEditor Debug Mode is now ENABLED! Use this ONLY for testing Purposes. If you can see this and you have debug disabled, please report it as a bug!");
+            debug = new Debug(this);
         }
 
         //Run UpdateChecker - Reports out to Console on Startup ONLY!
@@ -393,7 +394,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             unregisterScoreboards(scoreboard);
         }
 
-        Debug.shutdown();
+        debug.shutdown();
     }
 
     public boolean getHasPaper() {
@@ -655,6 +656,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         debugFlag = getConfig().getBoolean("debugFlag", false);
         if (debugFlag) {
             getLogger().info("[ArmorStandEditor-Debug] ArmorStandEditor Debug Mode is now ENABLED! Use this ONLY for testing Purposes. If you can see this and you have debug disabled, please report it as a bug!");
+            debug = new Debug(this);
         }
 
 
