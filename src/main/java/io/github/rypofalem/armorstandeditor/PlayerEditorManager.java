@@ -33,7 +33,6 @@ import org.bukkit.entity.*;
 import org.bukkit.event.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
@@ -440,10 +439,10 @@ public class PlayerEditorManager implements Listener {
             if (item != null && item.hasItemMeta()) {
                 Player player = (Player) e.getWhoClicked();
                 String command = item.getItemMeta().getPersistentDataContainer().get(plugin.getIconKey(), PersistentDataType.STRING);
-                if (command.equals("ase ") || command == null){ // Therefore user has clicked a black pane
+                if (command == null || command.equals("ase ")){ // Therefore user has clicked a black pane
                     getPlayerEditor(player.getUniqueId()).sendMessage("blackGlassClick","");
                     return;
-                } else if (command != null) {
+                } else {
                      player.performCommand(command);
                      return;
                 }
