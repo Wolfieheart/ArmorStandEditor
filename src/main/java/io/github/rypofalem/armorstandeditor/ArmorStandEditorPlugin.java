@@ -402,10 +402,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
             unregisterScoreboards(scoreboard);
         }
-
-        if (debugFlag) {
-            debug.shutdown();
-        }
     }
 
     public String getNmsVersion() {
