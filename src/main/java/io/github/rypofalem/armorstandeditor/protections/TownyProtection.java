@@ -104,12 +104,12 @@ public class TownyProtection implements Protection {
                 debug.log("ArmorStand Found at X: " + entityLoc.getBlockX() + ", Y: " + entityLoc.getBlockY() + ", Z: " + entityLoc.getBlockZ());
                 if (entityLoc.getBlockX() == asLoc.getBlockX()
                     && entityLoc.getBlockZ() == asLoc.getBlockZ()
-                    && entityLoc.getBlockY() == asLoc.getBlockY() + 1) {
+                    && entityLoc.getBlockY() == asLoc.getBlockY()) {
                     return stand;
                 }
             }
         }
-        debug.log("Entity found at X: " + asLoc.getBlockX() + ", Y: " + asLoc.getBlockY() + 1 + ", Z: " + asLoc.getBlockZ() + " is not an ArmorStand. So we will return NULL - Will do so for ItemFrames etc.");
+        debug.log("Entity found at X: " + asLoc.getBlockX() + ", Y: " + asLoc.getBlockY() + ", Z: " + asLoc.getBlockZ() + " is not an ArmorStand. So we will return NULL - Will do so for ItemFrames etc.");
         return null;
     }
 }
