@@ -19,6 +19,7 @@
 
 package io.github.rypofalem.armorstandeditor;
 
+import com.griefdefender.lib.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import com.jeff_media.updatechecker.UpdateCheckSource;
 import com.jeff_media.updatechecker.UpdateChecker;
 import com.jeff_media.updatechecker.UserAgentBuilder;
@@ -26,7 +27,12 @@ import com.jeff_media.updatechecker.UserAgentBuilder;
 import io.github.rypofalem.armorstandeditor.Metrics.*;
 import io.github.rypofalem.armorstandeditor.language.Language;
 
+import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
+import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 import io.papermc.lib.PaperLib;
+
+import net.kyori.adventure.text.Component;
+
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -41,12 +47,14 @@ import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 
+import static net.kyori.adventure.text.format.NamedTextColor.RED;
+
 public class ArmorStandEditorPlugin extends JavaPlugin {
 
     //!!! DO NOT REMOVE THESE UNDER ANY CIRCUMSTANCES - Required for BStats and UpdateChecker !!!
-    public static final int SPIGOT_RESOURCE_ID = 94503;  //Used for Update Checker
+    public static final String HANGAR_RELEASE_CHANNEL = "Wolfieheart/ArmorStandEditor-Reborn/Release";  //Used for Update Checker
     private static final int PLUGIN_ID = 12668;		     //Used for BStats Metrics
-    private Debug debug = new Debug(this);
+    public Debug debug;
 
     private NamespacedKey iconKey;
     private static ArmorStandEditorPlugin instance;
@@ -56,13 +64,13 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String nmsVersion;
     String languageFolderLocation = "lang/";
     String warningMCVer = "Minecraft Version: ";
-    public boolean hasSpigot = false;
     public boolean hasPaper = false;
     public boolean hasFolia = false;
     String nmsVersionNotLatest = null;
+    String versionLogPrefix;
 
     //Hardcode the ASE Version
-    public static final String ASE_VERSION = "1.21.10-49.3";
+    public static final String ASE_VERSION = "1.21.11-50.RC2";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;
@@ -78,7 +86,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     int editToolData = Integer.MIN_VALUE;
     boolean requireToolData = false;
     boolean requireToolName = false;
-    String editToolName = null;
+    String editToolNameRaw = null;
+    Component editToolName = null;
     boolean requireToolLore = false;
     List<?> editToolLore = null;
     boolean enablePerWorld = false;
@@ -126,84 +135,52 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         if (!Scheduler.isFolia())
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
 
-        //Load Messages in Console
+        //START ---  Load Messages in Console
         getLogger().info("======= ArmorStandEditor =======");
         getLogger().info("Plugin Version: v" + ASE_VERSION);
 
-        //Spigot Check
-        hasSpigot = getHasSpigot();
         hasPaper = getHasPaper();
         hasFolia = Scheduler.isFolia();
 
         //Get NMS Version
-        if (hasPaper || hasFolia) {
-            nmsVersion = getServer().getMinecraftVersion();
+        nmsVersion = getServer().getMinecraftVersion();
+        versionLogPrefix = warningMCVer + nmsVersion;
 
-            // Check if the Minecraft version is supported
-            if (nmsVersion.contains("1.21")) {
-                getLogger().log(Level.INFO, warningMCVer + "{0}", nmsVersion);
-                getLogger().info("ArmorStandEditor is compatible with this version of Minecraft. Loading continuing.");
-            } else if (nmsVersion.contains("1.17") || nmsVersion.contains("1.18") || nmsVersion.contains("1.19") || nmsVersion.contains("1.20")) {
-                getLogger().log(Level.WARNING, warningMCVer + "{0}", nmsVersion);
-                getLogger().warning("ArmorStandEditor is compatible with this version of Minecraft, but it is not the latest supported version.");
-                getLogger().warning("Loading continuing, but please consider updating to the latest version.");
-            } else {
-                getLogger().log(Level.WARNING, warningMCVer + "{0}", nmsVersion);
-                getLogger().warning("ArmorStandEditor is not compatible with this version of Minecraft. Please update to at least version 1.17. Loading failed.");
-                getServer().getPluginManager().disablePlugin(this);
-                getLogger().info(SEPARATOR_FIELD);
-            }
-        } else { // Spigot Detected
-            nmsVersion = getNmsVersion();
-            // Check if the Minecraft version is supported
-            if (nmsVersion.compareTo("v1_17") < 0) {
-                getLogger().log(Level.WARNING, warningMCVer + "{0}", nmsVersion);
-                getLogger().warning("ArmorStandEditor is not compatible with this version of Minecraft. Please update to at least version 1.17. Loading failed.");
-                getServer().getPluginManager().disablePlugin(this);
-                getLogger().info(SEPARATOR_FIELD);
-                return;
-            }
-
-            //Also Warn People to Update if using nmsVersion lower than latest
-            if (nmsVersion.compareTo("v1_21") < 0) {
-                getLogger().log(Level.WARNING, warningMCVer + "{0}", nmsVersion);
-                getLogger().warning("ArmorStandEditor is compatible with this version of Minecraft, but it is not the latest supported version.");
-                getLogger().warning("Loading continuing, but please consider updating to the latest version.");
-            } else {
-                getLogger().log(Level.INFO, warningMCVer + "{0}", nmsVersion);
-                getLogger().info("ArmorStandEditor is compatible with this version of Minecraft. Loading continuing.");
-            }
-
+        if(VersionUtil.fromString(nmsVersion).isNewerThanOrEquals(MinecraftVersion.MINECRAFT_1_21)){
+            getLogger().info(versionLogPrefix);
+            getLogger().info("ArmorStandEditor is compatible with this version of Minecraft. Loading continuing.");
+        } else if(VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(MinecraftVersion.MINECRAFT_1_21)){
+            getLogger().warning(versionLogPrefix);
+            getLogger().warning("ArmorStandEditor is compatible with this version of Minecraft, but it is not the latest supported version.");
+            getLogger().warning("Loading continuing, but please consider updating to the latest version.");
+        } else if(VersionUtil.fromString(nmsVersion).isOlderThan(MinecraftVersion.OLDEST_SUPPORTED_VERSION)){
+            getLogger().severe(versionLogPrefix);
+            getLogger().severe("ArmorStandEditor is not compatible with this version of Minecraft. Please update to at least version 1.17. Loading failed.");
+            getServer().getPluginManager().disablePlugin(this);
+            getLogger().info(SEPARATOR_FIELD);
         }
 
-
-        //If Paper and Spigot are both FALSE - Disable the plugin
-        if (!hasPaper && !hasSpigot) {
-            getLogger().severe("This plugin requires either Paper, Spigot or one of its forks to run. This is not an error, please do not report this!");
+        //If Paper and Folia are both FALSE - Disable the plugin
+        if (!hasPaper && !hasFolia) {
+            getLogger().severe("This plugin requires either Paper or one of its forks to run. This is not an error, please do not report this!");
             getServer().getPluginManager().disablePlugin(this);
             getLogger().info(SEPARATOR_FIELD);
             return;
         } else {
-            if (hasSpigot) {
-                getLogger().log(Level.INFO, "SpigotMC: {0}", hasSpigot);
-            } else {
-                getLogger().log(Level.INFO, "PaperMC: {0}", hasPaper);
-            }
+            getLogger().log(Level.INFO, "Paper/Folia Present? {0}", hasPaper);
         }
-        getServer().getPluginManager().enablePlugin(this);
-
-        asTeams.add(lockedTeam);
-        asTeams.add(inUseTeam);
 
         if (!hasFolia) {
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
             registerScoreboards(scoreboard);
+            asTeams.add(lockedTeam);
+            asTeams.add(inUseTeam);
         } else {
-            getServer().getLogger().warning("Scoreboards currently do not work on Folia. Scoreboard Coloring will not work");
+            runWarningsFolia();
         }
 
-
         getLogger().info(SEPARATOR_FIELD);
+        /// ----- End of Initial Console Output
 
         //saveResource doesn't accept File.separator on Windows, need to hardcode unix separator "/" instead
         updateConfig("", "config.yml");
@@ -246,8 +223,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         //Do we require a custom tool name?
         requireToolName = getConfig().getBoolean("requireToolName", false);
         if (requireToolName) {
-            editToolName = getConfig().getString("toolName", null);
-            if (editToolName != null) editToolName = ChatColor.translateAlternateColorCodes('&', editToolName);
+            editToolNameRaw = getConfig().getString("toolName", null);
+            if (editToolNameRaw != null) {
+                editToolName = (Component) LegacyComponentSerializer.legacyAmpersand().deserialize(editToolNameRaw);
+            }
         }
 
         //Custom Model Data
@@ -276,7 +255,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         enablePerWorld = getConfig().getBoolean("enablePerWorldSupport", false);
         if (enablePerWorld) {
             allowedWorldList = getConfig().getList("allowed-worlds", null);
-            if (allowedWorldList != null && allowedWorldList.get(0).equals("*")) {
+            if (allowedWorldList != null && allowedWorldList.getFirst().equals("*")) {
                 allowedWorldList = getServer().getWorlds().stream().map(World::getName).toList();
             }
         }
@@ -309,6 +288,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         debugFlag = getConfig().getBoolean("debugFlag", false);
         if (debugFlag) {
             getServer().getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] ArmorStandEditor Debug Mode is now ENABLED! Use this ONLY for testing Purposes. If you can see this and you have debug disabled, please report it as a bug!");
+            debug = new Debug(this);
         }
 
         //Run UpdateChecker - Reports out to Console on Startup ONLY!
@@ -337,42 +317,22 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     private void runUpdateCheckerConsoleUpdateCheck() {
-        if (ASE_VERSION.contains(".x")) {
-            getLogger().warning("Note from the development team: ");
-            getLogger().warning("It appears that you are using the development version of ArmorStandEditor");
-            getLogger().warning("This version can be unstable and is not recommended for Production Environments.");
-            getLogger().warning("Please, report bugs to: https://github.com/Wolfieheart/ArmorStandEditor. ");
-            getLogger().warning("This warning is intended to be displayed when using a Dev build and is NOT A BUG!");
-            getLogger().info("Update Checker does not work on Development Builds.");
-        } else {
-            new UpdateChecker(this, UpdateCheckSource.SPIGET, "" + SPIGOT_RESOURCE_ID + "")
-                .setDownloadLink("https://www.spigotmc.org/resources/armorstandeditor-reborn.94503/")
-                .setChangelogLink("https://www.spigotmc.org/resources/armorstandeditor-reborn.94503/history")
+        new UpdateChecker(this, UpdateCheckSource.HANGAR, HANGAR_RELEASE_CHANNEL)
+                .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
                 .setColoredConsoleOutput(true)
                 .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())
                 .checkEveryXHours(updateCheckerInterval)
                 .checkNow();
-        }
     }
 
     private void runUpdateCheckerWithOPNotifyOnJoinEnabled() {
-        if (ASE_VERSION.contains(".x")) {
-            getLogger().warning("Note from the development team: ");
-            getLogger().warning("It appears that you are using the development version of ArmorStandEditor");
-            getLogger().warning("This version can be unstable and is not recommended for Production Environments.");
-            getLogger().warning("Please, report bugs to: https://github.com/Wolfieheart/ArmorStandEditor . ");
-            getLogger().warning("This warning is intended to be displayed when using a Dev build and is NOT A BUG!");
-            getLogger().info("Update Checker does not work on Development Builds.");
-        } else {
-            new UpdateChecker(this, UpdateCheckSource.SPIGET, "" + SPIGOT_RESOURCE_ID + "")
-                .setDownloadLink("https://www.spigotmc.org/resources/armorstandeditor-reborn.94503/")
-                .setChangelogLink("https://www.spigotmc.org/resources/armorstandeditor-reborn.94503/history")
+        new UpdateChecker(this, UpdateCheckSource.HANGAR, HANGAR_RELEASE_CHANNEL)
+                .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
                 .setColoredConsoleOutput(true)
                 .setNotifyOpsOnJoin(true)
                 .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())
                 .checkEveryXHours(updateCheckerInterval)
                 .checkNow();
-        }
     }
 
     //Implement Glow Effects for Wolfstorm/ArmorStandEditor-Issues#5 - Add Disable Slots with Different Glow than Default
@@ -390,7 +350,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         //Fix for Scoreboard Issue reported by Starnos - Wolfst0rm/ArmorStandEditor-Issues/issues/18
         if (scoreboard.getTeam(lockedTeam) == null) {
             scoreboard.registerNewTeam(lockedTeam);
-            scoreboard.getTeam(lockedTeam).setColor(ChatColor.RED);
+            scoreboard.getTeam(lockedTeam).color(RED);
         } else {
             getServer().getLogger().info("Scoreboard for ASLocked Already exists. Continuing to load");
         }
@@ -438,27 +398,12 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     public String getNmsVersion() {
-        if (getHasPaper() || getHasFolia()){
-            return this.getMinecraftVersion();
-        } else { 
-            return this.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-        }
-    }
-
-    public boolean getHasSpigot() {
-        try {
-            Class.forName("org.spigotmc.CustomTimingsHandler");
-            nmsVersionNotLatest = "SpigotMC ASAP.";
-            return true;
-        } catch (ClassNotFoundException e) {
-            nmsVersionNotLatest = "";
-            return false;
-        }
+        return this.getMinecraftVersion();
     }
 
     public boolean getHasPaper() {
         try {
-            Class.forName("com.destroystokyo.paper.PaperConfig");
+            Class.forName("io.papermc.paper.configuration.Configuration");
             nmsVersionNotLatest = "PaperMC ASAP.";
             return true;
         } catch (ClassNotFoundException e) {
@@ -555,7 +500,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             }
 
             //Get the name of the Edit Tool - If Null, return false
-            String itemName = itemMeta.getDisplayName();
+            Component itemName = itemMeta.displayName();
 
             //If the name of the Edit Tool is not the Name specified in Config then Return false
             if (!itemName.equals(editToolName)) {
@@ -572,7 +517,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             }
 
             //Get the lore of the Item and if it is null - Return False
-            List<String> itemLore = itemMeta.getLore();
+            List<Component> itemLore = itemMeta.lore();
 
             //If the Item does not have Lore - Return False
             boolean hasTheItemLore = itemMeta.hasLore();
@@ -581,22 +526,13 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             }
 
             //Get the localised ListString of editToolLore
-            List<String> listStringOfEditToolLore = (List<String>) editToolLore;
+            List<Component> listStringOfEditToolLore = (List<Component>) editToolLore;
 
             //Return False if itemLore on the item does not match what we expect in the config.
             if (!itemLore.equals(listStringOfEditToolLore)) {
                 return false;
             }
 
-        }
-
-        if (allowCustomModelData && customModelDataInt != null) {
-            //If the ItemStack does not have Metadata then we return false
-            if (!itemStk.hasItemMeta()) {
-                return false;
-            }
-            Integer itemCustomModel = itemMeta.getCustomModelData();
-            return itemCustomModel.equals(customModelDataInt);
         }
         return true;
     }
@@ -639,8 +575,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         //Do we require a custom tool name?
         requireToolName = getConfig().getBoolean("requireToolName", false);
         if (requireToolName) {
-            editToolName = getConfig().getString("toolName", null);
-            if (editToolName != null) editToolName = ChatColor.translateAlternateColorCodes('&', editToolName);
+            editToolNameRaw = getConfig().getString("toolName", null);
+            if (editToolNameRaw != null) {
+                editToolName = (Component) LegacyComponentSerializer.legacyAmpersand().deserialize(editToolNameRaw);
+            }
         }
 
         //Custom Model Data
@@ -788,6 +726,15 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     }
 
+
+    private void runWarningsFolia() {
+        getLogger().warning("Scoreboards currently do not work on Folia. Scoreboard Coloring will not work");
+        getLogger().warning("This also means the Teams for ASLocked and AS-InUse will also not work. Sever Owners if you see this: ");
+        getLogger().warning("This is not a bug. Warn Players to be careful with ArmorStands and 2 people using them at the same time.... ");
+        getLogger().warning(".... as this is known to cause Duplicate Items. Also warn you server moderation team. ");
+    }
+
+
     public NamespacedKey getIconKey() {
         if (iconKey == null) iconKey = new NamespacedKey(this, "command_icon");
         return iconKey;
@@ -800,4 +747,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return debugFlag;
     }
 
+    public String getASEVersion() {
+        return ASE_VERSION;
+    }
 }

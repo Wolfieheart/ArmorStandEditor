@@ -4,7 +4,7 @@
     <groupId>io.github.rypofalem.armorstandeditor</groupId>
     <artifactId>armorstandeditor</artifactId>
     <packaging>jar</packaging>
-    <version>1.21.10-49.3</version>
+    <version>1.21.11-50-RC2</version>
     <name>armorstandeditor</name>
     <url>https://maven.apache.org</url>
 
@@ -97,11 +97,11 @@
     </dependencyManagement>
 
     <dependencies>
-        <!--Spigot + Folia API -->
+        <!--Paper + Folia API -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.10-R0.1-SNAPSHOT</version>
+            <version>1.21.11-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -118,6 +118,7 @@
             <scope>provided</scope>
         </dependency>
 
+
         <dependency>
             <groupId>dev.folia</groupId>
             <artifactId>folia-api</artifactId>
@@ -130,6 +131,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <!--- WorldGuard -->
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
@@ -137,6 +139,7 @@
             <version>7.1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+
         <!--- PlotSquared -->
         <dependency>
             <groupId>com.intellectualsites.plotsquared</groupId>
@@ -154,6 +157,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
             <groupId>com.intellectualsites.plotsquared</groupId>
             <artifactId>plotsquared-bukkit</artifactId>
@@ -170,13 +174,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!--- GriefPrevention: Depreciated -->
-        <dependency>
-            <groupId>com.github.TechFortress</groupId>
-            <artifactId>GriefPrevention</artifactId>
-            <version>17.0.0</version>
-            <scope>provided</scope>
-        </dependency>
+
         <!--- Towny -->
         <dependency>
             <groupId>com.palmergames.bukkit.towny</groupId>
@@ -184,6 +182,7 @@
             <version>0.102.0.1</version>
             <scope>provided</scope>
         </dependency>
+
         <!--- UpdateChecker -->
         <dependency>
             <groupId>com.jeff_media</groupId>
@@ -191,6 +190,7 @@
             <version>3.0.4</version>
             <scope>compile</scope>
         </dependency>
+
         <!-- SuperiorSkyblock API -->
         <dependency>
             <groupId>com.bgsoftware</groupId>
@@ -198,6 +198,7 @@
             <version>2024.1</version>
             <scope>provided</scope>
         </dependency>
+
         <!--- GriefDefender -->
         <dependency>
             <groupId>com.griefdefender</groupId>
@@ -211,6 +212,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <!-- Lands -->
         <dependency>
             <groupId>com.github.angeschossen</groupId>
@@ -218,6 +220,7 @@
             <version>7.11.10</version>
             <scope>provided</scope>
         </dependency>
+
         <!-- Bentobox -->
         <dependency>
             <groupId>world.bentobox</groupId>
@@ -225,6 +228,7 @@
             <version>1.23.2</version>
             <scope>provided</scope>
         </dependency>
+
         <!-- ItemAdder -->
         <dependency>
             <groupId>com.github.LoneDev6</groupId>
@@ -232,6 +236,7 @@
             <version>3.6.1</version>
             <scope>provided</scope>
         </dependency>
+
         <!-- PaperLib -->
         <dependency>
             <groupId>io.papermc</groupId>
@@ -331,16 +336,6 @@
                     <tagNameFormat>@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
-            <!-- Hangar Publish Support -->
-            <plugin>
-                <groupId>io.papermc.hangar</groupId>
-                <artifactId>hangar-publish-plugin</artifactId>
-                <version>1.0.0</version> <!-- replace with latest -->
-                <configuration>
-                    <apiToken>${hangar.token}</apiToken>
-                    <projectId>YourProjectID</projectId>
-                </configuration>
-           </plugin>
         </plugins>
     </build>
 </project>

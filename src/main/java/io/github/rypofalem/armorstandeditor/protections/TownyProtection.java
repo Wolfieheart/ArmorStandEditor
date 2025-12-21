@@ -55,12 +55,18 @@ public class TownyProtection implements Protection {
         TownyAPI towny = TownyAPI.getInstance();
         Location playerLoc = player.getLocation();
         Location asLoc = block.getLocation();
+        Material target = block.getType();
 
         // --- Get ArmorStand on the Block --
         ArmorStand entityOnBlock = findArmorStandOnBlock(asLoc);
         if (entityOnBlock == null) {
-            debug.log("No ArmorStand has been found therefore we will continue as intended");
-            return true;
+            debug.log("No Valid ArmorStand has been found - Check if the Player can build at th");
+            return PlayerCacheUtil.getCachePermission(
+                    player,
+                    playerLoc,            // use the stand's actual location
+                    target,              // use the actual block material instead of null
+                    TownyPermission.ActionType.BUILD
+            );
         }
 
         debug.log("Editing ArmorStand: " + entityOnBlock.getUniqueId());
@@ -68,7 +74,7 @@ public class TownyProtection implements Protection {
         // --- wilderness checks ---
         if (towny.isWilderness(playerLoc)) {
             if (player.hasPermission("asedit.townyProtection.canEditInWild")) {
-                debug.log("User '" + player.getDisplayName() + "' is in the Wilderness and has the permission asedit.townyProtection.canEditInWild set to TRUE. Edits are allowed!");
+                debug.log("User '" + player.getName() + "' is in the Wilderness and has the permission asedit.townyProtection.canEditInWild set to TRUE. Edits are allowed!");
                 return true;
             } else {
                 player.sendMessage(plugin.getLang().getMessage("townyNoWildEdit", "warn"));
