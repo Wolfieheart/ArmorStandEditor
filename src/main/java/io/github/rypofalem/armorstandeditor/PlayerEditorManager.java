@@ -217,26 +217,27 @@ public class PlayerEditorManager implements Listener {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     void onArmorStandBreak(EntityDamageByEntityEvent event) { // Fixes issue #309
-        if (!(event.getDamager() instanceof Player player)) return;
-        if (!(event.getEntity() instanceof ArmorStand armorStand)) return;
+        if (!(event.getDamager() instanceof Player)) return; // If the damager is not a player, ignore.
+        if (!(event.getEntity()  instanceof ArmorStand)) return; // If the damaged entity is not an ArmorStand, ignore.
 
-        // Prevent creative players from breaking invulnerable armor stands
-        if (armorStand.isInvulnerable() && player.getGameMode() == GameMode.CREATIVE) {
-            player.sendMessage(plugin.getLang().getMessage("unabledestroycreative"));
-            event.setCancelled(true);
-            return;
+        if (event.getEntity() instanceof ArmorStand entityAS) {
+            // Check if the ArmorStand is invulnerable and if the damager is a player.
+            if (entityAS.isInvulnerable() && event.getDamager() instanceof Player p) {
+                // Check if the player is in Creative mode.
+                if (p.getGameMode() == GameMode.CREATIVE) {
+                    // If the player is in Creative mode and the ArmorStand is invulnerable,
+                    // cancel the event to prevent breaking the ArmorStand.
+                    p.sendMessage(plugin.getLang().getMessage("unabledestroycreative"));
+                    event.setCancelled(true); // Cancel the event to prevent ArmorStand destruction.
+                }
+            }
         }
 
-        // Check for lethal damage
-        double finalHealth = armorStand.getHealth() - event.getFinalDamage();
-        if (finalHealth > 0) {
-            return; // Not lethal, do nothing
+        if (event.getEntity() instanceof ArmorStand entityAS && entityAS.isDead()) {
+            event.getEntity().setCustomName(null);
+            event.getEntity().setCustomNameVisible(false);
+            event.setCancelled(false);
         }
-
-        // Clear custom name BEFORE the ArmorStand is removed
-        // Prevents name tag formatting persistence
-        armorStand.customName(null);
-        armorStand.setCustomNameVisible(false);
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
