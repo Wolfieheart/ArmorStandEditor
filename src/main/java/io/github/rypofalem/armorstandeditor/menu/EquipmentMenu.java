@@ -49,7 +49,7 @@ public class EquipmentMenu {
     public EquipmentMenu(PlayerEditor pe, ArmorStand as) {
         this.pe = pe;
         this.armorstand = as;
-        this.debug = pe.plugin.debug;
+        this.debug = new Debug(pe.plugin);
         Component name = pe.plugin.getLang().getMessage("equiptitle", "menutitle");
         menuInv = Bukkit.createInventory(pe.getManager().getEquipmentHolder(), 18, name);
     }

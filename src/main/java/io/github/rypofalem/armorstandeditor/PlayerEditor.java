@@ -83,7 +83,7 @@ public class PlayerEditor {
     public PlayerEditor(UUID uuid, ArmorStandEditorPlugin plugin) {
         this.uuid = uuid;
         this.plugin = plugin;
-        this.debug = plugin.debug;
+        this.debug = new Debug(plugin);
         eMode = EditMode.NONE;
         adjMode = AdjustmentMode.COARSE;
         axis = Axis.X;

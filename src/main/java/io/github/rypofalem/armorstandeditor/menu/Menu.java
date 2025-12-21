@@ -44,7 +44,7 @@ public class Menu {
 
     public Menu(PlayerEditor pe) {
         this.pe = pe;
-        this.debug = pe.plugin.debug;
+        this.debug = new Debug(pe.plugin);
         name = pe.plugin.getLang().getMessage("mainmenutitle", "menutitle");
         menuInv = Bukkit.createInventory(pe.getManager().getMenuHolder(), 54, name);
         fillInventory();
@@ -290,6 +290,7 @@ public class Menu {
 
 
     private Component getIconName(String path, String option) {
+
         return pe.plugin.getLang().getMessage(path, "iconname", option);
     }
 

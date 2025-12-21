@@ -69,7 +69,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
 
     public CommandEx(ArmorStandEditorPlugin armorStandEditorPlugin) {
         this.plugin = armorStandEditorPlugin;
-        this.debug = plugin.debug;
+        this.debug = new Debug(plugin);
     }
 
     @Override

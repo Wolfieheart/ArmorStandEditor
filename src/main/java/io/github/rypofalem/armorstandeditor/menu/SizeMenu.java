@@ -34,7 +34,7 @@ public class SizeMenu extends ASEHolder {
     public SizeMenu(PlayerEditor pe, ArmorStand as) {
         this.pe = pe;
         this.as = as;
-        this.debug = pe.plugin.debug;
+        this.debug = new Debug(pe.plugin);
         name = pe.plugin.getLang().getMessage("sizeMenu", "menutitle");
         menuInv = Bukkit.createInventory(pe.getManager().getSizeMenuHolder(), 27, name);
     }
