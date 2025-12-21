@@ -284,10 +284,6 @@ armorstandglow:
   msg: Toggle ArmorStand Glow
   description:
     msg: Turn ArmorStand Glowing on or off.
-presetmenu:
-  msg: Preset Poses
-  description:
-    msg: Use a Preset Pose for your ArmorStand [Will Open another Menu]
 
 #icons (equipment menu)
 disabled:
