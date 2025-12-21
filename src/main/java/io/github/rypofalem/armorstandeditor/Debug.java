@@ -58,7 +58,7 @@ public class Debug {
             logger.setLevel(Level.ALL);
 
         } catch (IOException e) {
-            Bukkit.getServer().getLogger().severe("[ArmorStandEditor] Could not create debug log file!");
+            plugin.getLogger().severe("[ArmorStandEditor] Could not create debug log file!");
         }
     }
 
@@ -67,8 +67,7 @@ public class Debug {
 
         String finalMsg = msg; // Timestamp handled by formatter for file
         logger.info(finalMsg);
-
-        Bukkit.getServer().getLogger().info("[ArmorStandEditor-Debug] " + msg);
+        plugin.getLogger().info("[ArmorStandEditor-Debug] " + msg);
     }
 
     /**
