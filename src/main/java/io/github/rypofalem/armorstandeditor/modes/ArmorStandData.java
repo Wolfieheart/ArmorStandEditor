@@ -45,6 +45,7 @@ public class ArmorStandData {
         if (VersionUtil.fromString(plugin.getNmsVersion()).isNewerThanOrEquals(MinecraftVersion.MINECRAFT_1_20_4)) {
             this.attributeScale = as.getAttribute(Attribute.SCALE).getValue();
         }
+
         this.basePlate = as.hasBasePlate();
         this.gravity = as.hasGravity();
         this.showArms = as.hasArms();

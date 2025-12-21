@@ -34,6 +34,7 @@ import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
 
 import org.bukkit.*;
+import org.bukkit.entity.ComplexEntityPart;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
@@ -45,7 +46,6 @@ import org.bukkit.scoreboard.Team;
 
 import java.io.File;
 import java.util.*;
-import java.util.logging.Level;
 
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 
@@ -120,7 +120,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String lockedTeam = "ASLocked";
     String inUseTeam = "AS-InUse";
 
-    //Debugging Options.... Not Exposed
+    //Debugging Options.... Not Exposed globally
     boolean debugFlag;
 
     private static ArmorStandEditorPlugin plugin;
@@ -165,6 +165,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             getLogger().severe("This plugin requires either Paper or one of its forks to run. This is not an error, please do not report this!");
             getServer().getPluginManager().disablePlugin(this);
             getLogger().info(SEPARATOR_FIELD);
+            getServer().getPluginManager().disablePlugin(this);
             return;
         } else {
             getLogger().log(Level.INFO, "Paper/Folia Present? {0}", hasPaper);
@@ -334,17 +335,18 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
                 .checkEveryXHours(updateCheckerInterval)
                 .checkNow();
     }
+    
 
     //Implement Glow Effects for Wolfstorm/ArmorStandEditor-Issues#5 - Add Disable Slots with Different Glow than Default
     private void registerScoreboards(Scoreboard scoreboard) {
-        getServer().getLogger().info("Registering Scoreboards required for Glowing Effects");
+        getLogger().info("Registering Scoreboards required for Glowing Effects");
 
         //Register the In Use Team First - It doesnt require a Glow Effect
         // Add better handing for InUse already there. This should stop the errors re - Team already registered appearing
         if(scoreboard.getTeam(inUseTeam) == null) {
             scoreboard.registerNewTeam(inUseTeam);
         } else {
-            getServer().getLogger().info("Scoreboard for AS-InUse Already exists. Continuing to load");
+            getLogger().info("Scoreboard for AS-InUse Already exists. Continuing to load");
         }
 
         //Fix for Scoreboard Issue reported by Starnos - Wolfst0rm/ArmorStandEditor-Issues/issues/18
@@ -352,7 +354,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             scoreboard.registerNewTeam(lockedTeam);
             scoreboard.getTeam(lockedTeam).color(RED);
         } else {
-            getServer().getLogger().info("Scoreboard for ASLocked Already exists. Continuing to load");
+            getLogger().info("Scoreboard for ASLocked Already exists. Continuing to load");
         }
 
     }
@@ -471,6 +473,13 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return this.getConfig().getDouble("maxScaleValue");
     }
 
+    private void runWarningsFolia() { 
+        getLogger().warning("Scoreboards currently do not work on Folia. Scoreboard Coloring will not work");
+        getLogger().warning("This also means the Teams for ASLocked and AS-InUse will also not work. Sever Owners if you see this: ");
+        getLogger().warning("This is not a bug. Warn Players to be careful with ArmorStands and 2 people using them at the same time.... ");
+        getLogger().warning(".... as this is known to cause Duplicate Items. Also warn you server moderation team. ");   
+    }
+
 
 
     public boolean isEditTool(ItemStack itemStk) {
@@ -549,7 +558,14 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         reloadConfig();
 
         //Re-Register Scoreboards
-        if (!hasFolia) registerScoreboards(scoreboard);
+        if (!hasFolia) {
+            scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
+            registerScoreboards(scoreboard);           
+            asTeams.add(lockedTeam);
+            asTeams.add(inUseTeam);
+        } else {
+            runWarningsFolia();
+        }
 
         //Reload Config File
         reloadConfig();
@@ -638,7 +654,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         // Add Debug Reload
         debugFlag = getConfig().getBoolean("debugFlag", false);
         if (debugFlag) {
-            getServer().getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] ArmorStandEditor Debug Mode is now ENABLED! Use this ONLY for testing Purposes. If you can see this and you have debug disabled, please report it as a bug!");
+            getLogger().info("[ArmorStandEditor-Debug] ArmorStandEditor Debug Mode is now ENABLED! Use this ONLY for testing Purposes. If you can see this and you have debug disabled, please report it as a bug!");
+            debug = new Debug(this);
         }
 
 
@@ -657,6 +674,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public static ArmorStandEditorPlugin instance() {
         return instance;
     }
+
+
 
     //Metrics/bStats Support
     private void getMetrics() {
@@ -721,8 +740,16 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         metrics.addCustomChart(new SimplePie("custom_toolname_enabled", () -> getConfig().getString("requireToolName")));
 
         metrics.addCustomChart(new SimplePie("using_the_update_checker", () -> getConfig().getString("runTheUpdateChecker")));
+
         metrics.addCustomChart(new SimplePie("op_updates", () -> getConfig().getString("opUpdateNotification")));
 
+        String serverBrand = getServer().getName();
+        try {
+            serverBrand = ServerBuildInfo.buildInfo().brandName();
+        } catch (NoClassDefFoundError ignored) {}
+
+        final String finalBrand = serverBrand;
+        metrics.addCustomChart(new SimplePie("server_type", () -> finalBrand));
 
     }
 

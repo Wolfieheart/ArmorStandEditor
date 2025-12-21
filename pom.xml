@@ -30,7 +30,7 @@
     </developers>
 
     <repositories>
-        <!-- Spigot MC -->
+        <!-- Paper MC -->
         <repository>
             <id>paper-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
