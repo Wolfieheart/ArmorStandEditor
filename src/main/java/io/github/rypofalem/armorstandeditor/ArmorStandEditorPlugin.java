@@ -31,10 +31,10 @@ import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 import io.papermc.lib.PaperLib;
 
+import io.papermc.paper.ServerBuildInfo;
 import net.kyori.adventure.text.Component;
 
 import org.bukkit.*;
-import org.bukkit.entity.ComplexEntityPart;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
@@ -46,6 +46,7 @@ import org.bukkit.scoreboard.Team;
 
 import java.io.File;
 import java.util.*;
+import java.util.logging.Level;
 
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 
@@ -397,6 +398,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
             unregisterScoreboards(scoreboard);
         }
+
+        if(debugFlag){
+            debug.shutdown();
+        }
     }
 
     public String getNmsVersion() {
@@ -472,15 +477,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public double getMaxScaleValue() {
         return this.getConfig().getDouble("maxScaleValue");
     }
-
-    private void runWarningsFolia() { 
-        getLogger().warning("Scoreboards currently do not work on Folia. Scoreboard Coloring will not work");
-        getLogger().warning("This also means the Teams for ASLocked and AS-InUse will also not work. Sever Owners if you see this: ");
-        getLogger().warning("This is not a bug. Warn Players to be careful with ArmorStands and 2 people using them at the same time.... ");
-        getLogger().warning(".... as this is known to cause Duplicate Items. Also warn you server moderation team. ");   
-    }
-
-
 
     public boolean isEditTool(ItemStack itemStk) {
         if (itemStk == null) {
