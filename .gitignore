@@ -10,3 +10,4 @@ target/
 /TODO-LIST.MD
 /dependency-reduced-pom.xml
 .mvn/.develocity/
+/out/

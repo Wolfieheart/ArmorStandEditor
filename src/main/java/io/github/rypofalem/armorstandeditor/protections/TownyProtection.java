@@ -19,11 +19,12 @@
 package io.github.rypofalem.armorstandeditor.protections;
 
 import com.palmergames.bukkit.towny.TownyAPI;
-
 import com.palmergames.bukkit.towny.object.TownyPermission;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
+
 import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
 import io.github.rypofalem.armorstandeditor.Debug;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -62,10 +63,10 @@ public class TownyProtection implements Protection {
         if (entityOnBlock == null) {
             debug.log("No Valid ArmorStand has been found - Check if the Player can build at th");
             return PlayerCacheUtil.getCachePermission(
-                    player,
-                    playerLoc,            // use the stand's actual location
-                    target,              // use the actual block material instead of null
-                    TownyPermission.ActionType.BUILD
+                player,
+                playerLoc,            // use the stand's actual location
+                target,              // use the actual block material instead of null
+                TownyPermission.ActionType.BUILD
             );
         }
 
@@ -74,7 +75,7 @@ public class TownyProtection implements Protection {
         // --- wilderness checks ---
         if (towny.isWilderness(playerLoc)) {
             if (player.hasPermission("asedit.townyProtection.canEditInWild")) {
-                debug.log("User '" + player.getDisplayName() + "' is in the Wilderness and has the permission asedit.townyProtection.canEditInWild set to TRUE. Edits are allowed!");
+                debug.log("User '" + player.getName() + "' is in the Wilderness and has the permission asedit.townyProtection.canEditInWild set to TRUE. Edits are allowed!");
                 return true;
             } else {
                 player.sendMessage(plugin.getLang().getMessage("townyNoWildEdit", "warn"));
@@ -84,10 +85,10 @@ public class TownyProtection implements Protection {
 
         // --- towny permission check ---
         return PlayerCacheUtil.getCachePermission(
-                player,
-                entityOnBlock.getLocation(),            // use the stand's actual location
+            player,
+            entityOnBlock.getLocation(),            // use the stand's actual location
                 Material.ARMOR_STAND,                   // treat the target as an ArmorStand
-                TownyPermission.ActionType.BUILD
+            TownyPermission.ActionType.BUILD
         );
     }
 
@@ -97,18 +98,18 @@ public class TownyProtection implements Protection {
     private ArmorStand findArmorStandOnBlock(Location asLoc) {
         BoundingBox bbox = BoundingBox.of(asLoc, 1, 1, 1).shift(0, 1, 0);
 
-        for (Entity entity : asLoc.getWorld().getNearbyEntities(bbox)){
-            if(entity instanceof ArmorStand stand){
+        for (Entity entity : asLoc.getWorld().getNearbyEntities(bbox)) {
+            if (entity instanceof ArmorStand stand) {
                 Location entityLoc = stand.getLocation();
                 debug.log("ArmorStand Found at X: " + entityLoc.getBlockX() + ", Y: " + entityLoc.getBlockY() + ", Z: " + entityLoc.getBlockZ());
-                if(entityLoc.getBlockX() == asLoc.getBlockX()
-                        && entityLoc.getBlockZ() == asLoc.getBlockZ()
-                        && entityLoc.getBlockY() == asLoc.getBlockY() + 1){
+                if (entityLoc.getBlockX() == asLoc.getBlockX()
+                    && entityLoc.getBlockZ() == asLoc.getBlockZ()
+                    && entityLoc.getBlockY() == asLoc.getBlockY() + 1) {
                     return stand;
                 }
             }
         }
-        debug.log("Entity found at X: " + asLoc.getBlockX() + ", Y: " + asLoc.getBlockY()+1 + ", Z: " + asLoc.getBlockZ() +" is not an ArmorStand. So we will return NULL - Will do so for ItemFrames etc.");
+        debug.log("Entity found at X: " + asLoc.getBlockX() + ", Y: " + asLoc.getBlockY() + 1 + ", Z: " + asLoc.getBlockZ() + " is not an ArmorStand. So we will return NULL - Will do so for ItemFrames etc.");
         return null;
     }
 }

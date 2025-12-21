@@ -2,12 +2,11 @@ package io.github.rypofalem.armorstandeditor;
 
 import org.bukkit.Bukkit;
 
-import java.util.logging.*;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.*;
 
 
 public class Debug {
@@ -22,10 +21,10 @@ public class Debug {
         debugFileLogSetup();
     }
 
-    public void debugFileLogSetup(){
-        try{
+    public void debugFileLogSetup() {
+        try {
             File pluginDataFolder = plugin.getDataFolder();
-            if(!pluginDataFolder.exists()){
+            if (!pluginDataFolder.exists()) {
                 pluginDataFolder.mkdirs();
             }
 
@@ -35,12 +34,12 @@ public class Debug {
             }
 
             String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-            File logFile = new File(debugFolder, "debugLog-"+date+".log");
+            File logFile = new File(debugFolder, "debugLog-" + date + ".log");
 
             fileHandler = new FileHandler(logFile.getAbsolutePath(), true);
 
             fileHandler.setFormatter(new Formatter() {
-            private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
                 @Override
                 public String format(LogRecord record) {
@@ -72,7 +71,7 @@ public class Debug {
         Bukkit.getServer().getLogger().info("[ArmorStandEditor-Debug] " + msg);
     }
 
-     /**
+    /**
      * Optional: Call on plugin disable to flush and close file cleanly.
      */
     public void shutdown() {
