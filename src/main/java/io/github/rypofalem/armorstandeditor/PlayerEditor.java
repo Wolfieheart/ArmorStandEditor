@@ -18,26 +18,27 @@
  */
 package io.github.rypofalem.armorstandeditor;
 
-import io.github.rypofalem.armorstandeditor.menu.SizeMenu;
-import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
-import io.github.rypofalem.armorstandeditor.utils.Util;
-import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
-
 import io.github.rypofalem.armorstandeditor.menu.EquipmentMenu;
 import io.github.rypofalem.armorstandeditor.menu.Menu;
 import io.github.rypofalem.armorstandeditor.menu.PresetArmorPosesMenu;
-
+import io.github.rypofalem.armorstandeditor.menu.SizeMenu;
 //Do not optimize these..... This will no work properly
 import io.github.rypofalem.armorstandeditor.modes.AdjustmentMode;
 import io.github.rypofalem.armorstandeditor.modes.ArmorStandData;
 import io.github.rypofalem.armorstandeditor.modes.Axis;
 import io.github.rypofalem.armorstandeditor.modes.CopySlots;
 import io.github.rypofalem.armorstandeditor.modes.EditMode;
+import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
+import io.github.rypofalem.armorstandeditor.utils.Util;
+import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 
-import org.bukkit.*;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.ItemFrame;
@@ -115,13 +116,13 @@ public class PlayerEditor {
             movChange = getManager().fineMov;
         }
         degreeAngleChange = eulerAngleChange / Math.PI * 180;
-        debug.log("AdjMode is: " +adjMode.toString().toLowerCase());
+        debug.log("AdjMode is: " + adjMode.toString().toLowerCase());
         sendMessage("setadj", adjMode.toString().toLowerCase());
     }
 
     public void setCopySlot(byte slot) {
         copySlots.changeSlots(slot);
-        debug.log("Copy Slot set to: "+ (slot + 1));
+        debug.log("Copy Slot set to: " + (slot + 1));
         sendMessage("setslot", String.valueOf((slot + 1)));
     }
 
@@ -224,13 +225,13 @@ public class PlayerEditor {
 
         // Dont allow Editing the ArmorStand if the Stand is on the AS-InUse Team
         // Means No 2 Players can edit the Equipment at the same time
-        if(!plugin.hasFolia){
+        if (!plugin.hasFolia) {
             team = plugin.scoreboard.getTeam(plugin.inUseTeam);
             armorStandInUseId = armorStand.getUniqueId();
-    
+
             debug.log("Is ArmorStand currently in use by another player?: " + team.hasEntry(armorStandInUseId.toString()));
-    
-            if(!team.hasEntry(armorStandInUseId.toString())){
+
+            if (!team.hasEntry(armorStandInUseId.toString())) {
                 debug.log("ArmorStand Not on a Team and Player '" + getPlayer().displayName() + "' has triggered to Open the Equipment Menu, Adding to In Use Team");
                 team.addEntry(armorStandInUseId.toString());
                 getPlayer().closeInventory();
@@ -239,11 +240,11 @@ public class PlayerEditor {
             } else {
                 sendMessage("asinuse", "warn");
             }
-        } else { 
-                debug.log("ArmorStand Not on a Team and Player '" + getPlayer().displayName() + "' has triggered to Open the Equipment Menu. Folia.");
-                getPlayer().closeInventory();
-                equipMenu = new EquipmentMenu(this, armorStand);
-                equipMenu.openMenu();
+        } else {
+            debug.log("ArmorStand Not on a Team and Player '" + getPlayer().displayName() + "' has triggered to Open the Equipment Menu. Folia.");
+            getPlayer().closeInventory();
+            equipMenu = new EquipmentMenu(this, armorStand);
+            equipMenu.openMenu();
         }
     }
 
@@ -256,8 +257,8 @@ public class PlayerEditor {
     }
 
     //Size Menu Refactor
-    private void chooseSize(ArmorStand armorStand){
-        if(!getPlayer().hasPermission("asedit.togglesize")){
+    private void chooseSize(ArmorStand armorStand) {
+        if (!getPlayer().hasPermission("asedit.togglesize")) {
             sendMessage("nopermoption", "warn", "size");
         } else {
             if (VersionUtil.fromString(plugin.getNmsVersion()).isNewerThanOrEquals(MinecraftVersion.MINECRAFT_1_20_4)) {
@@ -322,7 +323,7 @@ public class PlayerEditor {
                 loc.add(0, 0, movChange);
                 break;
         }
-        debug.log("Armorstand will be teleported to: " + loc.getX() + ", " + loc.getY()+ ", " + loc.getZ() + ", near player " + getPlayer().displayName());
+        debug.log("Armorstand will be teleported to: " + loc.getX() + ", " + loc.getY() + ", " + loc.getZ() + ", near player " + getPlayer().displayName());
         Scheduler.teleport(armorStand, loc);
     }
 
@@ -340,7 +341,7 @@ public class PlayerEditor {
                 loc.subtract(0, 0, movChange);
                 break;
         }
-        debug.log("Armorstand will be teleported to: " + loc.getX() + ", " + loc.getY()+ ", " + loc.getZ() + ", near player " + getPlayer().displayName());
+        debug.log("Armorstand will be teleported to: " + loc.getX() + ", " + loc.getY() + ", " + loc.getZ() + ", near player " + getPlayer().displayName());
         Scheduler.teleport(armorStand, loc);
     }
 
@@ -349,7 +350,7 @@ public class PlayerEditor {
         Location loc = armorStand.getLocation();
         float yaw = loc.getYaw();
         loc.setYaw((yaw + 180 + (float) degreeAngleChange) % 360 - 180);
-        debug.log("Armorstand will be teleported to: " + loc.getX() + ", " + loc.getY()+ ", " + loc.getZ() + ", near player " + getPlayer().displayName());
+        debug.log("Armorstand will be teleported to: " + loc.getX() + ", " + loc.getY() + ", " + loc.getZ() + ", near player " + getPlayer().displayName());
         Scheduler.teleport(armorStand, loc);
     }
 
@@ -358,7 +359,7 @@ public class PlayerEditor {
         Location loc = armorStand.getLocation();
         float yaw = loc.getYaw();
         loc.setYaw((yaw + 180 - (float) degreeAngleChange) % 360 - 180);
-        debug.log("Armorstand will be teleported to: " + loc.getX() + ", " + loc.getY()+ ", " + loc.getZ() + ", near player " + getPlayer().displayName());
+        debug.log("Armorstand will be teleported to: " + loc.getX() + ", " + loc.getY() + ", " + loc.getZ() + ", near player " + getPlayer().displayName());
         Scheduler.teleport(armorStand, loc);
     }
 
@@ -468,7 +469,7 @@ public class PlayerEditor {
 
     private void toggleInvulnerability(ArmorStand armorStand) { //See NewFeature-Request #256 for more info
         if (getPlayer().hasPermission("asedit.toggleInvulnerability")) {
-            debug.log("Making an ArmorStand vulnerable/invulnerable (set armorStand.isInvulnerable() = '"+ !armorStand.isInvulnerable() +"') near player: " + getPlayer().displayName());
+            debug.log("Making an ArmorStand vulnerable/invulnerable (set armorStand.isInvulnerable() = '" + !armorStand.isInvulnerable() + "') near player: " + getPlayer().displayName());
             armorStand.setInvulnerable(!armorStand.isInvulnerable());
             sendMessage("toggleinvulnerability", String.valueOf(armorStand.isInvulnerable()));
         } else {
@@ -663,7 +664,7 @@ public class PlayerEditor {
             if (ArmorStandEditorPlugin.instance().getHasPaper() || ArmorStandEditorPlugin.instance().getHasFolia()) { //Paper and Spigot having the same Interaction for sendToActionBar
                 Audience.audience(player).sendActionBar(message);
             }
-        }else {
+        } else {
             Audience.audience(player).sendMessage(message);
         }
     }

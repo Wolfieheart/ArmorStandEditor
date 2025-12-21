@@ -28,12 +28,12 @@ public class VersionUtil implements Comparable<VersionUtil> {
      * @return A new Version instance from the given string.
      */
     public static VersionUtil fromString(String version) {
-        if(version == null) {
+        if (version == null) {
             throw new IllegalArgumentException("Version can not be null");
         }
 
         Matcher matcher = VERSION_PATTERN.matcher(version);
-        if(!matcher.find()) {
+        if (!matcher.find()) {
             throw new IllegalArgumentException("Invalid version format: " + version);
         }
 
@@ -44,7 +44,7 @@ public class VersionUtil implements Comparable<VersionUtil> {
     public int compareTo(@NotNull VersionUtil that) {
         int length = Math.max(components.length, that.components.length);
 
-        for(int i = 0; i < length; i++) {
+        for (int i = 0; i < length; i++) {
             int thisPart = i < components.length ? Integer.parseInt(components[i]) : 0;
             int thatPart = i < that.components.length ? Integer.parseInt(that.components[i]) : 0;
 
@@ -84,6 +84,7 @@ public class VersionUtil implements Comparable<VersionUtil> {
     public boolean isOlderThanOrEquals(@NotNull VersionUtil other) {
         return this.compareTo(other) <= 0;
     }
+
     public boolean isOlderThan(@NotNull VersionUtil other) {
         return this.compareTo(other) < 0;
     }

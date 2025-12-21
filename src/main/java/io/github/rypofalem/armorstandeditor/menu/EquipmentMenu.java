@@ -23,7 +23,9 @@ import io.github.rypofalem.armorstandeditor.Debug;
 import io.github.rypofalem.armorstandeditor.PlayerEditor;
 
 import io.papermc.paper.datacomponent.DataComponentTypes;
+
 import net.kyori.adventure.text.Component;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
@@ -65,9 +67,9 @@ public class EquipmentMenu {
 
         ItemStack disabledIcon = ItemStack.of(Material.BARRIER);
         disabledIcon.setData(DataComponentTypes.CUSTOM_NAME,
-                pe.plugin.getLang().getMessage("disabled", "warn")); //equipslot.msg <option>
+            pe.plugin.getLang().getMessage("disabled", "warn")); //equipslot.msg <option>
         disabledIcon.editPersistentDataContainer(
-                pdc -> pdc.set(pe.plugin.getIconKey(), PersistentDataType.STRING, "ase icon")); // mark as icon)
+            pdc -> pdc.set(pe.plugin.getIconKey(), PersistentDataType.STRING, "ase icon")); // mark as icon)
 
 
         ItemStack helmetIcon = createIcon(Material.LEATHER_HELMET, "helm");

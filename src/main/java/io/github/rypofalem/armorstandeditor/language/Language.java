@@ -24,6 +24,7 @@ import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.*;

@@ -7,7 +7,9 @@ import io.github.rypofalem.armorstandeditor.PlayerEditor;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ItemLore;
 import io.papermc.paper.datacomponent.item.TooltipDisplay;
+
 import net.kyori.adventure.text.Component;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -76,7 +78,7 @@ public class SizeMenu extends ASEHolder {
         icon.editPersistentDataContainer(pdc -> pdc.set(pe.plugin.getIconKey(), PersistentDataType.STRING, path));
         icon.setData(DataComponentTypes.LORE, ItemLore.lore().addLine(getIconDescription(path, option)).build());
         icon.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay()
-                .addHiddenComponents(DataComponentTypes.ATTRIBUTE_MODIFIERS).build());
+            .addHiddenComponents(DataComponentTypes.ATTRIBUTE_MODIFIERS).build());
         return icon;
 
     }
@@ -96,23 +98,23 @@ public class SizeMenu extends ASEHolder {
 
         // Separate maps for positive and negative scaling options
         Map<String, Double> positiveScaleMap = Map.ofEntries(
-                Map.entry("scale1", 1.0),
-                Map.entry("scale2", 2.0),
-                Map.entry("scale3", 3.0),
-                Map.entry("scale4", 4.0),
-                Map.entry("scale5", 5.0),
-                Map.entry("scale6", 6.0),
-                Map.entry("scale7", 7.0),
-                Map.entry("scale8", 8.0),
-                Map.entry("scale9", 9.0),
-                Map.entry("scale10", 10.0),
-                Map.entry("scaleadd12", 0.5),
-                Map.entry("scaleadd110", 0.1)
+            Map.entry("scale1", 1.0),
+            Map.entry("scale2", 2.0),
+            Map.entry("scale3", 3.0),
+            Map.entry("scale4", 4.0),
+            Map.entry("scale5", 5.0),
+            Map.entry("scale6", 6.0),
+            Map.entry("scale7", 7.0),
+            Map.entry("scale8", 8.0),
+            Map.entry("scale9", 9.0),
+            Map.entry("scale10", 10.0),
+            Map.entry("scaleadd12", 0.5),
+            Map.entry("scaleadd110", 0.1)
         );
 
         Map<String, Double> negativeScaleMap = Map.ofEntries(
-                Map.entry("scaleremove12", 0.5), // value used for decrement
-                Map.entry("scaleremove110", 0.1)
+            Map.entry("scaleremove12", 0.5), // value used for decrement
+            Map.entry("scaleremove110", 0.1)
         );
 
         if (positiveScaleMap.containsKey(itemName)) {
@@ -154,15 +156,15 @@ public class SizeMenu extends ASEHolder {
         double currentScaleValue = 0;
         double newScaleValue;
 
-        if(!as.isValid()) return;
+        if (!as.isValid()) return;
 
-        if(!player.hasPermission("asedit.togglesize")) return;
+        if (!player.hasPermission("asedit.togglesize")) return;
 
         // Basically go from 0 directly to ItemSize
         if (itemName.equals("scale1") || itemName.equals("scale2") || itemName.equals("scale3")
-                || itemName.equals("scale4") || itemName.equals("scale5") || itemName.equals("scale6")
-                || itemName.equals("scale7") || itemName.equals("scale8") || itemName.equals("scale9")
-                || itemName.equals("scale10")) {
+            || itemName.equals("scale4") || itemName.equals("scale5") || itemName.equals("scale6")
+            || itemName.equals("scale7") || itemName.equals("scale8") || itemName.equals("scale9")
+            || itemName.equals("scale10")) {
             newScaleValue = currentScaleValue + scaleValue;
             debug.log("Result of the scale Calculation: " + newScaleValue);
 

@@ -26,7 +26,9 @@ import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ItemLore;
 import io.papermc.paper.datacomponent.item.PotionContents;
 import io.papermc.paper.datacomponent.item.TooltipDisplay;
+
 import net.kyori.adventure.text.Component;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
@@ -270,12 +272,12 @@ public class Menu {
 
     private ItemStack createIcon(ItemStack icon, String path, String command, String option) {
 
-        if(!command.isEmpty()){
-            icon.editPersistentDataContainer(pdc -> pdc.set(pe.plugin.getIconKey(), PersistentDataType.STRING, "ase "+command));
+        if (!command.isEmpty()) {
+            icon.editPersistentDataContainer(pdc -> pdc.set(pe.plugin.getIconKey(), PersistentDataType.STRING, "ase " + command));
             icon.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay()
-                    .addHiddenComponents(DataComponentTypes.POTION_CONTENTS)
-                    .addHiddenComponents(DataComponentTypes.ATTRIBUTE_MODIFIERS)
-                    .build());
+                .addHiddenComponents(DataComponentTypes.POTION_CONTENTS)
+                .addHiddenComponents(DataComponentTypes.ATTRIBUTE_MODIFIERS)
+                .build());
         } else {
             icon.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay().hideTooltip(true).build());
         }

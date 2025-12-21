@@ -26,7 +26,9 @@ import io.github.rypofalem.armorstandeditor.PlayerEditor;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ItemLore;
 import io.papermc.paper.datacomponent.item.TooltipDisplay;
+
 import net.kyori.adventure.text.Component;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -95,11 +97,11 @@ public class PresetArmorPosesMenu {
     private ItemStack createIcon(ItemStack icon, String path) {
         icon.setData(DataComponentTypes.CUSTOM_NAME, getIconName(path));
         icon.editPersistentDataContainer(
-                pdc -> pdc.set(ArmorStandEditorPlugin.instance().getIconKey(),
-                        PersistentDataType.STRING, path));
+            pdc -> pdc.set(ArmorStandEditorPlugin.instance().getIconKey(),
+                PersistentDataType.STRING, path));
         icon.setData(DataComponentTypes.LORE, ItemLore.lore().addLine(getIconDescription(path)).build());
         icon.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay()
-                .addHiddenComponents(DataComponentTypes.ATTRIBUTE_MODIFIERS).build());
+            .addHiddenComponents(DataComponentTypes.ATTRIBUTE_MODIFIERS).build());
         return icon;
     }
 

@@ -21,15 +21,19 @@ package io.github.rypofalem.armorstandeditor;
 
 import io.github.rypofalem.armorstandeditor.menu.ASEHolder;
 import io.github.rypofalem.armorstandeditor.protections.*;
-
 import io.github.rypofalem.armorstandeditor.utils.Util;
+
 import io.papermc.lib.PaperLib;
+
 import net.kyori.adventure.text.Component;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
-import org.bukkit.event.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -140,9 +144,9 @@ public class PlayerEditorManager implements Listener {
                 Component getName;
                 if (nameTag.getItemMeta() != null && nameTag.getItemMeta().hasDisplayName()) {
                     String name = plainText().serialize(nameTag.getItemMeta().displayName());
-                    if(name != null && player.hasPermission("asedit.rename.color")){
+                    if (name != null && player.hasPermission("asedit.rename.color")) {
                         getName = legacy('&').deserialize(name);
-                    } else{
+                    } else {
                         getName = Component.text(name);
                     }
                 } else {
@@ -420,13 +424,13 @@ public class PlayerEditorManager implements Listener {
             if (item != null && item.hasItemMeta()) {
                 Player player = (Player) e.getWhoClicked();
                 String command = item.getItemMeta().getPersistentDataContainer().get(plugin.getIconKey(), PersistentDataType.STRING);
-                if (command == null || command.equals("ase ")){ // Therefore user has clicked a black pane
-                    getPlayerEditor(player.getUniqueId()).sendMessage("blackGlassClick","");
+                if (command == null || command.equals("ase ")) { // Therefore user has clicked a black pane
+                    getPlayerEditor(player.getUniqueId()).sendMessage("blackGlassClick", "");
                     return;
                 } else {
-                     player.performCommand(command);
-                     Bukkit.getScheduler().runTask(plugin, () -> player.closeInventory());
-                     return;
+                    player.performCommand(command);
+                    Bukkit.getScheduler().runTask(plugin, () -> player.closeInventory());
+                    return;
                 }
             }
         }
@@ -476,7 +480,7 @@ public class PlayerEditorManager implements Listener {
             pe.equipMenu.equipArmorstand();
 
             // Remove the In Use Lock
-            if(!plugin.getHasFolia()){
+            if (!plugin.getHasFolia()) {
                 team = plugin.scoreboard.getTeam(plugin.inUseTeam);
                 if (team != null) {
                     team.removeEntry(pe.armorStandInUseId.toString());

@@ -24,17 +24,21 @@ import com.jeff_media.updatechecker.UpdateCheckSource;
 import com.jeff_media.updatechecker.UpdateChecker;
 import com.jeff_media.updatechecker.UserAgentBuilder;
 
-import io.github.rypofalem.armorstandeditor.Metrics.*;
+import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
+import io.github.rypofalem.armorstandeditor.Metrics.SimplePie;
 import io.github.rypofalem.armorstandeditor.language.Language;
-
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
-import io.papermc.lib.PaperLib;
 
+import io.papermc.lib.PaperLib;
 import io.papermc.paper.ServerBuildInfo;
+
 import net.kyori.adventure.text.Component;
 
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
@@ -147,14 +151,14 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         nmsVersion = getServer().getMinecraftVersion();
         versionLogPrefix = warningMCVer + nmsVersion;
 
-        if(VersionUtil.fromString(nmsVersion).isNewerThanOrEquals(MinecraftVersion.MINECRAFT_1_21)){
+        if (VersionUtil.fromString(nmsVersion).isNewerThanOrEquals(MinecraftVersion.MINECRAFT_1_21)) {
             getLogger().info(versionLogPrefix);
             getLogger().info("ArmorStandEditor is compatible with this version of Minecraft. Loading continuing.");
-        } else if(VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(MinecraftVersion.MINECRAFT_1_21)){
+        } else if (VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(MinecraftVersion.MINECRAFT_1_21)) {
             getLogger().warning(versionLogPrefix);
             getLogger().warning("ArmorStandEditor is compatible with this version of Minecraft, but it is not the latest supported version.");
             getLogger().warning("Loading continuing, but please consider updating to the latest version.");
-        } else if(VersionUtil.fromString(nmsVersion).isOlderThan(MinecraftVersion.OLDEST_SUPPORTED_VERSION)){
+        } else if (VersionUtil.fromString(nmsVersion).isOlderThan(MinecraftVersion.OLDEST_SUPPORTED_VERSION)) {
             getLogger().severe(versionLogPrefix);
             getLogger().severe("ArmorStandEditor is not compatible with this version of Minecraft. Please update to at least version 1.17. Loading failed.");
             getServer().getPluginManager().disablePlugin(this);
@@ -320,23 +324,23 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     private void runUpdateCheckerConsoleUpdateCheck() {
         new UpdateChecker(this, UpdateCheckSource.HANGAR, HANGAR_RELEASE_CHANNEL)
-                .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
-                .setColoredConsoleOutput(true)
-                .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())
-                .checkEveryXHours(updateCheckerInterval)
-                .checkNow();
+            .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
+            .setColoredConsoleOutput(true)
+            .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())
+            .checkEveryXHours(updateCheckerInterval)
+            .checkNow();
     }
 
     private void runUpdateCheckerWithOPNotifyOnJoinEnabled() {
         new UpdateChecker(this, UpdateCheckSource.HANGAR, HANGAR_RELEASE_CHANNEL)
-                .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
-                .setColoredConsoleOutput(true)
-                .setNotifyOpsOnJoin(true)
-                .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())
-                .checkEveryXHours(updateCheckerInterval)
-                .checkNow();
+            .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
+            .setColoredConsoleOutput(true)
+            .setNotifyOpsOnJoin(true)
+            .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())
+            .checkEveryXHours(updateCheckerInterval)
+            .checkNow();
     }
-    
+
 
     //Implement Glow Effects for Wolfstorm/ArmorStandEditor-Issues#5 - Add Disable Slots with Different Glow than Default
     private void registerScoreboards(Scoreboard scoreboard) {
@@ -344,7 +348,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         //Register the In Use Team First - It doesnt require a Glow Effect
         // Add better handing for InUse already there. This should stop the errors re - Team already registered appearing
-        if(scoreboard.getTeam(inUseTeam) == null) {
+        if (scoreboard.getTeam(inUseTeam) == null) {
             scoreboard.registerNewTeam(inUseTeam);
         } else {
             getLogger().info("Scoreboard for AS-InUse Already exists. Continuing to load");
@@ -389,7 +393,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-            if(PaperLib.getHolder(player.getOpenInventory().getTopInventory(), false).getHolder() == editorManager.getMenuHolder()){
+            if (PaperLib.getHolder(player.getOpenInventory().getTopInventory(), false).getHolder() == editorManager.getMenuHolder()) {
                 player.closeInventory(InventoryCloseEvent.Reason.DISCONNECT);
             }
         }
@@ -399,7 +403,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             unregisterScoreboards(scoreboard);
         }
 
-        if(debugFlag){
+        if (debugFlag) {
             debug.shutdown();
         }
     }
@@ -452,7 +456,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return this.getConfig().getBoolean("runTheUpdateChecker");
     }
 
-    public boolean getDefaultGravity(){
+    public boolean getDefaultGravity() {
         return this.getConfig().getBoolean("defaultGravitySetting");
     }
 
@@ -556,7 +560,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         //Re-Register Scoreboards
         if (!hasFolia) {
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
-            registerScoreboards(scoreboard);           
+            registerScoreboards(scoreboard);
             asTeams.add(lockedTeam);
             asTeams.add(inUseTeam);
         } else {
@@ -672,7 +676,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
 
-
     //Metrics/bStats Support
     private void getMetrics() {
 
@@ -742,7 +745,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         String serverBrand = getServer().getName();
         try {
             serverBrand = ServerBuildInfo.buildInfo().brandName();
-        } catch (NoClassDefFoundError ignored) {}
+        } catch (NoClassDefFoundError ignored) {
+        }
 
         final String finalBrand = serverBrand;
         metrics.addCustomChart(new SimplePie("server_type", () -> finalBrand));

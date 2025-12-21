@@ -5,7 +5,8 @@ import org.bukkit.Bukkit;
 
 public class MinecraftVersion {
 
-    private MinecraftVersion() {}
+    private MinecraftVersion() {
+    }
 
     public static final VersionUtil MINECRAFT_1_17 = VersionUtil.fromString("1.17");
     public static final VersionUtil MINECRAFT_1_18_2 = VersionUtil.fromString("1.18.2");
