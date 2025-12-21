@@ -231,7 +231,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         if (requireToolName) {
             editToolNameRaw = getConfig().getString("toolName", null);
             if (editToolNameRaw != null) {
-                editToolName = (Component) LegacyComponentSerializer.legacyAmpersand().deserialize(editToolNameRaw);
+                editToolName = LegacyComponentSerializer.legacyAmpersand().deserialize(editToolNameRaw);
             }
         }
 
@@ -593,7 +593,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         if (requireToolName) {
             editToolNameRaw = getConfig().getString("toolName", null);
             if (editToolNameRaw != null) {
-                editToolName = (Component) LegacyComponentSerializer.legacyAmpersand().deserialize(editToolNameRaw);
+                editToolName = LegacyComponentSerializer.legacyAmpersand().deserialize(editToolNameRaw);
             }
         }
 
