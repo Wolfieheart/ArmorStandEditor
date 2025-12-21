@@ -432,7 +432,7 @@ public class PlayerEditor {
         if (!getPlayer().hasPermission("asedit.disableSlots")) {
             sendMessage("nopermoption", "warn", "disableslots");
         } else {
-            debug.log("Adding DisabledSlots on ArmorStand near the Player " + getPlayer().displayName());
+            debug.log("Remove DisabledSlots on ArmorStand near the Player " + getPlayer().displayName());
             if (armorStand.hasEquipmentLock(EquipmentSlot.HAND, ArmorStand.LockType.REMOVING_OR_CHANGING)) { //Adds a lock to every slot or removes it
                 team = Scheduler.isFolia() ? null : plugin.scoreboard.getTeam(plugin.lockedTeam);
                 armorStandID = armorStand.getUniqueId();
@@ -450,12 +450,12 @@ public class PlayerEditor {
 
 
             } else {
-                debug.log("Removing DisabledSlots on ArmorStand near the Player " + getPlayer().displayName());
+                debug.log("Adding DisabledSlots on ArmorStand near the Player " + getPlayer().displayName());
                 for (final EquipmentSlot slot : EquipmentSlot.values()) { //LOCKED
                     armorStand.addEquipmentLock(slot, ArmorStand.LockType.REMOVING_OR_CHANGING);
                     armorStand.addEquipmentLock(slot, ArmorStand.LockType.ADDING);
                 }
-                getPlayer().playSound(getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, SoundCategory.PLAYERS, 1.0f, 1.0f);
+                getPlayer().playSound(getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_WOLF, SoundCategory.PLAYERS, 1.0f, 1.0f);
                 if (team != null) {
                     team.addEntry(armorStandID.toString());
                     armorStand.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 50, 1, false, false)); //300 Ticks = 15 seconds
