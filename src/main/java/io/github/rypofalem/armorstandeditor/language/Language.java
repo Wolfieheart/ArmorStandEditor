@@ -23,7 +23,8 @@ package io.github.rypofalem.armorstandeditor.language;
 import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -68,20 +69,72 @@ public class Language {
     //format: yml path to format in language file
     //option: path-specific variable that may be used
     public Component getMessage(String path, String format, String option) {
-        if (langConfig == null)
-            reloadLang(langFile.getName());
-        if (path == null)
-            return Component.empty();
-        if (option == null)
-            option = "";
+        if (langConfig == null) reloadLang(langFile.getName());
+        if (path == null) return Component.empty();
+        if (option == null) option = "";
 
         format = getFormat(format);
 
-        if (getString(path + "." + option) != null)
-            option = getString(path + "." + option);
-        String message = format + getString(path + ".msg");
-        message = message.replace("<x>", option);
-        return LegacyComponentSerializer.legacySection().deserialize(message);
+        String rawMessage = langConfig.getString(path + ".msg");
+        if (rawMessage == null) return Component.empty();
+        rawMessage = rawMessage.replace("<x>", option);
+
+        // Decorations
+        boolean underline = langConfig.getBoolean(path + ".underline", false);
+        boolean bold = langConfig.getBoolean(path + ".bold", false);
+        boolean italic = langConfig.getBoolean(path + ".italic", false);
+        boolean strikethrough = langConfig.getBoolean(path + ".strikethrough", false);
+
+        // Gradient?
+        String from = langConfig.getString(path + ".gradient.from");
+        String to = langConfig.getString(path + ".gradient.to");
+
+        Component comp;
+
+        if (from != null && to != null) {
+            comp = gradient(rawMessage, from, to);
+        } else {
+            // Normal color
+            String hex = langConfig.getString(path + ".color");
+            comp = Component.text(rawMessage);
+
+            if (hex != null && !hex.isEmpty()) {
+                comp = comp.color(TextColor.fromHexString(hex));
+            }
+        }
+
+        // Apply decorations
+        if (underline) comp = comp.decorate(TextDecoration.UNDERLINED);
+        if (bold) comp = comp.decorate(TextDecoration.BOLD);
+        if (italic) comp = comp.decorate(TextDecoration.ITALIC);
+        if (strikethrough) comp = comp.decorate(TextDecoration.STRIKETHROUGH);
+
+        return comp;
+    }
+
+    public Component gradient(String text, String startHex, String endHex) {
+        int start = Integer.parseInt(startHex.replace("#", ""), 16);
+        int end = Integer.parseInt(endHex.replace("#", ""), 16);
+
+        int length = text.length();
+        Component comp = Component.empty();
+
+        for (int i = 0; i < length; i++) {
+            float ratio = (float) i / (length - 1);
+
+            int r = (int) (((start >> 16) & 0xFF) * (1 - ratio) + ((end >> 16) & 0xFF) * ratio);
+            int g = (int) (((start >> 8) & 0xFF) * (1 - ratio) + ((end >> 8) & 0xFF) * ratio);
+            int b = (int) (((start) & 0xFF) * (1 - ratio) + ((end) & 0xFF) * ratio);
+
+            int rgb = (r << 16) | (g << 8) | b;
+
+            comp = comp.append(
+                    Component.text(String.valueOf(text.charAt(i)))
+                            .color(TextColor.color(rgb))
+            );
+        }
+
+        return comp;
     }
 
 
