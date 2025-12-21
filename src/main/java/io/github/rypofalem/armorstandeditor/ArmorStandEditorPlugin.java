@@ -19,7 +19,6 @@
 
 package io.github.rypofalem.armorstandeditor;
 
-import com.griefdefender.lib.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import com.jeff_media.updatechecker.UpdateCheckSource;
 import com.jeff_media.updatechecker.UpdateChecker;
 import com.jeff_media.updatechecker.UserAgentBuilder;
@@ -34,6 +33,8 @@ import io.papermc.lib.PaperLib;
 import io.papermc.paper.ServerBuildInfo;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import static net.kyori.adventure.text.format.NamedTextColor.RED;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -52,7 +53,6 @@ import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 
-import static net.kyori.adventure.text.format.NamedTextColor.RED;
 
 public class ArmorStandEditorPlugin extends JavaPlugin {
 
