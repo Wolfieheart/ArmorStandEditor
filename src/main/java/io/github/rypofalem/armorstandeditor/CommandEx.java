@@ -145,7 +145,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
 
     private void commandGivePlayerHead(Player player) {
         if (player.hasPermission("asedit.head") || plugin.getallowedToRetrieveOwnPlayerHead()) {
-            debug.log("Creating a player head for the OfflinePlayer '" + player.displayName() + "'");
+            debug.log("Creating a player head for the OfflinePlayer '" + player.getName() + "'");
             OfflinePlayer offlinePlayer = player.getPlayer();
             ItemStack item = new ItemStack(Material.PLAYER_HEAD, 1);
             SkullMeta meta = (SkullMeta) item.getItemMeta();
@@ -207,7 +207,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
         if (args.length > 1) {
             for (Axis axis : Axis.values()) {
                 if (axis.toString().toLowerCase().contentEquals(args[1].toLowerCase())) {
-                    debug.log("Player '" + player.displayName() + "' sets the axis to " + axis);
+                    debug.log("Player '" + player.getName() + "' sets the axis to " + axis);
                     plugin.editorManager.getPlayerEditor(player.getUniqueId()).setAxis(axis);
                     return;
                 }
@@ -228,7 +228,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                     if (args[1].equals("invisible") && !(checkPermission(player, "togglearmorstandvisibility", true) || plugin.getArmorStandVisibility())) return;
                     if (args[1].equals("itemframe") && !(checkPermission(player, "toggleitemframevisibility", true) || plugin.getItemFrameVisibility())) return;
                     plugin.editorManager.getPlayerEditor(player.getUniqueId()).setMode(mode);
-                    debug.log("Player '" + player.displayName() + "' chose the mode: " + mode);
+                    debug.log("Player '" + player.getName() + "' chose the mode: " + mode);
                     return;
                 }
             }
@@ -273,7 +273,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     }
 
     private void commandVersion(Player player) {
-        debug.log("Player '" + player.displayName() + "' permission check for asedit.update: " + getPermissionUpdate(player));
+        debug.log("Player '" + player.getName() + "' permission check for asedit.update: " + getPermissionUpdate(player));
         if (!(getPermissionUpdate(player))) return;
         String verString = plugin.getASEVersion();
         player.sendMessage(text("[ArmorStandEditor] Version: " + verString, YELLOW));
@@ -285,7 +285,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     }
 
     private void commandReload(Player player) {
-        debug.log("Player '" + player.displayName() + "' permission check for asedit.reload: " + getPermissionReload(player));
+        debug.log("Player '" + player.getName() + "' permission check for asedit.reload: " + getPermissionReload(player));
 
         if (!(getPermissionReload(player))) return;
         debug.log("Performing reload of config.yml");
@@ -300,7 +300,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     }
 
     private void commandStats(Player player) {
-        debug.log("Player '" + player.displayName() + "' permission check for asedit.stats: " + getPermissionStats(player));
+        debug.log("Player '" + player.getName() + "' permission check for asedit.stats: " + getPermissionStats(player));
 
         if (getPermissionStats(player)) {
             for (Entity e : player.getNearbyEntities(1, 1, 1)) {
