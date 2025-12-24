@@ -25,6 +25,8 @@ import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -37,6 +39,7 @@ public class Language {
     private YamlConfiguration defConfig = null;
     private File langFile = null;
     ArmorStandEditorPlugin plugin;
+    private static final MiniMessage MINI = MiniMessage.miniMessage();
 
     public Language(String langFileName, ArmorStandEditorPlugin plugin) {
         this.plugin = plugin;
@@ -65,76 +68,63 @@ public class Language {
         langConfig = YamlConfiguration.loadConfiguration(langStream);
     }
 
-    //path: yml path to message in language file
-    //format: yml path to format in language file
-    //option: path-specific variable that may be used
+    // path: yml path to message in language file
+    // format: yml path to format in language file (info, warn, etc)
+    // option: path-specific variable
     public Component getMessage(String path, String format, String option) {
         if (langConfig == null) reloadLang(langFile.getName());
         if (path == null) return Component.empty();
         if (option == null) option = "";
 
-        format = getFormat(format);
+        String raw = getString(path + ".msg");
+        if (raw == null) return Component.empty();
 
-        String rawMessage = langConfig.getString(path + ".msg");
-        if (rawMessage == null) return Component.empty();
-        rawMessage = rawMessage.replace("<x>", option);
+        // Replace option placeholder
+        raw = raw.replace("<x>", option);
 
-        // Decorations
-        boolean underline = langConfig.getBoolean(path + ".underline", false);
-        boolean bold = langConfig.getBoolean(path + ".bold", false);
-        boolean italic = langConfig.getBoolean(path + ".italic", false);
-        boolean strikethrough = langConfig.getBoolean(path + ".strikethrough", false);
+        // Resolve format color (info/warn/etc)
+        String formatValue = getFormat(format);
 
-        // Gradient?
-        String from = langConfig.getString(path + ".gradient.from");
-        String to = langConfig.getString(path + ".gradient.to");
+        Component base = MINI.deserialize(raw);
 
-        Component comp;
-
-        if (from != null && to != null) {
-            comp = gradient(rawMessage, from, to);
-        } else {
-            // Normal color
-            String hex = langConfig.getString(path + ".color");
-            comp = Component.text(rawMessage);
-
-            if (hex != null && !hex.isEmpty()) {
-                comp = comp.color(TextColor.fromHexString(hex));
+        // Apply format color LAST
+        if (formatValue != null && !formatValue.isEmpty()) {
+            TextColor color = resolveFormatColor(formatValue);
+            if (color != null) {
+                base = base.color(color);
             }
         }
 
-        // Apply decorations
-        if (underline) comp = comp.decorate(TextDecoration.UNDERLINED);
-        if (bold) comp = comp.decorate(TextDecoration.BOLD);
-        if (italic) comp = comp.decorate(TextDecoration.ITALIC);
-        if (strikethrough) comp = comp.decorate(TextDecoration.STRIKETHROUGH);
-
-        return comp;
+        return base;
     }
 
-    public Component gradient(String text, String startHex, String endHex) {
-        int start = Integer.parseInt(startHex.replace("#", ""), 16);
-        int end = Integer.parseInt(endHex.replace("#", ""), 16);
 
-        int length = text.length();
-        Component comp = Component.empty();
-
-        for (int i = 0; i < length; i++) {
-            float ratio = (float) i / (length - 1);
-
-            int r = (int) (((start >> 16) & 0xFF) * (1 - ratio) + ((end >> 16) & 0xFF) * ratio);
-            int g = (int) (((start >> 8) & 0xFF) * (1 - ratio) + ((end >> 8) & 0xFF) * ratio);
-            int b = (int) (((start) & 0xFF) * (1 - ratio) + ((end) & 0xFF) * ratio);
-
-            int rgb = (r << 16) | (g << 8) | b;
-
-            comp = comp.append(
-                    Component.text(String.valueOf(text.charAt(i)))
-                            .color(TextColor.color(rgb))
-            );
+    private TextColor resolveFormatColor(String value) {
+        // Hex format
+        if (value.startsWith("#")) {
+            return TextColor.fromHexString(value);
         }
 
-        return comp;
+        // Legacy single-character colors
+        return switch (value.toLowerCase()) {
+            case "0" -> TextColor.fromHexString("#000000");
+            case "1" -> TextColor.fromHexString("#0000aa");
+            case "2" -> TextColor.fromHexString("#00aa00");
+            case "3" -> TextColor.fromHexString("#00aaaa");
+            case "4" -> TextColor.fromHexString("#aa0000");
+            case "5" -> TextColor.fromHexString("#aa00aa");
+            case "6" -> TextColor.fromHexString("#ffaa00");
+            case "7" -> TextColor.fromHexString("#aaaaaa");
+            case "8" -> TextColor.fromHexString("#555555");
+            case "9" -> TextColor.fromHexString("#5555ff");
+            case "a" -> TextColor.fromHexString("#55ff55");
+            case "b" -> TextColor.fromHexString("#55ffff");
+            case "c" -> TextColor.fromHexString("#ff5555");
+            case "d" -> TextColor.fromHexString("#ff55ff");
+            case "e" -> TextColor.fromHexString("#ffff55");
+            case "f" -> TextColor.fromHexString("#ffffff");
+            default -> null;
+        };
     }
 
 
