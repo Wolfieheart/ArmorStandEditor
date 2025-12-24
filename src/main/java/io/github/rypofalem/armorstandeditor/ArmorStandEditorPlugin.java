@@ -161,14 +161,13 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         } else if (VersionUtil.fromString(nmsVersion).isOlderThan(MinecraftVersion.OLDEST_SUPPORTED_VERSION)) {
             getLogger().severe(versionLogPrefix);
             getLogger().severe("ArmorStandEditor is not compatible with this version of Minecraft. Please update to at least version 1.17. Loading failed.");
-            getServer().getPluginManager().disablePlugin(this);
             getLogger().info(SEPARATOR_FIELD);
+            getServer().getPluginManager().disablePlugin(this);
         }
 
         //If Paper and Folia are both FALSE - Disable the plugin
         if (!hasPaper && !hasFolia) {
             getLogger().severe("This plugin requires either Paper or one of its forks to run. This is not an error, please do not report this!");
-            getServer().getPluginManager().disablePlugin(this);
             getLogger().info(SEPARATOR_FIELD);
             getServer().getPluginManager().disablePlugin(this);
             return;
