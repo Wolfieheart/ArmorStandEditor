@@ -269,9 +269,9 @@ copyslot:
   description:
     msg: Select a slot to store settings
 reset:
-  msg: Reset Pose
+  msg: Reset
   description:
-    msg: Reset bodypart position to default
+    msg: "<red><underline>Reset</underline><hover:show_text:'Reset scale to default'>"
 helpgui:
   msg: Help!
   description:
@@ -382,12 +382,12 @@ howtopresetmsg:
 
 #Size Scaling
 sizeMenu:
-  msg: ArmorStand Size (Scaling)
+  msg: "<bold>ArmorStand Size (Scaling)</bold>"
   description:
     msg: Set a scale for your ArmorStand [Will Open ANOTHER Menu]
 
 scale1:
-  msg: Scale = 1 (Default)
+  msg: "<gradient:#ff0000:#ffaa00>Scale = 1 (Default)</gradient>"
   description:
     msg: Set the Scale Attribute of your ArmorStand to 1 (Default)
 scale2:
