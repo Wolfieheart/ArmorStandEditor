@@ -24,6 +24,8 @@ import io.github.rypofalem.armorstandeditor.PlayerEditor;
 
 import io.papermc.paper.datacomponent.DataComponentTypes;
 
+import io.papermc.paper.datacomponent.item.ItemLore;
+import io.papermc.paper.datacomponent.item.TooltipDisplay;
 import net.kyori.adventure.text.Component;
 
 import org.bukkit.Bukkit;
@@ -31,12 +33,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
 
 @SuppressWarnings("UnstableApiUsage")
 public class EquipmentMenu {
@@ -79,22 +78,38 @@ public class EquipmentMenu {
         ItemStack rightHandIcon = createIcon(Material.WOODEN_SWORD, "rhand");
         ItemStack leftHandIcon = createIcon(Material.SHIELD, "lhand");
         ItemStack[] items =
-            {helmetIcon, chestIcon, pantsIcon, feetsiesIcon, rightHandIcon, leftHandIcon, disabledIcon, disabledIcon, disabledIcon,
-                helmet, chest, pants, feetsies, rightHand, leftHand, disabledIcon, disabledIcon, disabledIcon
+            {
+                    helmetIcon, chestIcon, pantsIcon, feetsiesIcon, rightHandIcon, leftHandIcon, disabledIcon, disabledIcon, disabledIcon,
+                    helmet, chest, pants, feetsies, rightHand, leftHand, disabledIcon, disabledIcon, disabledIcon
             };
         menuInv.setContents(items);
     }
 
     private ItemStack createIcon(Material mat, String slot) {
-        ItemStack icon = new ItemStack(mat);
-        ItemMeta meta = icon.getItemMeta();
-        meta.getPersistentDataContainer().set(pe.plugin.getIconKey(), PersistentDataType.STRING, "ase icon");
-        meta.displayName(pe.plugin.getLang().getMessage("equipslot", "iconname", slot)); //equipslot.msg <option>
-        ArrayList<Component> loreList = new ArrayList<>();
-        loreList.add(pe.plugin.getLang().getMessage("equipslot.description", "icondescription", slot)); //equioslot.description.msg <option>
-        meta.lore(loreList);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        icon.setItemMeta(meta);
+        ItemStack icon = ItemStack.of(mat);
+
+        // 1. Get the friendly name (e.g., "Helmet") from the config
+        // This looks at 'equipslot.helm'
+        String friendlyName = pe.plugin.getLang().getString("equipslot." + slot);
+
+        // 2. Get the description name (e.g., "Helmet" or "Feetsies")
+        // This looks at 'equipslot.description.helm'
+        String friendlyDesc = pe.plugin.getLang().getString("equipslot.description." + slot);
+
+        icon.editPersistentDataContainer(
+                pdc -> pdc.set(pe.plugin.getIconKey(), PersistentDataType.STRING, "ase icon"));
+
+        // 3. Pass the friendly name into the <x> placeholder
+        icon.setData(DataComponentTypes.CUSTOM_NAME,
+                pe.plugin.getLang().getMessage("equipslot", "iconname", friendlyName));
+
+        // 4. Pass the description-friendly name into the <x> placeholder
+        icon.setData(DataComponentTypes.LORE, ItemLore.lore()
+                .addLine(pe.plugin.getLang().getMessage("equipslot.description", "icondescription", friendlyDesc)));
+
+        icon.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay()
+                .addHiddenComponents(DataComponentTypes.ATTRIBUTE_MODIFIERS).build());
+
         return icon;
     }
 
