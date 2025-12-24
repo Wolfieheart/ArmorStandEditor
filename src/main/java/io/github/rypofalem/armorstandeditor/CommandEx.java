@@ -331,23 +331,15 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     private boolean getPermissionBasic(Player player) {
         return checkPermission(player, "basic", false);
     }
-
-    private boolean getPermissionGive(Player player) {
-        return checkPermission(player, "give", false);
-    }
-
     private boolean getPermissionUpdate(Player player) {
         return checkPermission(player, "update", false);
     }
-
     private boolean getPermissionReload(Player player) {
         return checkPermission(player, "reload", false);
     }
-
     private boolean getPermissionPlayerHead(Player player) {
         return checkPermission(player, "head", false);
     }
-
     private boolean getPermissionStats(Player player) {
         return checkPermission(player, "stats", false);
     }
@@ -369,9 +361,6 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                 argList.add("?");
 
                 //Will Only work with permissions
-                if (getPermissionGive(player)) {
-                    argList.add("give");
-                }
                 if (getPermissionUpdate(player)) {
                     argList.add("update");
                 }
