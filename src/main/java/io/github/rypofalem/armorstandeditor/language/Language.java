@@ -24,9 +24,7 @@ import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -34,7 +32,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class Language {
-    final String DEFAULT_LANG = "en_US.yml";
+    static final String DEFAULT_LANG = "en_US.yml";
     private YamlConfiguration langConfig = null;
     private YamlConfiguration defConfig = null;
     private File langFile = null;
@@ -56,11 +54,9 @@ public class Language {
         Reader defaultLangStream = new InputStreamReader(input, StandardCharsets.UTF_8);
         defConfig = YamlConfiguration.loadConfiguration(defaultLangStream);
 
-        input = null;
         try {
             input = new FileInputStream(langFile);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
             return;
         }
 
