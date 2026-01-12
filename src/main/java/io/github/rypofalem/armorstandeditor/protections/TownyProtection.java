@@ -27,11 +27,9 @@ import io.github.rypofalem.armorstandeditor.Debug;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.util.BoundingBox;
 
 
 //FIX for https://github.com/Wolfieheart/ArmorStandEditor-Issues/issues/15
@@ -47,18 +45,17 @@ public class TownyProtection implements Protection {
         tEnabled = Bukkit.getPluginManager().isPluginEnabled("Towny");
     }
 
-    public boolean checkPermission(Block block, Player player) {
+    @Override
+    public boolean checkPermission(Entity entity, Player player) {
 
         // Bypasses - Towny is not detected, Player is Op or has Bypass Perms
         if (!tEnabled || player.isOp() || player.hasPermission("asedit.ignoreProtection.towny")) return true;
 
         TownyAPI towny = TownyAPI.getInstance();
         Location playerLoc = player.getLocation();
-        Location asLoc = block.getLocation();
 
         // --- Get ArmorStand on the Block --
-        ArmorStand entityOnBlock = findArmorStandOnBlock(asLoc);
-        if (entityOnBlock == null) {
+        if (!(entity instanceof ArmorStand entityOnBlock)) {
             debug.log("No ArmorStand has been found therefore we will continue as intended");
             return true;
         }
@@ -83,27 +80,6 @@ public class TownyProtection implements Protection {
                 Material.ARMOR_STAND,                   // treat the target as an ArmorStand
                 TownyPermission.ActionType.BUILD
         );
-    }
-
-    /**
-     * Utility: finds an ArmorStand sitting directly on top of the given block.
-     */
-    private ArmorStand findArmorStandOnBlock(Location asLoc) {
-        BoundingBox bbox = BoundingBox.of(asLoc, 1, 1, 1).shift(0, 1, 0);
-
-        for (Entity entity : asLoc.getWorld().getNearbyEntities(bbox)){
-            if(entity instanceof ArmorStand stand){
-                Location entityLoc = stand.getLocation();
-                debug.log("ArmorStand Found at X: " + entityLoc.getBlockX() + ", Y: " + entityLoc.getBlockY() + ", Z: " + entityLoc.getBlockZ());
-                if(entityLoc.getBlockX() == asLoc.getBlockX()
-                        && entityLoc.getBlockZ() == asLoc.getBlockZ()
-                        && entityLoc.getBlockY() == asLoc.getBlockY() + 1){
-                    return stand;
-                }
-            }
-        }
-        debug.log("Entity found at X: " + asLoc.getBlockX() + ", Y: " + asLoc.getBlockY()+1 + ", Z: " + asLoc.getBlockZ() +" is not an ArmorStand. So we will return NULL - Will do so for ItemFrames etc.");
-        return null;
     }
 }
 
