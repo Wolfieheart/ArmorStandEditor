@@ -19,8 +19,16 @@
 package io.github.rypofalem.armorstandeditor.protections;
 
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 public interface Protection {
-    boolean checkPermission(Block block, Player player);
+
+    default boolean checkPermission(Block block, Player player){
+        return true;
+    }
+
+    default boolean checkPermission(Entity entity, Player player) {
+        return checkPermission(entity.getLocation().getBlock(), player);
+    }
 }
