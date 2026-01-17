@@ -23,8 +23,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 public interface Protection {
-
-    default boolean checkPermission(Block block, Player player){
+    default boolean checkPermission(Block block, Player player) {
         return true;
     }
 
