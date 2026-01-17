@@ -310,7 +310,7 @@ public class PlayerEditorManager implements Listener {
 
     private ArrayList<ItemFrame> getFrameTargets(Player player) {
         Location eyeLaser = player.getEyeLocation();
-        Vector direction = player.getLocation().getDirection();
+        Vector direction = eyeLaser.getDirection();
         ArrayList<ItemFrame> itemFrames = new ArrayList<>();
 
         double STEPSIZE = .5;
