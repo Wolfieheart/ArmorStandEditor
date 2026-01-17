@@ -342,16 +342,6 @@
                     <tagNameFormat>@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
-            <!-- Hangar Publish Support -->
-            <plugin>
-                <groupId>io.papermc.hangar</groupId>
-                <artifactId>hangar-publish-plugin</artifactId>
-                <version>1.0.0</version> <!-- replace with latest -->
-                <configuration>
-                    <apiToken>${hangar.token}</apiToken>
-                    <projectId>YourProjectID</projectId>
-                </configuration>
-           </plugin>
         </plugins>
     </build>
 </project>
