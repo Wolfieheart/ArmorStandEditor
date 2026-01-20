@@ -740,7 +740,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         String serverBrand = getServer().getName();
         try {
             serverBrand = ServerBuildInfo.buildInfo().brandName();
-        } catch (NoClassDefFoundError _) {
+        } catch (NoClassDefFoundError ignored) {
         }
 
         final String finalBrand = serverBrand;
