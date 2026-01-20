@@ -1,7 +1,0 @@
-name: ArmorStandEditor-APITester
-main: io.github.rypofalem.apiexample.ArmorStandEditorAPITest
-version: 1.21-47
-api-version: "1.13"
-website: https://www.spigotmc.org/resources/94503/
-authors: [Wolfstorm, Pinnkk]
-description: Allows players to edit data of armorstands without any commands.
