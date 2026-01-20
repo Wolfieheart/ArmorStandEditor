@@ -144,7 +144,7 @@ public class PlayerEditorManager implements Listener {
                 Component getName;
                 if (nameTag.getItemMeta() != null && nameTag.getItemMeta().hasDisplayName()) {
                     String name = plainText().serialize(nameTag.getItemMeta().displayName());
-                    if (name != null && player.hasPermission("asedit.rename.color")) {
+                    if (player.hasPermission("asedit.rename.color")) {
                         getName = legacy('&').deserialize(name);
                     } else {
                         getName = Component.text(name);

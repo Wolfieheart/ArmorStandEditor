@@ -185,7 +185,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         }
 
         getLogger().info(SEPARATOR_FIELD);
-        /// ----- End of Initial Console Output
+        // ----- End of Initial Console Output
 
         //saveResource doesn't accept File.separator on Windows, need to hardcode unix separator "/" instead
         updateConfig("", "config.yml");
@@ -740,7 +740,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         String serverBrand = getServer().getName();
         try {
             serverBrand = ServerBuildInfo.buildInfo().brandName();
-        } catch (NoClassDefFoundError ignored) {
+        } catch (NoClassDefFoundError _) {
         }
 
         final String finalBrand = serverBrand;

@@ -51,7 +51,7 @@ public class PresetArmorPosesMenu {
     public PresetArmorPosesMenu(PlayerEditor pe, ArmorStand as) {
         this.pe = pe;
         this.armorStand = as;
-        this.debug = new Debug(pe.plugin);;
+        this.debug = new Debug(pe.plugin);
         name = plugin.getLang().getMessage("presettitle", "menutitle");
         menuInv = Bukkit.createInventory(pe.getManager().getPresetHolder(), 36, name);
     }
@@ -127,6 +127,7 @@ public class PresetArmorPosesMenu {
         if (player == null) return;
 
         debug.log("Player '" + player.getName() + "' has chosen the Preset AS Pose '" + itemName + "'");
+
         //Do the Preset
         switch (itemName) {
             case "sitting" -> {
@@ -184,14 +185,21 @@ public class PresetArmorPosesMenu {
                 player.closeInventory();
                 pe.openMenu();
             }
-            case "howtopreset" -> {
-                player.sendMessage(pe.plugin.getLang().getMessage("howtopresetmsg"));
-                player.sendMessage(pe.plugin.getLang().getMessage("helpurl"));
-                player.sendMessage(pe.plugin.getLang().getMessage("helpdiscord"));
-                player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 1);
-                player.closeInventory();
+            case "howtopreset" ->{
+                triggerHowToPreset(player);
+            }
+            default ->{
+                triggerHowToPreset(player);
             }
         }
+    }
+
+    public void triggerHowToPreset(Player player){
+        player.sendMessage(pe.plugin.getLang().getMessage("howtopresetmsg"));
+        player.sendMessage(pe.plugin.getLang().getMessage("helpurl"));
+        player.sendMessage(pe.plugin.getLang().getMessage("helpdiscord"));
+        player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 1);
+        player.closeInventory();
     }
 
     public void setPresetPose(Player player, double rightArmRoll, double rightArmYaw, double rightArmPitch,

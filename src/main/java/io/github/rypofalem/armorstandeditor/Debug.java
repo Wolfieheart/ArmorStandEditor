@@ -1,7 +1,7 @@
 package io.github.rypofalem.armorstandeditor;
 
-import java.util.logging.*;
 
+import java.util.logging.Level;
 
 public class Debug {
 
@@ -13,6 +13,6 @@ public class Debug {
 
     public void log(String msg) {
         if (!plugin.isDebug()) return;
-        plugin.getLogger().info("[ArmorStandEditor-Debug] " + msg);
+        plugin.getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] {0}", msg);
     }
 }

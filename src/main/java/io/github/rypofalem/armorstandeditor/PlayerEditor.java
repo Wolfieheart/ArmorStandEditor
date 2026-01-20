@@ -455,7 +455,9 @@ public class PlayerEditor {
                     armorStand.addEquipmentLock(slot, ArmorStand.LockType.REMOVING_OR_CHANGING);
                     armorStand.addEquipmentLock(slot, ArmorStand.LockType.ADDING);
                 }
+
                 getPlayer().playSound(getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_WOLF, SoundCategory.PLAYERS, 1.0f, 1.0f);
+
                 if (team != null) {
                     team.addEntry(armorStandID.toString());
                     armorStand.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 50, 1, false, false)); //300 Ticks = 15 seconds

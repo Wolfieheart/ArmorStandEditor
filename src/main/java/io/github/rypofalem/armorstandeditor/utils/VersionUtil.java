@@ -10,7 +10,8 @@ public class VersionUtil implements Comparable<VersionUtil> {
 
     private final String version;
     private static final Pattern SEPARATOR = Pattern.compile("\\.");
-    private static final Pattern VERSION_PATTERN = Pattern.compile("[0-9]+(" + SEPARATOR + "[0-9]+)*");
+    private static final Pattern VERSION_PATTERN =
+            Pattern.compile("\\d+(?:" + SEPARATOR + "\\d+)*");
     private final String[] components;
 
     private VersionUtil(String version) {
