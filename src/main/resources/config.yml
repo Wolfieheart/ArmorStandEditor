@@ -54,14 +54,6 @@ toolLore:
   - "TIME TO GET REALLY" #Replace if you want SingleLine ToolLore
   - "REALLY DANGEROUS!"  #Remove if you don't want MultiLine ToolLore
 
-#(Optional) Allow the use of CustomModelData - NOTE: This looks at the editTool set by Config
-#and at the Int set here to know what to set.
-
-#Also please if you are using this, ensure that you also give people the ability asedit.give in
-#order to allow them to change their edit tool for the right Custom Model Data
-allowCustomModelData: false
-customModelDataInt: 0
-
 #----------- ARMOR STAND SPECIFICS
 
 #How many rotations to make a full circle in Coarse adjustment mode

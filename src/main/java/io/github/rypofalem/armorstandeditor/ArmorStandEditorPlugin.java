@@ -97,8 +97,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     List<?> editToolLore = null;
     boolean enablePerWorld = false;
     List<?> allowedWorldList = null;
-    boolean allowCustomModelData = false;
-    Integer customModelDataInt = Integer.MIN_VALUE;
     double maxScaleValue;
     double minScaleValue;
 
@@ -204,108 +202,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         //English is the default language and needs to be unaltered to so that there is always a backup message string
         saveResource("lang/en_US.yml", true);
-        lang = new Language(getConfig().getString("lang"), this);
 
-        //Rotation
-        coarseRot = getConfig().getDouble("coarse");
-        fineRot = getConfig().getDouble("fine");
-
-        // Scale Values for Size
-        maxScaleValue = getConfig().getDouble("maxScaleValue");
-        minScaleValue = getConfig().getDouble("minScaleValue");
-
-        //Set Tool to be used in game
-        toolType = getConfig().getString("tool");
-        if (toolType != null) {
-            editTool = Material.getMaterial(toolType); //Ignore Warning
-        } else {
-            getLogger().severe("Unable to get Tool for Use with Plugin. Unable to continue!");
-            getLogger().info(SEPARATOR_FIELD);
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
-
-        //Do we require a custom tool name?
-        requireToolName = getConfig().getBoolean("requireToolName", false);
-        if (requireToolName) {
-            editToolNameRaw = getConfig().getString("toolName", null);
-            if (editToolNameRaw != null) {
-                editToolName = LegacyComponentSerializer.legacyAmpersand().deserialize(editToolNameRaw);
-            }
-        }
-
-        //Custom Model Data
-        allowCustomModelData = getConfig().getBoolean("allowCustomModelData", false);
-
-        if (allowCustomModelData) {
-            customModelDataInt = getConfig().getInt("customModelDataInt", Integer.MIN_VALUE);
-        }
-
-        //ArmorStandVisibility Node
-        armorStandVisibility = getConfig().getBoolean("armorStandVisibility", true);
-
-        //Is there NBT Required for the tool
-        requireToolData = getConfig().getBoolean("requireToolData", false);
-
-        if (requireToolData) {
-            editToolData = getConfig().getInt("toolData", Integer.MIN_VALUE);
-        }
-
-        requireToolLore = getConfig().getBoolean("requireToolLore", false);
-
-        if (requireToolLore) {
-            editToolLore = getConfig().getList("toolLore", null);
-        }
-
-        enablePerWorld = getConfig().getBoolean("enablePerWorldSupport", false);
-        if (enablePerWorld) {
-            allowedWorldList = getConfig().getList("allowed-worlds", null);
-            if (allowedWorldList != null && allowedWorldList.getFirst().equals("*")) {
-                allowedWorldList = getServer().getWorlds().stream().map(World::getName).toList();
-            }
-        }
-
-        // Get the Default Gravity Value - Default = True since we expect it to be the same as in vanilla
-        defaultGravity = getConfig().getBoolean("defaultGravitySetting", true);
-
-        //Require Sneaking - Wolfst0rm/ArmorStandEditor#17
-        requireSneaking = getConfig().getBoolean("requireSneaking", false);
-
-        //Send Messages to Action Bar
-        sendToActionBar = getConfig().getBoolean("sendMessagesToActionBar", true);
-
-        //All ItemFrame Stuff
-        glowItemFrames = getConfig().getBoolean("glowingItemFrame", true);
-        invisibleItemFrames = getConfig().getBoolean("invisibleItemFrames", true);
-
-        //Add ability to enable ot Disable the running of the Updater
-        runTheUpdateChecker = getConfig().getBoolean("runTheUpdateChecker", true);
-
-        //Add Ability to check for UpdatePerms that Notify Ops - https://github.com/Wolfieheart/ArmorStandEditor/issues/86
-        opUpdateNotification = getConfig().getBoolean("opUpdateNotification", true);
-        updateCheckerInterval = getConfig().getDouble("updateCheckerInterval", 24);
-
-        //Ability to get Player Heads via a command
-        allowedToRetrieveOwnPlayerHead = getConfig().getBoolean("allowedToRetrieveOwnPlayerHead", true);
-
-        adminOnlyNotifications = getConfig().getBoolean("adminOnlyNotifications", true);
-
-        debugFlag = getConfig().getBoolean("debugFlag", false);
-        if (debugFlag) {
-            getServer().getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] ArmorStandEditor Debug Mode is now ENABLED! Use this ONLY for testing Purposes. If you can see this and you have debug disabled, please report it as a bug!");
-            debug = new Debug(this);
-        }
-
-        //Run UpdateChecker - Reports out to Console on Startup ONLY!
-        if (!hasFolia && runTheUpdateChecker) {
-
-            if (opUpdateNotification) {
-                runUpdateCheckerWithOPNotifyOnJoinEnabled();
-            } else {
-                runUpdateCheckerConsoleUpdateCheck();
-            }
-
-        }
+        loadConfigValues();
 
         //Get Metrics from bStats
         getMetrics();
@@ -455,10 +353,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return this.getConfig().getBoolean("defaultGravitySetting");
     }
 
-    public Integer getCustomModelDataInt() {
-        return this.getConfig().getInt("customModelDataInt");
-    }
-
     //New in 1.20-43: Allow the ability to get a player head from a command - ENABLED VIA CONFIG ONLY!
     public boolean getallowedToRetrieveOwnPlayerHead() {
         return this.getConfig().getBoolean("allowedToRetrieveOwnPlayerHead");
@@ -541,6 +435,105 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return true;
     }
 
+    public void loadConfigValues(){
+        lang = new Language(getConfig().getString("lang"), this);
+
+        //Rotation
+        coarseRot = getConfig().getDouble("coarse");
+        fineRot = getConfig().getDouble("fine");
+
+        // Scale Values for Size
+        maxScaleValue = getConfig().getDouble("maxScaleValue");
+        minScaleValue = getConfig().getDouble("minScaleValue");
+
+        //Set Tool to be used in game
+        toolType = getConfig().getString("tool");
+        if (toolType != null) {
+            editTool = Material.getMaterial(toolType); //Ignore Warning
+        } else {
+            getLogger().severe("Unable to get Tool for Use with Plugin. Unable to continue!");
+            getLogger().info(SEPARATOR_FIELD);
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        //Do we require a custom tool name?
+        requireToolName = getConfig().getBoolean("requireToolName", false);
+        if (requireToolName) {
+            editToolNameRaw = getConfig().getString("toolName", null);
+            if (editToolNameRaw != null) {
+                editToolName = LegacyComponentSerializer.legacyAmpersand().deserialize(editToolNameRaw);
+            }
+        }
+
+        //ArmorStandVisibility Node
+        armorStandVisibility = getConfig().getBoolean("armorStandVisibility", true);
+
+        //Is there NBT Required for the tool
+        requireToolData = getConfig().getBoolean("requireToolData", false);
+
+        if (requireToolData) {
+            editToolData = getConfig().getInt("toolData", Integer.MIN_VALUE);
+        }
+
+        requireToolLore = getConfig().getBoolean("requireToolLore", false);
+
+        if (requireToolLore) {
+            editToolLore = getConfig().getList("toolLore", null);
+        }
+
+        enablePerWorld = getConfig().getBoolean("enablePerWorldSupport", false);
+        if (enablePerWorld) {
+            allowedWorldList = getConfig().getList("allowed-worlds", null);
+            if (allowedWorldList != null && allowedWorldList.getFirst().equals("*")) {
+                allowedWorldList = getServer().getWorlds().stream().map(World::getName).toList();
+            }
+        }
+
+        // Get the Default Gravity Value - Default = True since we expect it to be the same as in vanilla
+        defaultGravity = getConfig().getBoolean("defaultGravitySetting", true);
+
+        //Require Sneaking - Wolfst0rm/ArmorStandEditor#17
+        requireSneaking = getConfig().getBoolean("requireSneaking", false);
+
+        //Send Messages to Action Bar
+        sendToActionBar = getConfig().getBoolean("sendMessagesToActionBar", true);
+
+        //All ItemFrame Stuff
+        glowItemFrames = getConfig().getBoolean("glowingItemFrame", true);
+        invisibleItemFrames = getConfig().getBoolean("invisibleItemFrames", true);
+
+        //Add ability to enable ot Disable the running of the Updater
+        runTheUpdateChecker = getConfig().getBoolean("runTheUpdateChecker", true);
+
+        //Add Ability to check for UpdatePerms that Notify Ops - https://github.com/Wolfieheart/ArmorStandEditor/issues/86
+        opUpdateNotification = getConfig().getBoolean("opUpdateNotification", true);
+        updateCheckerInterval = getConfig().getDouble("updateCheckerInterval", 24);
+
+        //Ability to get Player Heads via a command
+        allowedToRetrieveOwnPlayerHead = getConfig().getBoolean("allowedToRetrieveOwnPlayerHead", true);
+
+        adminOnlyNotifications = getConfig().getBoolean("adminOnlyNotifications", true);
+
+        debugFlag = getConfig().getBoolean("debugFlag", false);
+        if (debugFlag) {
+            getServer().getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] ArmorStandEditor Debug Mode is now ENABLED! Use this ONLY for testing Purposes. If you can see this and you have debug disabled, please report it as a bug!");
+            debug = new Debug(this);
+        }
+
+        //Run UpdateChecker - Reports out to Console on Startup ONLY!
+        if (!hasFolia && runTheUpdateChecker) {
+
+            if (opUpdateNotification) {
+                runUpdateCheckerWithOPNotifyOnJoinEnabled();
+            } else {
+                runUpdateCheckerConsoleUpdateCheck();
+            }
+
+        }
+
+    }
+
     public void performReload() {
 
         //Unregister Scoreboard before before performing the reload
@@ -565,105 +558,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         //Reload Config File
         reloadConfig();
 
-        //Set Language
-        lang = new Language(getConfig().getString("lang"), this);
+        // load the new config values
+        loadConfigValues();
 
 
-        //Rotation
-        coarseRot = getConfig().getDouble("coarse");
-        fineRot = getConfig().getDouble("fine");
-
-        // Scale Values for Size
-        maxScaleValue = getConfig().getDouble("maxScaleValue");
-        minScaleValue = getConfig().getDouble("minScaleValue");
-
-        //Set Tool to be used in game
-        toolType = getConfig().getString("tool");
-        if (toolType != null) {
-            editTool = Material.getMaterial(toolType); //Ignore Warning
-        }
-
-        //Do we require a custom tool name?
-        requireToolName = getConfig().getBoolean("requireToolName", false);
-        if (requireToolName) {
-            editToolNameRaw = getConfig().getString("toolName", null);
-            if (editToolNameRaw != null) {
-                editToolName = LegacyComponentSerializer.legacyAmpersand().deserialize(editToolNameRaw);
-            }
-        }
-
-        //Custom Model Data
-        allowCustomModelData = getConfig().getBoolean("allowCustomModelData", false);
-
-        if (allowCustomModelData) {
-            customModelDataInt = getConfig().getInt("customModelDataInt", Integer.MIN_VALUE);
-        }
-
-        //ArmorStandVisibility Node
-        armorStandVisibility = getConfig().getBoolean("armorStandVisibility", true);
-
-        //Is there NBT Required for the tool
-        requireToolData = getConfig().getBoolean("requireToolData", false);
-
-        if (requireToolData) {
-            editToolData = getConfig().getInt("toolData", Integer.MIN_VALUE);
-        }
-
-        requireToolLore = getConfig().getBoolean("requireToolLore", false);
-
-        if (requireToolLore) {
-            editToolLore = getConfig().getList("toolLore", null);
-        }
-
-
-        enablePerWorld = getConfig().getBoolean("enablePerWorldSupport", false);
-        if (enablePerWorld) {
-            allowedWorldList = getConfig().getList("allowed-worlds", null);
-            if (allowedWorldList != null && allowedWorldList.getFirst().equals("*")) {
-                allowedWorldList = getServer().getWorlds().stream().map(World::getName).toList();
-            }
-        }
-
-        //Require Sneaking - Wolfst0rm/ArmorStandEditor#17
-        requireSneaking = getConfig().getBoolean("requireSneaking", false);
-
-        //Send Messages to Action Bar
-        sendToActionBar = getConfig().getBoolean("sendMessagesToActionBar", true);
-
-        //All ItemFrame Stuff
-        glowItemFrames = getConfig().getBoolean("glowingItemFrame", true);
-        invisibleItemFrames = getConfig().getBoolean("invisibleItemFrames", true);
-
-        //Add ability to enable ot Disable the running of the Updater
-        runTheUpdateChecker = getConfig().getBoolean("runTheUpdateChecker", true);
-
-        //Ability to get Player Heads via a command
-        allowedToRetrieveOwnPlayerHead = getConfig().getBoolean("allowedToRetrieveOwnPlayerHead", true);
-        adminOnlyNotifications = getConfig().getBoolean("adminOnlyNotifications", true);
-
-        //Add Ability to check for UpdatePerms that Notify Ops - https://github.com/Wolfieheart/ArmorStandEditor/issues/86
-        opUpdateNotification = getConfig().getBoolean("opUpdateNotification", true);
-        updateCheckerInterval = getConfig().getDouble("updateCheckerInterval", 24);
-
-
-        // Add Debug Reload
-        debugFlag = getConfig().getBoolean("debugFlag", false);
-        if (debugFlag) {
-            getLogger().info("[ArmorStandEditor-Debug] ArmorStandEditor Debug Mode is now ENABLED! Use this ONLY for testing Purposes. If you can see this and you have debug disabled, please report it as a bug!");
-            debug = new Debug(this);
-        }
-
-
-        //Run UpdateChecker - Reports out to Console on Startup ONLY!
-        if (!hasFolia && runTheUpdateChecker) {
-
-            if (opUpdateNotification) {
-                runUpdateCheckerWithOPNotifyOnJoinEnabled();
-            } else {
-                runUpdateCheckerConsoleUpdateCheck();
-            }
-
-        }
     }
 
     public static ArmorStandEditorPlugin instance() {
