@@ -36,6 +36,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
@@ -73,7 +74,6 @@ public class PlayerEditorManager implements Listener {
     Team team;
 
     // Instantiate protections used to determine whether a player may edit an armor stand or item frame
-    //NOTE: GriefPreventionProtection is Depreciated as of v1.19.3-40
     private final List<Protection> protections = List.of(
         new GriefDefenderProtection(),
         new LandsProtection(),
@@ -94,6 +94,22 @@ public class PlayerEditorManager implements Listener {
         fineMov = .03125; // 1/32
         counter = new TickCounter();
         Scheduler.runTaskTimer(plugin, counter, 1, 1);
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    void onArmorStandSpawn(EntityPlaceEvent event){
+        Player player = event.getPlayer();
+        if(player == null) return;
+        Location location = player.getLocation();
+        if(event.getEntity() instanceof ArmorStand armorStand){
+            debug.log("Player " + player.getName()
+                    + " is placing an ArmorStand at (approx) X: " + location.getX()
+                    + ", Y: " + location.getY() + ", Z: " + location.getZ());
+
+            armorStand.setGravity(plugin.getDefaultGravity());
+            event.setCancelled(true);
+        }
+
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

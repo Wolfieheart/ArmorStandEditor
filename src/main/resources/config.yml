@@ -70,6 +70,10 @@ coarse: 12
 #How many rotations to make a full circle in Fine adjustment mode
 fine: 120
 
+# (NEW) Set the default gravity value that an armorstand spawns
+#       in as. False = no Gravity. True = Gravity.
+defaultGravitySetting: false
+
 # (NEW) Set a server limit on the Size of an ArmorStand
 # NOte this has been changed to take into account the /attribute command version
 minScaleValue: 0.1
