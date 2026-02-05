@@ -99,14 +99,16 @@ public class PlayerEditorManager implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     void onArmorStandSpawn(EntityPlaceEvent event){
         if (!(event.getEntity() instanceof ArmorStand armorStand)) return;
+        debug.log("Entity being spawned is an ArmorStand");
 
         Player player = event.getPlayer();
         Location location = player.getLocation();
 
         debug.log("Player " + player.getName()
-                + " is placing an ArmorStand at (approx) X: " + location.getX()
-                + ", Y: " + location.getY()
-                + ", Z: " + location.getZ());
+                + " is placing an ArmorStand at (approx) X: " + Math.round(location.getX())
+                + ", Y: " + Math.round(location.getY())
+                + ", Z: " + Math.round(location.getZ())
+        );
 
         armorStand.setGravity(plugin.getDefaultGravity());
     }
