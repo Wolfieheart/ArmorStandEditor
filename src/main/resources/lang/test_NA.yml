@@ -55,7 +55,7 @@ setgravity:
   true: on
   false: off
 resetwithinrange:
-  msg: Reset armor stands within range of <x>.
+  msg: All ArmorStands in the given range have been reset.
 nomode:
   msg: Click with the edit tool away from an armorstand to select an editing mode first!
 nomodeif:
