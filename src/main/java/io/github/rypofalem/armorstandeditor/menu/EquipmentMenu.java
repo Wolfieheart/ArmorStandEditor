@@ -22,31 +22,34 @@ package io.github.rypofalem.armorstandeditor.menu;
 import io.github.rypofalem.armorstandeditor.Debug;
 import io.github.rypofalem.armorstandeditor.PlayerEditor;
 
+import io.papermc.paper.datacomponent.DataComponentTypes;
+
+import io.papermc.paper.datacomponent.item.ItemLore;
+import io.papermc.paper.datacomponent.item.TooltipDisplay;
+import net.kyori.adventure.text.Component;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
 
+@SuppressWarnings("UnstableApiUsage")
 public class EquipmentMenu {
     Inventory menuInv;
     private Debug debug;
     private PlayerEditor pe;
     private ArmorStand armorstand;
-    static String name = "ArmorStand Equipment";
     ItemStack helmet, chest, pants, feetsies, rightHand, leftHand;
 
     public EquipmentMenu(PlayerEditor pe, ArmorStand as) {
         this.pe = pe;
         this.armorstand = as;
         this.debug = new Debug(pe.plugin);
-        name = pe.plugin.getLang().getMessage("equiptitle", "menutitle");
+        Component name = pe.plugin.getLang().getMessage("equiptitle", "menutitle");
         menuInv = Bukkit.createInventory(pe.getManager().getEquipmentHolder(), 18, name);
     }
 
@@ -60,12 +63,12 @@ public class EquipmentMenu {
         ItemStack rightHand = equipment.getItemInMainHand();
         ItemStack leftHand = equipment.getItemInOffHand();
         equipment.clear();
-        
-        ItemStack disabledIcon = new ItemStack(Material.BARRIER);
-        ItemMeta meta = disabledIcon.getItemMeta();
-        meta.setDisplayName(pe.plugin.getLang().getMessage("disabled", "warn")); //equipslot.msg <option>
-        meta.getPersistentDataContainer().set(pe.plugin.getIconKey(), PersistentDataType.STRING, "ase icon"); // mark as icon
-        disabledIcon.setItemMeta(meta);
+
+        ItemStack disabledIcon = ItemStack.of(Material.BARRIER);
+        disabledIcon.setData(DataComponentTypes.CUSTOM_NAME,
+            pe.plugin.getLang().getMessage("disabled", "warn")); //equipslot.msg <option>
+        disabledIcon.editPersistentDataContainer(
+            pdc -> pdc.set(pe.plugin.getIconKey(), PersistentDataType.STRING, "ase icon")); // mark as icon)
 
 
         ItemStack helmetIcon = createIcon(Material.LEATHER_HELMET, "helm");
@@ -75,22 +78,38 @@ public class EquipmentMenu {
         ItemStack rightHandIcon = createIcon(Material.WOODEN_SWORD, "rhand");
         ItemStack leftHandIcon = createIcon(Material.SHIELD, "lhand");
         ItemStack[] items =
-            {helmetIcon, chestIcon, pantsIcon, feetsiesIcon, rightHandIcon, leftHandIcon, disabledIcon, disabledIcon, disabledIcon,
-                helmet, chest, pants, feetsies, rightHand, leftHand, disabledIcon, disabledIcon, disabledIcon
+            {
+                    helmetIcon, chestIcon, pantsIcon, feetsiesIcon, rightHandIcon, leftHandIcon, disabledIcon, disabledIcon, disabledIcon,
+                    helmet, chest, pants, feetsies, rightHand, leftHand, disabledIcon, disabledIcon, disabledIcon
             };
         menuInv.setContents(items);
     }
 
     private ItemStack createIcon(Material mat, String slot) {
-        ItemStack icon = new ItemStack(mat);
-        ItemMeta meta = icon.getItemMeta();
-        meta.getPersistentDataContainer().set(pe.plugin.getIconKey(), PersistentDataType.STRING, "ase icon");
-        meta.setDisplayName(pe.plugin.getLang().getMessage("equipslot", "iconname", slot)); //equipslot.msg <option>
-        ArrayList<String> loreList = new ArrayList<>();
-        loreList.add(pe.plugin.getLang().getMessage("equipslot.description", "icondescription", slot)); //equioslot.description.msg <option>
-        meta.setLore(loreList);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        icon.setItemMeta(meta);
+        ItemStack icon = ItemStack.of(mat);
+
+        // 1. Get the friendly name (e.g., "Helmet") from the config
+        // This looks at 'equipslot.helm'
+        String friendlyName = pe.plugin.getLang().getString("equipslot." + slot);
+
+        // 2. Get the description name (e.g., "Helmet" or "Feetsies")
+        // This looks at 'equipslot.description.helm'
+        String friendlyDesc = pe.plugin.getLang().getString("equipslot.description." + slot);
+
+        icon.editPersistentDataContainer(
+                pdc -> pdc.set(pe.plugin.getIconKey(), PersistentDataType.STRING, "ase icon"));
+
+        // 3. Pass the friendly name into the <x> placeholder
+        icon.setData(DataComponentTypes.CUSTOM_NAME,
+                pe.plugin.getLang().getMessage("equipslot", "iconname", friendlyName));
+
+        // 4. Pass the description-friendly name into the <x> placeholder
+        icon.setData(DataComponentTypes.LORE, ItemLore.lore()
+                .addLine(pe.plugin.getLang().getMessage("equipslot.description", "icondescription", friendlyDesc)));
+
+        icon.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay()
+                .addHiddenComponents(DataComponentTypes.ATTRIBUTE_MODIFIERS).build());
+
         return icon;
     }
 
@@ -98,7 +117,7 @@ public class EquipmentMenu {
         pe.getPlayer().closeInventory();
         if (pe.getPlayer().hasPermission("asedit.equipment")) {
             fillInventory();
-            debug.log("Player '" + pe.getPlayer().getDisplayName() + "' has opened the Equipment Menu.");
+            debug.log("Player '" + pe.getPlayer().getName() + "' has opened the Equipment Menu.");
             pe.getPlayer().openInventory(menuInv);
         }
     }
@@ -126,9 +145,5 @@ public class EquipmentMenu {
         armorstand.getEquipment().setBoots(feetsies);
         armorstand.getEquipment().setItemInMainHand(rightHand);
         armorstand.getEquipment().setItemInOffHand(leftHand);
-    }
-
-    public static String getName() {
-        return name;
     }
 }
