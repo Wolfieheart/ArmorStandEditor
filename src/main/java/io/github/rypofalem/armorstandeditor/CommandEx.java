@@ -58,6 +58,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     final Component LISTMODE = text("/ase mode <" + Util.getEnumList(EditMode.class) + ">", YELLOW);
     final Component LISTAXIS = text("/ase axis <" + Util.getEnumList(Axis.class) + ">", YELLOW);
     final Component LISTADJUSTMENT = text("/ase adj <" + Util.getEnumList(AdjustmentMode.class) + ">", YELLOW);
+    final Component RESETWITHINRANGE = text("/ase resetWithinRange <range>", YELLOW);
     final Component LISTSLOT = text("/ase slot <1-9>", YELLOW);
     final Component HELP = text("/ase help or /ase ?", YELLOW);
     final Component VERSION = text("/ase version", YELLOW);
@@ -126,11 +127,13 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                 case "playerhead" -> commandGivePlayerHead(player);
                 case "reload" -> commandReload(player);
                 case "stats" -> commandStats(player);
+                case "resetwithinrange" -> commandResetWithinRange(player, args);
                 default -> {
                     sender.sendMessage(LISTMODE);
                     sender.sendMessage(LISTAXIS);
                     sender.sendMessage(LISTSLOT);
                     sender.sendMessage(LISTADJUSTMENT);
+                    sender.sendMessage(RESETWITHINRANGE);
                     sender.sendMessage(VERSION);
                     sender.sendMessage(UPDATE);
                     sender.sendMessage(HELP);
@@ -140,6 +143,20 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                 }
             }
             return true;
+        }
+    }
+
+    private void commandResetWithinRange(Player player, String[] args) {
+        if(player.hasPermission("asedit.reset.withinRange")){
+            debug.log(" Player '" + player.getName() + "' is resetting armor stands within range.");
+            double range = Double.parseDouble(args[1]);
+            debug.log(" Range Chosen: " + range);
+
+            Location playerLoc = player.getLocation();
+            plugin.editorManager.getPlayerEditor(player.getUniqueId()).resetArmorStandsWithinRange(playerLoc, range);
+            player.sendMessage(plugin.getLang().getMessage("resetwithinrange", "info", String.valueOf(range)));
+        } else{
+
         }
     }
 
@@ -259,7 +276,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
         if (!(checkPermission(player, "update", true))) return;
 
         //Only Run if the Update Command Works
-        debug.log("Current ArmorStandEditor Version is: " + plugin.ASE_VERSION);
+        debug.log("Current ArmorStandEditor Version is: " + ArmorStandEditorPlugin.ASE_VERSION);
         if (!plugin.getHasFolia() && plugin.getRunTheUpdateChecker()) {
             debug.log("Plugin is on Server: Paper/Spigot or a fork thereof.");
             new UpdateChecker(plugin, UpdateCheckSource.HANGAR, ArmorStandEditorPlugin.HANGAR_RELEASE_CHANNEL).checkNow(player); //Runs Update Check
@@ -343,6 +360,8 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     private boolean getPermissionStats(Player player) {
         return checkPermission(player, "stats", false);
     }
+    private boolean getPermissionResetWithinRange(Player player) { return checkPermission(player, "reset.withinRange", false);    }
+
 
     //REFACTOR COMPLETION
     @Override
@@ -358,6 +377,8 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                 argList.add("adj");
                 argList.add("slot");
                 argList.add("help");
+                argList.add ("version");
+
                 argList.add("?");
 
                 //Will Only work with permissions
@@ -373,6 +394,10 @@ public class CommandEx implements CommandExecutor, TabCompleter {
 
                 if (getPermissionStats(player)) {
                     argList.add("stats");
+                }
+
+                if(getPermissionResetWithinRange(player)){
+                    argList.add("resetwithinrange");
                 }
             }
 

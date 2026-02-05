@@ -41,6 +41,7 @@ import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
@@ -48,6 +49,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.EulerAngle;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -69,6 +71,7 @@ public class PlayerEditor {
     Menu chestMenu;
     ArmorStand target;
     ArrayList<ArmorStand> targetList = null;
+    ArrayList<ArmorStand> armorStandInRange = null;
 
     //NEW: ItemFrame Stuff
     ItemFrame frameTarget;
@@ -535,6 +538,46 @@ public class PlayerEditor {
         } else {
             sendMessage("nopermoption", "warn", "itemframevisibility");
         }
+    }
+
+    void resetArmorStandsWithinRange(Location playerLocation, double range) {
+        if (!getPlayer().hasPermission("asedit.reset.withinRange")) {
+            sendMessage("nopermoption", "warn", "resetwithinrange");
+            return;
+        }
+
+        debug.log("Resetting ArmorStands within range of " + range + " near player: " + getPlayer().displayName());
+        int resetCount = 0;
+
+        for (Entity entity : playerLocation.getWorld().getNearbyEntities(playerLocation, range, range, range)) {
+            if (entity instanceof ArmorStand standBeingReset) {
+
+                //ArmorStand Pose Reset
+                standBeingReset.setHeadPose(new EulerAngle(0, 0, 0));
+                standBeingReset.setBodyPose(new EulerAngle(0, 0, 0));
+                standBeingReset.setLeftArmPose(new EulerAngle(0, 0, 0));
+                standBeingReset.setRightArmPose(new EulerAngle(0, 0, 0));
+                standBeingReset.setLeftLegPose(new EulerAngle(0, 0, 0));
+                standBeingReset.setRightLegPose(new EulerAngle(0, 0, 0));
+
+                //ArmorStand Attribute Reset
+                if (VersionUtil.fromString(plugin.getNmsVersion()).isNewerThanOrEquals(MinecraftVersion.MINECRAFT_1_20_4)) {
+                    standBeingReset.getAttribute(Attribute.SCALE).setBaseValue(1.0);
+                } else {
+                    standBeingReset.setSmall(false);
+                }
+
+                standBeingReset.setGravity(true);
+                standBeingReset.setBasePlate(true);
+                standBeingReset.setArms(false);
+                standBeingReset.setVisible(true);
+                standBeingReset.setInvulnerable(false);
+
+                resetCount++;
+            }
+        }
+
+        debug.log("Reset " + resetCount + " armor stands within range");
     }
 
 

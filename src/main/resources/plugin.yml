@@ -1,6 +1,6 @@
 name: ArmorStandEditor
 main: io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin
-version: 1.21.11-50-RC2
+version: 1.21.11-50-RC3
 api-version: "1.17"
 folia-supported: true
 website: https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn
@@ -69,6 +69,9 @@ permissions:
   asedit.reset:
     description: Allows the reset of the ArmorStand back to Default values
     default: true
+  asedit.reset.withinRange:
+    description: Allows the reset of all ArmorStands within a certain range.
+    default: false
   asedit.togglearmorstandvisibility:
     description: Toggles ArmorStand visibility.
     default: true
@@ -169,6 +172,7 @@ permissions:
       asedit.paste: true
       asedit.reset: true
       asedit.stats: true
+      asedit.reset.withinRange: false
       asedit.toggleInvulnerability: true
       asedit.togglebaseplate: true
       asedit.togglearms: true
@@ -196,6 +200,8 @@ permissions:
       asedit.copy: true
       asedit.paste: true
       asedit.reset: true
+      asedit.reset.withinRange: true
+      asedit.stats: true
       asedit.togglebaseplate: true
       asedit.togglearms: true
       asedit.togglesize: true

@@ -66,7 +66,7 @@ fine: 120
 #       in as. False = no Gravity. True = Gravity.
 defaultGravitySetting: false
 
-# (NEW) Set a server limit on the Size of an ArmorStand
+# Set a server limit on the Size of an ArmorStand
 # NOte this has been changed to take into account the /attribute command version
 minScaleValue: 0.1
 maxScaleValue: 10
