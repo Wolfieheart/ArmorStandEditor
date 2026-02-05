@@ -109,7 +109,6 @@ public class PlayerEditorManager implements Listener {
                 + ", Z: " + location.getZ());
 
         armorStand.setGravity(plugin.getDefaultGravity());
-        event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
