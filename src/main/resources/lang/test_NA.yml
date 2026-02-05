@@ -142,6 +142,7 @@ nopermoption:
   reset: Reset ArmorStand Config
   stats: View ArmorStand Statistics
   armorstandglow: Toggle ArmorStand Glow
+  resetwithinrange: Reset ArmorStands within Range
 norangestats:
   msg: Please get next to an ArmorStand before running this command.
 noslotnumcom:

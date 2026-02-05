@@ -156,7 +156,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
             plugin.editorManager.getPlayerEditor(player.getUniqueId()).resetArmorStandsWithinRange(playerLoc, range);
             player.sendMessage(plugin.getLang().getMessage("resetwithinrange", "info", String.valueOf(range)));
         } else{
-
+            player.sendMessage(plugin.getLang().getMessage("nopermoption", "warn", "resetwithinrange"));
         }
     }
 
