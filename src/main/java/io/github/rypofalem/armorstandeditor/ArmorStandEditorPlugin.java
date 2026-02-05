@@ -99,6 +99,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     List<?> allowedWorldList = null;
     double maxScaleValue;
     double minScaleValue;
+    double maxResetRange;
 
     //GUI Settings
     boolean requireSneaking = false;
@@ -337,8 +338,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return lang;
     }
 
-    public boolean getAllowCustomModelData() {
-        return this.getConfig().getBoolean("allowCustomModelData");
+    public double getMaxResetRange() {
+        return getConfig().getDouble("maxResetRange");
     }
 
     public Material getEditTool() {
@@ -445,6 +446,9 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         // Scale Values for Size
         maxScaleValue = getConfig().getDouble("maxScaleValue");
         minScaleValue = getConfig().getDouble("minScaleValue");
+
+        // Max Reset Range
+        maxResetRange = getConfig().getDouble("maxResetRange");
 
         //Set Tool to be used in game
         toolType = getConfig().getString("tool");
@@ -670,4 +674,5 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public String getASEVersion() {
         return ASE_VERSION;
     }
+
 }

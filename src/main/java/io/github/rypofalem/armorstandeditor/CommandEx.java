@@ -152,6 +152,11 @@ public class CommandEx implements CommandExecutor, TabCompleter {
             double range = Double.parseDouble(args[1]);
             debug.log(" Range Chosen: " + range);
 
+            if(range > plugin.getMaxResetRange()){
+                player.sendMessage(plugin.getLang().getMessage("resetwithinrangeexceed", "warn"));
+                return;
+            }
+
             Location playerLoc = player.getLocation();
             plugin.editorManager.getPlayerEditor(player.getUniqueId()).resetArmorStandsWithinRange(playerLoc, range);
             player.sendMessage(plugin.getLang().getMessage("resetwithinrange", "info"));

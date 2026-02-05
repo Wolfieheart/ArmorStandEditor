@@ -145,6 +145,8 @@ nopermoption:
   resetwithinrange: Reset ArmorStands within Range
 norangestats:
   msg: Please get next to an ArmorStand before running this command.
+resetwithinrangeexceed:
+  msg: The range specified exceeds the maximum allowed range. Please choose a smaller range.
 noslotnumcom:
   msg: You must specify a slot number!
 noadjcom:

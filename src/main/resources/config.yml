@@ -71,6 +71,9 @@ defaultGravitySetting: false
 minScaleValue: 0.1
 maxScaleValue: 10
 
+# Set the server limit on the range that a player can reset an ArmorStand
+maxResetRange: 10
+
 #Allow the option to toggle invisibility for ItemFrames and ArmorStand
 #You can either use this or the below permissions to allow visibility changes
 #asedit.togglearmorstandvisibility
