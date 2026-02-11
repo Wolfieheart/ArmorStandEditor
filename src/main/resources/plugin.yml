@@ -1,6 +1,6 @@
 name: ArmorStandEditor
 main: io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin
-version: 1.21.11-50-RC3
+version: 1.21.11-50-RC4
 api-version: "1.17"
 folia-supported: true
 website: https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn
