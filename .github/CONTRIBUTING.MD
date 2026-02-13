@@ -29,7 +29,7 @@ You can ask for any information/help on your idea/contribution to the [ASE Disco
 
 ## Code requirements
 - You must use Tabs (Size 4 Spaces).
-- Keep your environment in Java 17. GitHub handles building all of this into Java 17 and 18, but keep in mind that, while you will be able to use modern language features that way (like patterns), some standard library methods added after jdk 11 (the minimum supported version: 55.0 for certain plugins) will not work and cause "cannot find symbol" errors when building (like String.isBlank).
+- Keep your environment in Java 21. GitHub handles building all of this into Java 21, but keep in mind that, while you will be able to use modern language features that way (like patterns), some standard library methods added after jdk 11 (the minimum supported version: 55.0 for certain plugins) will not work and cause "cannot find symbol" errors when building (like String.isBlank).
 - Avoid Wildcard Imports (Preferred, but is allowed. Let me know if this can't be avoided on Discord.)
 - Don't run IDE Formatters over entire class files, unless it's a new class-file you're implementing
     - This is done to avoid us changing the lines everytime, each IDE is different, so we don't have a constant here and there.
