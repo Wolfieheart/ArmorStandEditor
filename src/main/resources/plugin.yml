@@ -1,9 +1,9 @@
 name: ArmorStandEditor
 main: io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin
-version: 1.21.10-49.3
+version: 1.21.11-50-RC4
 api-version: "1.17"
 folia-supported: true
-website: https://www.spigotmc.org/resources/94503/
+website: https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn
 author: Wolfstorm
 authors: [Wolfstorm, DreiFxn, Pinnkk, Kugge, Marfjeh, miknes123, rypofalem, sekwah41, Sikatsu1997, Cool_boy, sumdream, Amaury Carrade, nicuch, kotarobo, prettydude, Jumpy91, Niasio, Patbox, Puremin0rez, Prof-Bloodstone, PlanetTeamSpeak]
 description: Allows players to edit data of armorstands without any commands.
@@ -69,6 +69,9 @@ permissions:
   asedit.reset:
     description: Allows the reset of the ArmorStand back to Default values
     default: true
+  asedit.reset.withinRange:
+    description: Allows the reset of all ArmorStands within a certain range.
+    default: false
   asedit.togglearmorstandvisibility:
     description: Toggles ArmorStand visibility.
     default: true
@@ -99,9 +102,6 @@ permissions:
 
   asedit.ignoreProtection.towny:
     description: Allows user to ignore Towny's Protection Limitations.
-    default: false
-  asedit.ignoreProtection.griefProtection:
-    description: Allows user to ignore GriefProtection's Protection Limitations.
     default: false
   asedit.ignoreProtection.plotSquared:
     description: Allows user to ignore PlotSquared's Protection Limitations.
@@ -134,11 +134,10 @@ permissions:
     default: op
     children:
       asedit.ignoreProtection.towny: true
-      asedit.ignoreProtection.griefProtection: true
+      asedit.ignoreProtection.griefDefender: true
       asedit.ignoreProtection.plotSquared: true
       asedit.ignoreProtection.worldGuard:  true
       asedit.ignoreProtection.skyblock: true
-      asedit.ignoreProtection.griefDefender: true
       asedit.ignoreProtection.lands: true
       asedit.ignoreProtection.bentobox: true
       asedit.ignoreProtection.itemAdder: true
@@ -146,7 +145,6 @@ permissions:
   asedit.permpack.dontIgnoreProtections:
     children:
       asedit.ignoreProtection.towny: false
-      asedit.ignoreProtection.griefProtection: false
       asedit.ignoreProtection.plotSquared: false
       asedit.ignoreProtection.worldGuard:  false
       asedit.ignoreProtection.skyblock: false
@@ -174,6 +172,7 @@ permissions:
       asedit.paste: true
       asedit.reset: true
       asedit.stats: true
+      asedit.reset.withinRange: false
       asedit.toggleInvulnerability: true
       asedit.togglebaseplate: true
       asedit.togglearms: true
@@ -201,6 +200,8 @@ permissions:
       asedit.copy: true
       asedit.paste: true
       asedit.reset: true
+      asedit.reset.withinRange: true
+      asedit.stats: true
       asedit.togglebaseplate: true
       asedit.togglearms: true
       asedit.togglesize: true

@@ -11,6 +11,10 @@ info: 6
 warn: c
 menutitle: 8
 
+#NOTE from Author:
+# Do NOT Add CustomColors to icons (PresetMenu or SizeMenu) as it will break how presets work and do the translation
+# Please change the info number if you want to mess with the color of those - It will change it globally however.
+
 #info
 setmode:
   msg: Setting mode to <x>.
@@ -50,6 +54,8 @@ setgravity:
   msg: Gravity turned <x>.
   true: on
   false: off
+resetwithinrange:
+  msg: All ArmorStands in the given range have been reset.
 nomode:
   msg: Click with the edit tool away from an armorstand to select an editing mode first!
 nomodeif:
@@ -82,18 +88,14 @@ reloaded:
   msg: Configuration File has been reloaded.
 playerhead:
   msg: Player Head retrieved.
-noplayerhead:
-  msg: Please turn on the ability to retrieve player heads in the config file and/or check your permissions to confirm that you have asedit.head set to true.
 playerheaderror:
-  msg: Unable to Retrieve Player Head.
+  msg: Unable to give you a playerhead.
 unabledestroycreative:
   msg: Unable to Destroy this Invulnerable ArmorStand in Creative Mode.
 notincorrectworld:
   msg: Sorry but you are not in the correct world to use ArmorStandEditor.
 stats:
   msg: Here are the statistics for your ArmorStand.
-playerheadhelp:
-  msg: "Please use /ase playerhead <name> to get a players head. Ex of the command - /ase playerhead Wolfieheart_"
 help:
   msg: "1. Hold the editing tool(<x>) in your main hand
 
@@ -118,6 +120,8 @@ helpdiscord:
   msg: "or join our Discord: https://discord.gg/3BbJKWpTCj"
 
 #warn
+asinuse:
+  msg: Unable to edit ArmorStand as it is currently being edited by another player!
 cantedit:
   msg: Sorry, you cannot edit armor stands here!
 noperm:
@@ -138,8 +142,11 @@ nopermoption:
   reset: Reset ArmorStand Config
   stats: View ArmorStand Statistics
   armorstandglow: Toggle ArmorStand Glow
+  resetwithinrange: Reset ArmorStands within Range
 norangestats:
   msg: Please get next to an ArmorStand before running this command.
+resetwithinrangeexceed:
+  msg: The range specified exceeds the maximum allowed range. Please choose a smaller range.
 noslotnumcom:
   msg: You must specify a slot number!
 noadjcom:
@@ -154,6 +161,12 @@ nogive:
   msg: "You either do not have the permission to use the give command or do not allow it in Config.yml"
 noconsolecom:
   msg: Sorry but this command only works from in-game and not from Console!
+renamestopped:
+  msg: Please make sure you have the ability/permission to give your ArmorStand Colored Names.
+townyNoWildEdit:
+  msg: Unable to change this ArmorStand as you are not allowed to edit in the wild.
+blackGlassClick:
+  msg: Clicking this item will have no effect. Please choose another item.
 
 #menutitle
 mainmenutitle:
@@ -261,9 +274,9 @@ copyslot:
   description:
     msg: Select a slot to store settings
 reset:
-  msg: Reset Pose
+  msg: Reset
   description:
-    msg: Reset bodypart position to default
+    msg: "<red><underline>Reset</underline><hover:show_text:'Reset scale to default'>"
 helpgui:
   msg: Help!
   description:
@@ -275,7 +288,7 @@ itemframevisible:
 playerheadmenu:
   msg: Player Head
   description:
-    msg: Please use /ase playerhead <name>
+    msg: Click me to get a copy of your own head
 blankslot:
   msg: Nothing here
   description:
@@ -284,10 +297,6 @@ armorstandglow:
   msg: Toggle ArmorStand Glow
   description:
     msg: Turn ArmorStand Glowing on or off.
-presetmenu:
-  msg: Preset Poses
-  description:
-    msg: Use a Preset Pose for your ArmorStand [Will Open another Menu]
 
 #icons (equipment menu)
 disabled:
@@ -374,3 +383,72 @@ howtopresetmsg:
   3. Choose one of the Armor Stand Presets that you want to select. 
   
   4. After choosing, your menu will close and your chosen preset will be applied. "
+
+
+#Size Scaling
+sizeMenu:
+  msg: "<bold>ArmorStand Size (Scaling)</bold>"
+  description:
+    msg: Set a scale for your ArmorStand [Will Open ANOTHER Menu]
+
+scale1:
+  msg: "<gradient:#ff0000:#ffaa00>Scale = 1 (Default)</gradient>"
+  description:
+    msg: Set the Scale Attribute of your ArmorStand to 1 (Default)
+scale2:
+  msg: Scale = 2
+  description:
+    msg: Set the Scale Attribute of your ArmorStand to Scale 2
+scale3:
+  msg: Scale = 3
+  description:
+    msg: Set the Scale Attribute of your ArmorStand to Scale 3
+scale4:
+  msg: Scale = 4
+  description:
+    msg: Set the Scale Attribute of your ArmorStand to Scale 4
+scale5:
+  msg: Scale = 5
+  description:
+    msg: Set the Scale Attribute of your ArmorStand to Scale 5
+scale6:
+  msg: Scale = 6
+  description:
+    msg: Set the Scale Attribute of your ArmorStand to Scale 6
+scale7:
+  msg: Scale = 7
+  description:
+    msg: Set the Scale Attribute of your ArmorStand to Scale 7
+scale8:
+  msg: Scale = 8
+  description:
+    msg: Set the Scale Attribute of your ArmorStand to Scale 8
+scale9:
+  msg: Scale = 9
+  description:
+    msg: Set the Scale Attribute of your ArmorStand to scale 9
+scale10:
+  msg: Scale = 10
+  description:
+    msg: Set the Scale Attribute of your ArmorStand to scale 10
+scaleadd12:
+  msg: Scale + 0.5 (Coarse)
+  description:
+    msg: Add 0.5 to the current Scale of your ArmorStand
+scaleremove12:
+  msg: Scale - 0.5 (Coarse)
+  description:
+    msg: Remove 0.5 to the current Scale of your ArmorStand
+scaleadd110:
+  msg: Scale + 0.1 (Fine)
+  description:
+    msg: Add 0.1 to the current Scale of your ArmorStand
+scaleremove110:
+  msg: Scale - 0.1 (Fine)
+  description:
+    msg: Remove 0.1 to the current Scale of your ArmorStand
+scalemaxwarn:
+  msg: Please choose a different size, as this against the server maximum scale limits
+scaleminwarn:
+  msg: Please choose a different size, as this against the server minimum scale limits
+

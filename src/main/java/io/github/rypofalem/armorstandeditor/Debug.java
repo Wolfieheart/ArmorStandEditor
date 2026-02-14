@@ -1,12 +1,10 @@
 package io.github.rypofalem.armorstandeditor;
 
-import org.bukkit.Bukkit;
 
 import java.util.logging.Level;
 
 public class Debug {
 
-    private boolean debugTurnedOn;
     private ArmorStandEditorPlugin plugin;
 
     public Debug(ArmorStandEditorPlugin plugin) {
@@ -14,8 +12,7 @@ public class Debug {
     }
 
     public void log(String msg) {
-        debugTurnedOn = plugin.isDebug();
-        if (!debugTurnedOn) return;
-        Bukkit.getServer().getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] " + msg);
+        if (!plugin.isDebug()) return;
+        plugin.getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] {0}", msg);
     }
 }
