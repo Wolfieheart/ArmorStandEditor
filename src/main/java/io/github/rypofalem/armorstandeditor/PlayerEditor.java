@@ -437,7 +437,7 @@ public class PlayerEditor {
         } else {
             debug.log("Remove DisabledSlots on ArmorStand near the Player " + getPlayer().displayName());
             if (armorStand.hasEquipmentLock(EquipmentSlot.HAND, ArmorStand.LockType.REMOVING_OR_CHANGING)) { //Adds a lock to every slot or removes it
-                team = Scheduler.isFolia() ? null : plugin.scoreboard.getTeam(plugin.lockedTeam);
+                team = plugin.getHasFolia() ? null : plugin.scoreboard.getTeam(plugin.lockedTeam);
                 armorStandID = armorStand.getUniqueId();
 
                 for (final EquipmentSlot slot : EquipmentSlot.values()) { // UNLOCKED

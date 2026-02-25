@@ -75,7 +75,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String versionLogPrefix;
 
     //Hardcode the ASE Version
-    public static final String ASE_VERSION = "1.21.11-50.RC4";
+    public static final String ASE_VERSION = "1.21.11-50";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;
@@ -136,7 +136,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        if (!Scheduler.isFolia())
+        if (!getHasFolia())
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
 
         //START ---  Load Messages in Console
@@ -144,7 +144,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         getLogger().info("Plugin Version: v" + ASE_VERSION);
 
         hasPaper = getHasPaper();
-        hasFolia = Scheduler.isFolia();
+        hasFolia = getHasFolia();
 
         //Get NMS Version
         nmsVersion = getServer().getMinecraftVersion();
@@ -318,7 +318,12 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     public boolean getHasFolia() {
-        return Scheduler.isFolia();
+        try {
+            Class.forName("io.papermc.paper.threadedregions.ThreadedRegionizer");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     //Will be useful for later.....

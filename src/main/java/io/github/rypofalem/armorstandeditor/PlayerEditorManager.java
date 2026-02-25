@@ -251,7 +251,7 @@ public class PlayerEditorManager implements Listener {
         }
 
         if (event.getEntity() instanceof ArmorStand entityAS && entityAS.isDead()) {
-            event.getEntity().setCustomName(null);
+            event.getEntity().customName(Component.empty());
             event.getEntity().setCustomNameVisible(false);
             event.setCancelled(false);
         }
