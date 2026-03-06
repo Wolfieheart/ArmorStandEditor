@@ -34,7 +34,7 @@ public class Scheduler {
 
     public static <T> T callMethod(Class<?> clazz, Object object, String methodName, Class<?>[] parameterTypes, Object... args) {
         try {
-            return (T) clazz.getDeclaredMethod(methodName, parameterTypes).invoke(object, args);
+            return (T) clazz.getMethod(methodName, parameterTypes).invoke(object, args);
         } catch (Throwable t) {
             throw new IllegalStateException(t);
         }
@@ -50,21 +50,25 @@ public class Scheduler {
 
     private static boolean methodExist(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
         try {
-            clazz.getDeclaredMethod(methodName, parameterTypes);
+            clazz.getMethod(methodName, parameterTypes);
             return true;
         } catch (Throwable ignored) {
         }
         return false;
     }
 
-    public static Boolean isFolia() {
+    public static boolean isFolia() {
+        if (IS_FOLIA != null) {
+            return IS_FOLIA;
+        }
         try {
             Class.forName("io.papermc.paper.threadedregions.ThreadedRegionizer");
+            IS_FOLIA = true;
         }
         catch (Exception e) {
-            return false;
+            IS_FOLIA = false;
         }
-        return true;
+        return IS_FOLIA;
     }
 
     public static Object getGlobalRegionScheduler() {
@@ -78,6 +82,18 @@ public class Scheduler {
         if (isFolia()) {
             Object globalRegionScheduler = getGlobalRegionScheduler();
             callMethod(globalRegionScheduler, "run", new Class[]{Plugin.class, Consumer.class}, plugin, (Consumer<?>) (task) -> runnable.run());
+            return;
+        }
+        Bukkit.getScheduler().runTask(plugin, runnable);
+    }
+
+    public static void runTask(Plugin plugin, Entity entity, Runnable runnable) {
+        if (entity == null) {
+            runTask(plugin, runnable);
+            return;
+        }
+        if (isFolia()) {
+            runEntityTask(entity, plugin, runnable, 0L);
             return;
         }
         Bukkit.getScheduler().runTask(plugin, runnable);
@@ -101,6 +117,59 @@ public class Scheduler {
             return;
         }
         Bukkit.getScheduler().runTaskLater(plugin, runnable, delayedTicks);
+    }
+
+    public static void runTaskLater(Plugin plugin, Entity entity, Runnable runnable, long delayedTicks) {
+        if (entity == null) {
+            runTaskLater(plugin, runnable, delayedTicks);
+            return;
+        }
+        if (isFolia()) {
+            runEntityTask(entity, plugin, runnable, delayedTicks);
+            return;
+        }
+        Bukkit.getScheduler().runTaskLater(plugin, runnable, delayedTicks);
+    }
+
+    private static void runEntityTask(Entity entity, Plugin plugin, Runnable runnable, long delayedTicks) {
+        Object entityScheduler = callMethod(entity, "getScheduler", new Class[]{});
+        Consumer<?> taskConsumer = (task) -> runnable.run();
+        Class<?> entitySchedulerClass = entityScheduler.getClass();
+
+        if (delayedTicks <= 0L) {
+            if (methodExist(entitySchedulerClass, "run", Plugin.class, Consumer.class, Runnable.class)) {
+                callMethod(entityScheduler, "run", new Class[]{Plugin.class, Consumer.class, Runnable.class},
+                    plugin, taskConsumer, null);
+                return;
+            }
+            if (methodExist(entitySchedulerClass, "run", Plugin.class, Consumer.class)) {
+                callMethod(entityScheduler, "run", new Class[]{Plugin.class, Consumer.class}, plugin, taskConsumer);
+                return;
+            }
+            if (methodExist(entitySchedulerClass, "execute", Plugin.class, Runnable.class, Runnable.class, long.class)) {
+                callMethod(entityScheduler, "execute", new Class[]{Plugin.class, Runnable.class, Runnable.class, long.class},
+                    plugin, runnable, null, 0L);
+                return;
+            }
+            throw new IllegalStateException("Unable to schedule Folia entity task");
+        }
+
+        if (methodExist(entitySchedulerClass, "runDelayed", Plugin.class, Consumer.class, Runnable.class, long.class)) {
+            callMethod(entityScheduler, "runDelayed", new Class[]{Plugin.class, Consumer.class, Runnable.class, long.class},
+                plugin, taskConsumer, null, delayedTicks);
+            return;
+        }
+        if (methodExist(entitySchedulerClass, "runDelayed", Plugin.class, Consumer.class, long.class)) {
+            callMethod(entityScheduler, "runDelayed", new Class[]{Plugin.class, Consumer.class, long.class},
+                plugin, taskConsumer, delayedTicks);
+            return;
+        }
+        if (methodExist(entitySchedulerClass, "execute", Plugin.class, Runnable.class, Runnable.class, long.class)) {
+            callMethod(entityScheduler, "execute", new Class[]{Plugin.class, Runnable.class, Runnable.class, long.class},
+                plugin, runnable, null, delayedTicks);
+            return;
+        }
+        throw new IllegalStateException("Unable to schedule delayed Folia entity task");
     }
 
     public static void teleport(Entity entity, Location location) {
