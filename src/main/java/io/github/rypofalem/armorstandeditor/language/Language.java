@@ -30,6 +30,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
 
 public class Language {
     static final String DEFAULT_LANG = "en_US.yml";
@@ -45,30 +46,51 @@ public class Language {
     }
 
     public void reloadLang(String langFileName) {
-        if (langFileName == null) langFileName = DEFAULT_LANG;
+        if (langFileName == null || langFileName.isBlank()) {
+            langFileName = DEFAULT_LANG;
+        }
+
         File langFolder = new File(plugin.getDataFolder().getPath() + File.separator + "lang");
+        if (!langFolder.exists() && !langFolder.mkdirs()) {
+            plugin.getLogger().warning("Unable to create language folder: " + langFolder.getAbsolutePath());
+        }
         langFile = new File(langFolder, langFileName);
 
-        InputStream input = plugin.getResource("lang" + "/" + DEFAULT_LANG); //getResource doesn't accept File.seperator on windows, need to hardcode unix seperator "/" instead
-        assert input != null;
-        Reader defaultLangStream = new InputStreamReader(input, StandardCharsets.UTF_8);
-        defConfig = YamlConfiguration.loadConfiguration(defaultLangStream);
+        defConfig = new YamlConfiguration();
+        // getResource doesn't accept File.separator on Windows, use '/'.
+        try (InputStream input = plugin.getResource("lang/" + DEFAULT_LANG)) {
+            if (input != null) {
+                try (Reader defaultLangStream = new InputStreamReader(input, StandardCharsets.UTF_8)) {
+                    defConfig = YamlConfiguration.loadConfiguration(defaultLangStream);
+                }
+            } else {
+                plugin.getLogger().severe("Default language file 'lang/" + DEFAULT_LANG + "' is missing from the plugin jar.");
+            }
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Unable to load default language file.", e);
+        }
 
-        try {
-            input = new FileInputStream(langFile);
-        } catch (FileNotFoundException e) {
+        langConfig = new YamlConfiguration();
+        if (!langFile.exists()) {
+            plugin.getLogger().warning("Configured language file '" + langFileName + "' was not found. Falling back to defaults.");
             return;
         }
 
-        Reader langStream = new InputStreamReader(input, StandardCharsets.UTF_8);
-        langConfig = YamlConfiguration.loadConfiguration(langStream);
+        try (InputStream input = new FileInputStream(langFile);
+             Reader langStream = new InputStreamReader(input, StandardCharsets.UTF_8)) {
+            langConfig = YamlConfiguration.loadConfiguration(langStream);
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.WARNING, "Unable to read language file '" + langFileName + "'. Falling back to defaults.", e);
+        }
     }
 
     // path: yml path to message in language file
     // format: yml path to format in language file (info, warn, etc)
     // option: path-specific variable
     public Component getMessage(String path, String format, String option) {
-        if (langConfig == null) reloadLang(langFile.getName());
+        if (langConfig == null) {
+            reloadLang(langFile != null ? langFile.getName() : DEFAULT_LANG);
+        }
         if (path == null) return Component.empty();
         if (option == null) option = "";
 
@@ -139,9 +161,9 @@ public class Language {
 
     public String getString(String path) {
         String message = null;
-        if (langConfig.contains(path)) {
+        if (langConfig != null && langConfig.contains(path)) {
             message = langConfig.getString(path);
-        } else if (defConfig.contains(path)) {
+        } else if (defConfig != null && defConfig.contains(path)) {
             message = defConfig.getString(path);
         }
         return message;
