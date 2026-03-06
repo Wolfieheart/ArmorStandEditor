@@ -19,10 +19,6 @@
 
 package io.github.rypofalem.armorstandeditor;
 
-import com.jeff_media.updatechecker.UpdateCheckSource;
-import com.jeff_media.updatechecker.UpdateChecker;
-import com.jeff_media.updatechecker.UserAgentBuilder;
-
 import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
 import io.github.rypofalem.armorstandeditor.Metrics.SimplePie;
 import io.github.rypofalem.armorstandeditor.language.Language;
@@ -221,22 +217,12 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     private void runUpdateCheckerConsoleUpdateCheck() {
-        new UpdateChecker(this, UpdateCheckSource.HANGAR, HANGAR_RELEASE_CHANNEL)
-            .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
-            .setColoredConsoleOutput(true)
-            .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())
-            .checkEveryXHours(updateCheckerInterval)
-            .checkNow();
+        getLogger().warning("Automatic update checks are disabled in this build (missing SpigotUpdateChecker dependency).");
+        getLogger().warning("Check updates manually at: https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn");
     }
 
     private void runUpdateCheckerWithOPNotifyOnJoinEnabled() {
-        new UpdateChecker(this, UpdateCheckSource.HANGAR, HANGAR_RELEASE_CHANNEL)
-            .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
-            .setColoredConsoleOutput(true)
-            .setNotifyOpsOnJoin(true)
-            .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())
-            .checkEveryXHours(updateCheckerInterval)
-            .checkNow();
+        runUpdateCheckerConsoleUpdateCheck();
     }
 
 
