@@ -49,7 +49,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.EulerAngle;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -226,11 +225,11 @@ public class PlayerEditor {
     private void openEquipment(ArmorStand armorStand) {
         if (!getPlayer().hasPermission("asedit.equipment")) return;
 
+        armorStandInUseId = armorStand.getUniqueId();
         // Dont allow Editing the ArmorStand if the Stand is on the AS-InUse Team
         // Means No 2 Players can edit the Equipment at the same time
         if (!plugin.hasFolia) {
             team = plugin.scoreboard.getTeam(plugin.inUseTeam);
-            armorStandInUseId = armorStand.getUniqueId();
 
             debug.log("Is ArmorStand currently in use by another player?: " + team.hasEntry(armorStandInUseId.toString()));
 
@@ -244,10 +243,14 @@ public class PlayerEditor {
                 sendMessage("asinuse", "warn");
             }
         } else {
-            debug.log("ArmorStand Not on a Team and Player '" + getPlayer().displayName() + "' has triggered to Open the Equipment Menu. Folia.");
-            getPlayer().closeInventory();
-            equipMenu = new EquipmentMenu(this, armorStand);
-            equipMenu.openMenu();
+            if (!PlayerEditorManager.foliaInUse.contains(armorStandInUseId)) {
+                debug.log("ArmorStand Not locked and Player '" + getPlayer().displayName() + "' has triggered to Open the Equipment Menu. Folia.");
+                getPlayer().closeInventory();
+                equipMenu = new EquipmentMenu(this, armorStand);
+                equipMenu.openMenu();
+            } else {
+                sendMessage("asinuse", "warn");
+            }
         }
     }
 
