@@ -28,7 +28,6 @@ import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
 
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -50,6 +49,8 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.UUID;
 
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacy;
@@ -72,6 +73,7 @@ public class PlayerEditorManager implements Listener {
     private TickCounter counter;
     private Integer noSize = 0;
     Team team;
+    static final Set<UUID> foliaInUse = ConcurrentHashMap.newKeySet();
 
     // Instantiate protections used to determine whether a player may edit an armor stand or item frame
     private final List<Protection> protections = List.of(
@@ -500,6 +502,8 @@ public class PlayerEditorManager implements Listener {
                 if (team != null) {
                     team.removeEntry(pe.armorStandInUseId.toString());
                 }
+            } else {
+                foliaInUse.remove(pe.armorStandInUseId);
             }
         }
     }
