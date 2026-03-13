@@ -246,6 +246,7 @@ public class PlayerEditor {
             if (!PlayerEditorManager.foliaInUse.contains(armorStandInUseId)) {
                 debug.log("ArmorStand Not locked and Player '" + getPlayer().displayName() + "' has triggered to Open the Equipment Menu. Folia.");
                 getPlayer().closeInventory();
+                PlayerEditorManager.foliaInUse.add(armorStandInUseId);
                 equipMenu = new EquipmentMenu(this, armorStand);
                 equipMenu.openMenu();
             } else {
