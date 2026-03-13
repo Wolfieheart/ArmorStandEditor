@@ -40,7 +40,9 @@ import org.bukkit.command.*;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.util.EulerAngle;
 
@@ -59,6 +61,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     final Component LISTAXIS = text("/ase axis <" + Util.getEnumList(Axis.class) + ">", YELLOW);
     final Component LISTADJUSTMENT = text("/ase adj <" + Util.getEnumList(AdjustmentMode.class) + ">", YELLOW);
     final Component RESETWITHINRANGE = text("/ase resetWithinRange <range>", YELLOW);
+    final Component GIVE = text("/ase give", YELLOW);
     final Component LISTSLOT = text("/ase slot <1-9>", YELLOW);
     final Component HELP = text("/ase help or /ase ?", YELLOW);
     final Component VERSION = text("/ase version", YELLOW);
@@ -113,6 +116,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                 player.sendMessage(HELP);
                 player.sendMessage(RELOAD);
                 player.sendMessage(GIVEPLAYERHEAD);
+                player.sendMessage(GIVE);
                 player.sendMessage(GETARMORSTATS);
                 return true;
             }
@@ -125,6 +129,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                 case "version" -> commandVersion(player);
                 case "update" -> commandUpdate(player);
                 case "playerhead" -> commandGivePlayerHead(player);
+                case "give" -> commandGive(player);
                 case "reload" -> commandReload(player);
                 case "stats" -> commandStats(player);
                 case "resetwithinrange" -> commandResetWithinRange(player, args);
@@ -145,6 +150,26 @@ public class CommandEx implements CommandExecutor, TabCompleter {
             return true;
         }
     }
+
+
+    // Implemented to fix:
+    // https://github.com/Wolfieheart/ArmorStandEditor-Issues/issues/35 &
+    // https://github.com/Wolfieheart/ArmorStandEditor-Issues/issues/30 - See Remarks OTHER
+    private void commandGive(Player player) {
+        if (player.hasPermission("asedit.give")) {
+            ItemStack stack = new ItemStack(plugin.getEditTool());
+            ItemMeta meta = stack.getItemMeta();
+            meta.setCustomModelData(plugin.getCustomModelDataInt()); //TODO: Depreciated - Will need fixed later
+            meta.setUnbreakable(true);
+            meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+            stack.setItemMeta(meta);
+            player.getInventory().addItem(stack);
+            player.sendMessage(plugin.getLang().getMessage("give", "info"));
+        } else {
+            player.sendMessage(plugin.getLang().getMessage("nogive", "warn"));
+        }
+    }
+
 
     private void commandResetWithinRange(Player player, String[] args) {
         if(player.hasPermission("asedit.reset.withinRange")){

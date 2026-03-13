@@ -48,6 +48,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
@@ -75,7 +76,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String versionLogPrefix;
 
     //Hardcode the ASE Version
-    public static final String ASE_VERSION = "1.21.11-50";
+    public static final String ASE_VERSION = "1.21.11-50.1";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;
@@ -100,6 +101,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     double maxScaleValue;
     double minScaleValue;
     double maxResetRange;
+
+    //Custom Data Model Support - Readded
+    boolean allowCustomModelData = false;
+    Integer customModelDataInt = Integer.MIN_VALUE;
 
     //GUI Settings
     boolean requireSneaking = false;
@@ -377,6 +382,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return this.getConfig().getDouble("maxScaleValue");
     }
 
+    public Integer getCustomModelDataInt() {
+        return this.getConfig().getInt("customModelDataInt");
+    }
+
     public boolean isEditTool(ItemStack itemStk) {
         if (itemStk == null) {
             return false;
@@ -438,6 +447,16 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             }
 
         }
+
+        if (allowCustomModelData && customModelDataInt != null) {
+            //If the ItemStack does not have Metadata then we return false
+            if (!itemStk.hasItemMeta()) {
+                return false;
+            }
+            Integer itemCustomModel = itemMeta.getCustomModelData(); //TODO: Depreciated - TO Fix later
+            return itemCustomModel.equals(customModelDataInt);
+        }
+
         return true;
     }
 
@@ -447,6 +466,13 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         //Rotation
         coarseRot = getConfig().getDouble("coarse");
         fineRot = getConfig().getDouble("fine");
+
+        //Custom Model Data
+        allowCustomModelData = getConfig().getBoolean("allowCustomModelData", false);
+
+        if (allowCustomModelData) {
+            customModelDataInt = getConfig().getInt("customModelDataInt", Integer.MIN_VALUE);
+        }
 
         // Scale Values for Size
         maxScaleValue = getConfig().getDouble("maxScaleValue");
@@ -644,14 +670,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         metrics.addCustomChart(new SimplePie("op_updates", () -> getConfig().getString("opUpdateNotification")));
 
-        String serverBrand = getServer().getName();
-        try {
-            serverBrand = ServerBuildInfo.buildInfo().brandName();
-        } catch (NoClassDefFoundError ignored) {
-        }
+        metrics.addCustomChart(new SimplePie("per_world_enabled", () -> String.valueOf(getConfig().getBoolean("enablePerWorldSupport"))));
 
-        final String finalBrand = serverBrand;
-        metrics.addCustomChart(new SimplePie("server_type", () -> finalBrand));
+        metrics.addCustomChart(new SimplePie("allowCustomModelData", () -> String.valueOf(getConfig().getBoolean("allowCustomModelData"))));
+
 
     }
 
