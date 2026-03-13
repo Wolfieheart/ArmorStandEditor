@@ -44,6 +44,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.util.EulerAngle;
 
 import java.util.ArrayList;
@@ -159,7 +160,11 @@ public class CommandEx implements CommandExecutor, TabCompleter {
         if (player.hasPermission("asedit.give")) {
             ItemStack stack = new ItemStack(plugin.getEditTool());
             ItemMeta meta = stack.getItemMeta();
-            meta.setCustomModelData(plugin.getCustomModelDataInt()); //TODO: Depreciated - Will need fixed later
+
+            CustomModelDataComponent dC = meta.getCustomModelDataComponent();
+            dC.setFloats(List.of(plugin.getCustomModelDataInt()));
+            meta.setCustomModelDataComponent(dC);
+
             meta.setUnbreakable(true);
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             stack.setItemMeta(meta);

@@ -45,6 +45,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -104,7 +105,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     //Custom Data Model Support - Readded
     boolean allowCustomModelData = false;
-    Integer customModelDataInt = Integer.MIN_VALUE;
+    float customModelDataInt;
 
     //GUI Settings
     boolean requireSneaking = false;
@@ -382,8 +383,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return this.getConfig().getDouble("maxScaleValue");
     }
 
-    public Integer getCustomModelDataInt() {
-        return this.getConfig().getInt("customModelDataInt");
+    public float getCustomModelDataInt() {
+        return (float) this.getConfig().getDouble("customModelDataInt");
     }
 
     public boolean isEditTool(ItemStack itemStk) {
@@ -448,13 +449,20 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         }
 
-        if (allowCustomModelData && customModelDataInt != null) {
+        if (allowCustomModelData && customModelDataInt != 0) {
             //If the ItemStack does not have Metadata then we return false
             if (!itemStk.hasItemMeta()) {
                 return false;
             }
-            Integer itemCustomModel = itemMeta.getCustomModelData(); //TODO: Depreciated - TO Fix later
-            return itemCustomModel.equals(customModelDataInt);
+
+            ItemMeta meta = itemStk.getItemMeta();
+            CustomModelDataComponent component = meta.getCustomModelDataComponent();
+
+            if (component.getFloats().isEmpty()) return true;
+            // If there is no Custom Model Data, we return true since it is not required to be present.
+            // This allows for more flexibility in the use of the Edit Tool.
+
+            return component.getFloats().get(0).intValue() == (double) customModelDataInt;
         }
 
         return true;
