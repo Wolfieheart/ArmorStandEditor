@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java_version: ['21']
+        java_version: ['25']
 
     steps:
       # Checkout the repository
