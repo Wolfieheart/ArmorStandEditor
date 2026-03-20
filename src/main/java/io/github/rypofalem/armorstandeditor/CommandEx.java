@@ -19,15 +19,13 @@
 
 package io.github.rypofalem.armorstandeditor;
 
-import com.jeff_media.updatechecker.UpdateCheckSource;
-import com.jeff_media.updatechecker.UpdateChecker;
-
 import io.github.rypofalem.armorstandeditor.modes.AdjustmentMode;
 import io.github.rypofalem.armorstandeditor.modes.Axis;
 import io.github.rypofalem.armorstandeditor.modes.EditMode;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.Util;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
+import io.github.rypofalem.armorstandeditor.UpdateChecker;
 
 import net.kyori.adventure.text.Component;
 
@@ -177,12 +175,12 @@ public class CommandEx implements CommandExecutor, TabCompleter {
 
 
     private void commandResetWithinRange(Player player, String[] args) {
-        if(player.hasPermission("asedit.reset.withinRange")){
+        if (player.hasPermission("asedit.reset.withinRange")) {
             debug.log(" Player '" + player.getName() + "' is resetting armor stands within range.");
             double range = Double.parseDouble(args[1]);
             debug.log(" Range Chosen: " + range);
 
-            if(range > plugin.getMaxResetRange()){
+            if (range > plugin.getMaxResetRange()) {
                 player.sendMessage(plugin.getLang().getMessage("resetwithinrangeexceed", "warn"));
                 return;
             }
@@ -190,7 +188,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
             Location playerLoc = player.getLocation();
             plugin.editorManager.getPlayerEditor(player.getUniqueId()).resetArmorStandsWithinRange(playerLoc, range);
             player.sendMessage(plugin.getLang().getMessage("resetwithinrange", "info"));
-        } else{
+        } else {
             player.sendMessage(plugin.getLang().getMessage("nopermoption", "warn", "resetwithinrange"));
         }
     }
@@ -277,8 +275,10 @@ public class CommandEx implements CommandExecutor, TabCompleter {
         if (args.length > 1) {
             for (EditMode mode : EditMode.values()) {
                 if (mode.toString().toLowerCase().contentEquals(args[1].toLowerCase())) {
-                    if (args[1].equals("invisible") && !(checkPermission(player, "togglearmorstandvisibility", true) || plugin.getArmorStandVisibility())) return;
-                    if (args[1].equals("itemframe") && !(checkPermission(player, "toggleitemframevisibility", true) || plugin.getItemFrameVisibility())) return;
+                    if (args[1].equals("invisible") && !(checkPermission(player, "togglearmorstandvisibility", true) || plugin.getArmorStandVisibility()))
+                        return;
+                    if (args[1].equals("itemframe") && !(checkPermission(player, "toggleitemframevisibility", true) || plugin.getItemFrameVisibility()))
+                        return;
                     plugin.editorManager.getPlayerEditor(player.getUniqueId()).setMode(mode);
                     debug.log("Player '" + player.getName() + "' chose the mode: " + mode);
                     return;
@@ -314,7 +314,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
         debug.log("Current ArmorStandEditor Version is: " + ArmorStandEditorPlugin.ASE_VERSION);
         if (!plugin.getHasFolia() && plugin.getRunTheUpdateChecker()) {
             debug.log("Plugin is on Server: Paper/Spigot or a fork thereof.");
-            new UpdateChecker(plugin, UpdateCheckSource.HANGAR, ArmorStandEditorPlugin.HANGAR_RELEASE_CHANNEL).checkNow(player); //Runs Update Check
+            new UpdateChecker(plugin).checkForUpdates();
         } else if (plugin.getHasFolia()) {
             debug.log("Plugin is on Folia");
             player.sendMessage(text("[ArmorStandEditor] Update Checker does not currently work on Folia.", YELLOW));
@@ -383,19 +383,26 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     private boolean getPermissionBasic(Player player) {
         return checkPermission(player, "basic", false);
     }
+
     private boolean getPermissionUpdate(Player player) {
         return checkPermission(player, "update", false);
     }
+
     private boolean getPermissionReload(Player player) {
         return checkPermission(player, "reload", false);
     }
+
     private boolean getPermissionPlayerHead(Player player) {
         return checkPermission(player, "head", false);
     }
+
     private boolean getPermissionStats(Player player) {
         return checkPermission(player, "stats", false);
     }
-    private boolean getPermissionResetWithinRange(Player player) { return checkPermission(player, "reset.withinRange", false);    }
+
+    private boolean getPermissionResetWithinRange(Player player) {
+        return checkPermission(player, "reset.withinRange", false);
+    }
 
 
     //REFACTOR COMPLETION
@@ -412,7 +419,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                 argList.add("adj");
                 argList.add("slot");
                 argList.add("help");
-                argList.add ("version");
+                argList.add("version");
 
                 argList.add("?");
 
@@ -431,7 +438,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                     argList.add("stats");
                 }
 
-                if(getPermissionResetWithinRange(player)){
+                if (getPermissionResetWithinRange(player)) {
                     argList.add("resetwithinrange");
                 }
             }
@@ -460,17 +467,17 @@ public class CommandEx implements CommandExecutor, TabCompleter {
 
     private boolean isCommandValid(String commandName) {
         return commandName.equalsIgnoreCase("ase") ||
-            commandName.equalsIgnoreCase("armorstandeditor") ||
-            commandName.equalsIgnoreCase("asedit");
+                commandName.equalsIgnoreCase("armorstandeditor") ||
+                commandName.equalsIgnoreCase("asedit");
     }
 
     private List<String> getModeOptions() {
         return List.of(
-            "None", "Invisible", "ShowArms", "Gravity", "BasePlate",
-            "Size", "Copy", "Paste", "Head", "Body", "LeftArm",
-            "RightArm", "LeftLeg", "RightLeg", "Placement",
-            "DisableSlots", "Rotate", "Equipment", "Reset",
-            "ItemFrame", "ItemFrameGlow", "Vulnerability", "ArmorStandGlow"
+                "None", "Invisible", "ShowArms", "Gravity", "BasePlate",
+                "Size", "Copy", "Paste", "Head", "Body", "LeftArm",
+                "RightArm", "LeftLeg", "RightLeg", "Placement",
+                "DisableSlots", "Rotate", "Equipment", "Reset",
+                "ItemFrame", "ItemFrameGlow", "Vulnerability", "ArmorStandGlow"
         );
     }
 
@@ -487,11 +494,11 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     }
 
     /*
-    * Helper Functions for Stats
+     * Helper Functions for Stats
      */
     private Component label(String label, Object value) {
         return text(label + ": ", YELLOW)
-            .append(text(String.valueOf(value), AQUA));
+                .append(text(String.valueOf(value), AQUA));
     }
 
     private void sendArmorStandStats(Player player, ArmorStand as) {
@@ -518,12 +525,12 @@ public class CommandEx implements CommandExecutor, TabCompleter {
 
     private void sendPose(Player player, String name, EulerAngle angle) {
         player.sendMessage(
-            text(name + ": ", YELLOW)
-                .append(text(
-                    round(angle.getX()) + " / " +
-                        round(angle.getY()) + " / " +
-                        round(angle.getZ()),
-                    AQUA))
+                text(name + ": ", YELLOW)
+                        .append(text(
+                                round(angle.getX()) + " / " +
+                                        round(angle.getY()) + " / " +
+                                        round(angle.getZ()),
+                                AQUA))
         );
     }
 
@@ -536,91 +543,91 @@ public class CommandEx implements CommandExecutor, TabCompleter {
         if (isScaleSupported()) {
             double scale = Objects.requireNonNull(as.getAttribute(Attribute.SCALE)).getBaseValue();
             player.sendMessage(
-                text("Size: ", YELLOW)
-                    .append(text(scale + "/" + plugin.getMaxScaleValue(), AQUA))
-                    .append(text(". ", YELLOW))
-                    .append(label("Is Glowing", as.isGlowing()))
-                    .append(text(". ", YELLOW))
-                    .append(label("Is Locked", isLocked(as)))
-                    .append(text(". ", YELLOW))
-                    .append(label("Is InUse", isInUse(as)))
+                    text("Size: ", YELLOW)
+                            .append(text(scale + "/" + plugin.getMaxScaleValue(), AQUA))
+                            .append(text(". ", YELLOW))
+                            .append(label("Is Glowing", as.isGlowing()))
+                            .append(text(". ", YELLOW))
+                            .append(label("Is Locked", isLocked(as)))
+                            .append(text(". ", YELLOW))
+                            .append(label("Is InUse", isInUse(as)))
             );
             return;
         }
 
         player.sendMessage(
-            label("Is Small", as.isSmall())
-                .append(text(". ", YELLOW))
-                .append(label("Is Glowing", as.isGlowing()))
-                .append(text(". ", YELLOW))
-                .append(label("Is Locked", isLocked(as)))
-                .append(text(". ", YELLOW))
-                .append(label("Is InUse", isInUse(as)))
+                label("Is Small", as.isSmall())
+                        .append(text(". ", YELLOW))
+                        .append(label("Is Glowing", as.isGlowing()))
+                        .append(text(". ", YELLOW))
+                        .append(label("Is Locked", isLocked(as)))
+                        .append(text(". ", YELLOW))
+                        .append(label("Is InUse", isInUse(as)))
         );
     }
 
     private boolean isScaleSupported() {
         return VersionUtil.fromString(plugin.getNmsVersion())
-            .isNewerThanOrEquals(MinecraftVersion.MINECRAFT_1_20_4);
+                .isNewerThanOrEquals(MinecraftVersion.MINECRAFT_1_20_4);
     }
 
     private boolean isLocked(ArmorStand as) {
         return plugin.scoreboard
-            .getTeam(plugin.lockedTeam)
-            .hasEntry(as.getUniqueId().toString());
+                .getTeam(plugin.lockedTeam)
+                .hasEntry(as.getUniqueId().toString());
     }
 
     private boolean isInUse(ArmorStand as) {
         return plugin.scoreboard
-            .getTeam(plugin.inUseTeam)
-            .hasEntry(as.getUniqueId().toString());
+                .getTeam(plugin.inUseTeam)
+                .hasEntry(as.getUniqueId().toString());
     }
 
     private void sendCoordinates(Player player, Location loc) {
         player.sendMessage(
-            text("Coordinates: ", YELLOW)
-                .append(text(
-                    "X: " + loc.getX() +
-                        " / Y: " + loc.getY() +
-                        " / Z: " + loc.getZ(),
-                    AQUA))
+                text("Coordinates: ", YELLOW)
+                        .append(text(
+                                "X: " + loc.getX() +
+                                        " / Y: " + loc.getY() +
+                                        " / Z: " + loc.getZ(),
+                                AQUA))
         );
     }
 
     private void sendVisibility(Player player, ArmorStand as) {
         player.sendMessage(
-            label("Is Visible", as.isVisible())
-                .append(text(". ", YELLOW))
-                .append(label("Arms Visible", as.hasArms()))
-                .append(text(". ", YELLOW))
-                .append(label("Base Plate Visible", as.hasBasePlate()))
+                label("Is Visible", as.isVisible())
+                        .append(text(". ", YELLOW))
+                        .append(label("Arms Visible", as.hasArms()))
+                        .append(text(". ", YELLOW))
+                        .append(label("Base Plate Visible", as.hasBasePlate()))
         );
     }
 
     private void sendPhysics(Player player, ArmorStand as) {
         player.sendMessage(
-            label("Is Vulnerable", as.isInvulnerable())
-                .append(text(". ", YELLOW))
-                .append(label("Affected by Gravity", as.hasGravity()))
+                label("Is Vulnerable", as.isInvulnerable())
+                        .append(text(". ", YELLOW))
+                        .append(label("Affected by Gravity", as.hasGravity()))
         );
     }
 
     private record PoseData(
-    EulerAngle head,
-    EulerAngle body,
-    EulerAngle rightArm,
-    EulerAngle leftArm,
-    EulerAngle rightLeg,
-    EulerAngle leftLeg
+            EulerAngle head,
+            EulerAngle body,
+            EulerAngle rightArm,
+            EulerAngle leftArm,
+            EulerAngle rightLeg,
+            EulerAngle leftLeg
     ) {
         static PoseData from(ArmorStand as) {
             return new PoseData(
-                as.getHeadPose(),
-                as.getBodyPose(),
-                as.getRightArmPose(),
-                as.getLeftArmPose(),
-                as.getRightLegPose(),
-                as.getLeftLegPose()
+                    as.getHeadPose(),
+                    as.getBodyPose(),
+                    as.getRightArmPose(),
+                    as.getLeftArmPose(),
+                    as.getRightLegPose(),
+                    as.getLeftLegPose()
             );
         }
     }

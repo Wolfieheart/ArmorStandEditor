@@ -19,21 +19,18 @@
 
 package io.github.rypofalem.armorstandeditor;
 
-import com.jeff_media.updatechecker.UpdateCheckSource;
-import com.jeff_media.updatechecker.UpdateChecker;
-import com.jeff_media.updatechecker.UserAgentBuilder;
-
 import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
 import io.github.rypofalem.armorstandeditor.Metrics.SimplePie;
 import io.github.rypofalem.armorstandeditor.language.Language;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
+import io.github.rypofalem.armorstandeditor.UpdateChecker;
 
 import io.papermc.lib.PaperLib;
-import io.papermc.paper.ServerBuildInfo;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 
 import org.bukkit.Bukkit;
@@ -49,7 +46,6 @@ import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
@@ -60,7 +56,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     //!!! DO NOT REMOVE THESE UNDER ANY CIRCUMSTANCES - Required for BStats and UpdateChecker !!!
     public static final String HANGAR_RELEASE_CHANNEL = "Wolfieheart/ArmorStandEditor-Reborn/Release";  //Used for Update Checker
-    private static final int PLUGIN_ID = 12668;		     //Used for BStats Metrics
+    private static final int PLUGIN_ID = 12668;             //Used for BStats Metrics
     public Debug debug;
 
     private NamespacedKey iconKey;
@@ -77,7 +73,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String versionLogPrefix;
 
     //Hardcode the ASE Version
-    public static final String ASE_VERSION = "1.21.11-50.1";
+    public static final String ASE_VERSION = "26.1-DEV";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;
@@ -189,6 +185,11 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             runWarningsFolia();
         }
 
+        //Run the update checker if enabled in config
+        if (getRunTheUpdateChecker()) {
+            new UpdateChecker(this).checkForUpdates();
+        }
+
         getLogger().info(SEPARATOR_FIELD);
         // ----- End of Initial Console Output
 
@@ -224,25 +225,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(editorManager, this);
 
-    }
-
-    private void runUpdateCheckerConsoleUpdateCheck() {
-        new UpdateChecker(this, UpdateCheckSource.HANGAR, HANGAR_RELEASE_CHANNEL)
-            .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
-            .setColoredConsoleOutput(true)
-            .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())
-            .checkEveryXHours(updateCheckerInterval)
-            .checkNow();
-    }
-
-    private void runUpdateCheckerWithOPNotifyOnJoinEnabled() {
-        new UpdateChecker(this, UpdateCheckSource.HANGAR, HANGAR_RELEASE_CHANNEL)
-            .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
-            .setColoredConsoleOutput(true)
-            .setNotifyOpsOnJoin(true)
-            .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())
-            .checkEveryXHours(updateCheckerInterval)
-            .checkNow();
     }
 
 
@@ -468,7 +450,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return true;
     }
 
-    public void loadConfigValues(){
+    public void loadConfigValues() {
         lang = new Language(getConfig().getString("lang"), this);
 
         //Rotation
@@ -562,17 +544,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         if (debugFlag) {
             getServer().getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] ArmorStandEditor Debug Mode is now ENABLED! Use this ONLY for testing Purposes. If you can see this and you have debug disabled, please report it as a bug!");
             debug = new Debug(this);
-        }
-
-        //Run UpdateChecker - Reports out to Console on Startup ONLY!
-        if (!hasFolia && runTheUpdateChecker) {
-
-            if (opUpdateNotification) {
-                runUpdateCheckerWithOPNotifyOnJoinEnabled();
-            } else {
-                runUpdateCheckerConsoleUpdateCheck();
-            }
-
         }
 
     }

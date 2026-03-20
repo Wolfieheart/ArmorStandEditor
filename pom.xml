@@ -9,7 +9,7 @@
     <url>https://maven.apache.org</url>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
         <sonar.organization>wolfieheart</sonar.organization>
@@ -194,7 +194,7 @@
             <groupId>com.jeff_media</groupId>
             <artifactId>SpigotUpdateChecker</artifactId>
             <version>3.0.4</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <!-- SuperiorSkyblock API -->
