@@ -308,10 +308,6 @@
                         <configuration>
                             <relocations>
                                 <relocation>
-                                    <pattern>com.jeff_media.updatechecker</pattern>
-                                    <shadedPattern>io.github.rypofalem.armorstandeditor.updatechecker</shadedPattern>
-                                </relocation>
-                                <relocation>
                                     <pattern>io.papermc.lib</pattern>
                                     <shadedPattern>io.github.rypofalem.armorstandeditor.libs.paperlib</shadedPattern>
                                 </relocation>
