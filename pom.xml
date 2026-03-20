@@ -62,11 +62,6 @@
             <id>griefdefender</id>
             <url>https://repo.glaremasters.me/repository/bloodshot/</url>
         </repository>
-        <!--- Update Checker -->
-        <repository>
-            <id>jeff-media-public</id>
-            <url>https://repo.jeff-media.com/public/</url>
-        </repository>
         <!--- Grief Prevention: DEPRECATION - Discuss Keeping or Removing -->
         <repository>
             <id>jitpack.io</id>
@@ -186,14 +181,6 @@
             <groupId>com.palmergames.bukkit.towny</groupId>
             <artifactId>towny</artifactId>
             <version>0.102.0.7</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!--- UpdateChecker -->
-        <dependency>
-            <groupId>com.jeff_media</groupId>
-            <artifactId>SpigotUpdateChecker</artifactId>
-            <version>3.0.4</version>
             <scope>provided</scope>
         </dependency>
 
