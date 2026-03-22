@@ -57,7 +57,7 @@ import java.util.logging.Level;
 public class ArmorStandEditorPlugin extends JavaPlugin {
 
     //!!! DO NOT REMOVE THESE UNDER ANY CIRCUMSTANCES - Required for BStats and UpdateChecker !!!
-    public static final int RESOURCE_ID = 94503;  //Used for Update Checker
+    public static final String HANGAR_LINK = "https://hangar.papermc.io/api/v1/projects/WolfieHeart/ArmorStandEditor-Reborn/latest?channel=Release";  //Used for Update Checker
     private static final int PLUGIN_ID = 12668;		     //Used for BStats Metrics
     public Debug debug;
 
@@ -225,7 +225,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     private void runUpdateCheckerConsoleUpdateCheck() {
-        UpdateChecker.init(this, RESOURCE_ID)
+        UpdateChecker.init(this, HANGAR_LINK)
             .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
             .setColoredConsoleOutput(true)
             .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())
@@ -234,7 +234,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     private void runUpdateCheckerWithOPNotifyOnJoinEnabled() {
-        UpdateChecker.init(this, RESOURCE_ID)
+        UpdateChecker.init(this, HANGAR_LINK)
             .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
             .setColoredConsoleOutput(true)
             .setNotifyOpsOnJoin(true)

@@ -308,7 +308,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
         debug.log("Current ArmorStandEditor Version is: " + ArmorStandEditorPlugin.ASE_VERSION);
         if (!plugin.getHasFolia() && plugin.getRunTheUpdateChecker()) {
             debug.log("Plugin is on Server: Paper/Spigot or a fork thereof.");
-            UpdateChecker.init(plugin, ArmorStandEditorPlugin.RESOURCE_ID).checkNow(player); //Runs Update Check
+            UpdateChecker.init(plugin, ArmorStandEditorPlugin.HANGAR_LINK).checkNow(player); //Runs Update Check
         } else if (plugin.getHasFolia()) {
             debug.log("Plugin is on Folia");
             player.sendMessage(text("[ArmorStandEditor] Update Checker does not currently work on Folia.", YELLOW));
