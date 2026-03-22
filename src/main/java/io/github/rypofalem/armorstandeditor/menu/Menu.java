@@ -78,6 +78,7 @@ public class Menu {
         ItemStack slot2 = null;
         ItemStack slot3 = null;
         ItemStack slot4 = null;
+        String copySlotText = "copyslot";
         ItemStack help;
         ItemStack itemFrameVisible;
         ItemStack blankSlot;
@@ -218,16 +219,16 @@ public class Menu {
                 "copy", "mode copy");
 
             slot1 = createIcon(ItemStack.of(Material.BOOK),
-                "copyslot", "slot 1", "1");
+                    copySlotText, "slot 1", "1");
 
             slot2 = createIcon(ItemStack.of(Material.BOOK, 2),
-                "copyslot", "slot 2", "2");
+                    copySlotText, "slot 2", "2");
 
             slot3 = createIcon(ItemStack.of(Material.BOOK, 3),
-                "copyslot", "slot 3", "3");
+                    copySlotText, "slot 3", "3");
 
             slot4 = createIcon(ItemStack.of(Material.BOOK, 4),
-                "copyslot", "slot 4", "4");
+                    copySlotText, "slot 4", "4");
         }
 
         if (pe.getPlayer().hasPermission("asedit.paste")) {
