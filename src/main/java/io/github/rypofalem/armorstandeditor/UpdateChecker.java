@@ -13,6 +13,7 @@ import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.URI;
 
 public class UpdateChecker implements Listener {
 
@@ -34,13 +35,17 @@ public class UpdateChecker implements Listener {
         taskScheduler.runTaskAsynchronously(plugin, () -> {
             try {
 
-                HttpsURLConnection connection = (HttpsURLConnection) new java.net.URL(HANGAR_URL).openConnection();
+                HttpsURLConnection connection = (HttpsURLConnection) URI
+                        .create(HANGAR_URL)
+                        .toURL()
+                        .openConnection();
                 connection.setRequestMethod("GET");
 
                 final JsonElement json = new Gson().fromJson(new BufferedReader(new InputStreamReader(connection.getInputStream())), JsonElement.class);
                 versionOnHangar = json.getAsJsonObject().get("version_name").getAsString();
-            } catch (Exception e) {
+            } catch (Exception exception) {
                 plugin.getLogger().warning("Failed to get the latest version from Hangar. Please check your internet connection.");
+                plugin.debug.log("Error while checking for updates: " + exception.getMessage());
                 return;
             }
 
