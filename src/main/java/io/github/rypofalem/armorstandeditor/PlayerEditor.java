@@ -55,6 +55,8 @@ import java.util.UUID;
 
 public class PlayerEditor {
     public ArmorStandEditorPlugin plugin;
+    private Scheduler scheduler;
+
     private Debug debug;
     Team team;
     private UUID uuid;
@@ -86,6 +88,8 @@ public class PlayerEditor {
         this.uuid = uuid;
         this.plugin = plugin;
         this.debug = new Debug(plugin);
+        this.scheduler = new Scheduler(plugin);
+
         eMode = EditMode.NONE;
         adjMode = AdjustmentMode.COARSE;
         axis = Axis.X;
@@ -331,7 +335,7 @@ public class PlayerEditor {
                 break;
         }
         debug.log("Armorstand will be teleported to: " + loc.getX() + ", " + loc.getY() + ", " + loc.getZ() + ", near player " + getPlayer().displayName());
-        Scheduler.teleport(armorStand, loc);
+        scheduler.teleport(armorStand, loc);
     }
 
     private void reverseMove(ArmorStand armorStand) {
@@ -349,7 +353,7 @@ public class PlayerEditor {
                 break;
         }
         debug.log("Armorstand will be teleported to: " + loc.getX() + ", " + loc.getY() + ", " + loc.getZ() + ", near player " + getPlayer().displayName());
-        Scheduler.teleport(armorStand, loc);
+        scheduler.teleport(armorStand, loc);
     }
 
     private void rotate(ArmorStand armorStand) {
@@ -358,7 +362,7 @@ public class PlayerEditor {
         float yaw = loc.getYaw();
         loc.setYaw((yaw + 180 + (float) degreeAngleChange) % 360 - 180);
         debug.log("Armorstand will be teleported to: " + loc.getX() + ", " + loc.getY() + ", " + loc.getZ() + ", near player " + getPlayer().displayName());
-        Scheduler.teleport(armorStand, loc);
+        scheduler.teleport(armorStand, loc);
     }
 
     private void reverseRotate(ArmorStand armorStand) {
@@ -367,7 +371,7 @@ public class PlayerEditor {
         float yaw = loc.getYaw();
         loc.setYaw((yaw + 180 - (float) degreeAngleChange) % 360 - 180);
         debug.log("Armorstand will be teleported to: " + loc.getX() + ", " + loc.getY() + ", " + loc.getZ() + ", near player " + getPlayer().displayName());
-        Scheduler.teleport(armorStand, loc);
+        scheduler.teleport(armorStand, loc);
     }
 
     private void copy(ArmorStand armorStand) {
@@ -741,7 +745,8 @@ public class PlayerEditor {
 
     public void openMenu() {
         if (!isMenuCancelled()) {
-            Scheduler.runTaskLater(plugin, new OpenMenuTask(), 1);
+            //Scheduler.runTaskLater(plugin, getPlayer(), new OpenMenuTask(), 1);
+            scheduler.runTaskLater(() -> scheduler.runForEntity(getPlayer(), new OpenMenuTask()), 1L);
         }
     }
 

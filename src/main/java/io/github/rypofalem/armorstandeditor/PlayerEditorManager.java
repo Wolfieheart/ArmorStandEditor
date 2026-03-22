@@ -58,13 +58,18 @@ import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerial
 
 //Manages PlayerEditors and Player Events related to editing armorstands
 public class PlayerEditorManager implements Listener {
+
     private Debug debug;
     private ArmorStandEditorPlugin plugin;
     private HashMap<UUID, PlayerEditor> players;
+    private Scheduler scheduler;
+
     private ASEHolder menuHolder = new ASEHolder(); //Inventory holder that owns the main ase menu inventories for the plugin
     private ASEHolder equipmentHolder = new ASEHolder(); //Inventory holder that owns the equipment menu
     private ASEHolder presetHolder = new ASEHolder(); //Inventory Holder that owns the PresetArmorStand Post Menu
     private ASEHolder sizeMenuHolder = new ASEHolder(); //Inventory Holder that owns the PresetArmorStand Post Menu
+
+
     double coarseAdj;
     double fineAdj;
     double coarseMov;
@@ -89,13 +94,15 @@ public class PlayerEditorManager implements Listener {
     PlayerEditorManager(ArmorStandEditorPlugin plugin) {
         this.plugin = plugin;
         this.debug = new Debug(plugin);
+        this.scheduler = new Scheduler(plugin);
+
         players = new HashMap<>();
         coarseAdj = Util.FULL_CIRCLE / plugin.coarseRot;
         fineAdj = Util.FULL_CIRCLE / plugin.fineRot;
         coarseMov = 1;
         fineMov = .03125; // 1/32
         counter = new TickCounter();
-        Scheduler.runTaskTimer(plugin, counter, 1, 1);
+        scheduler.runTaskTimer(counter, 1, 1);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -185,7 +192,7 @@ public class PlayerEditorManager implements Listener {
                     // minecraft will set the name after this event even if the event is cancelled.
                     // change it 1 tick later to apply formatting without it being overwritten
                     final Component finalgetName = getName;
-                    Bukkit.getScheduler().runTask(plugin, () -> {
+                    scheduler.runTask(() -> {
                         as.customName(finalgetName);
                         as.setCustomNameVisible(true);
                     });
@@ -446,7 +453,7 @@ public class PlayerEditorManager implements Listener {
                     return;
                 } else {
                     player.performCommand(command);
-                    Bukkit.getScheduler().runTask(plugin, () -> player.closeInventory());
+                    scheduler.runForEntity(player, player::closeInventory);
                     return;
                 }
             }
@@ -468,7 +475,7 @@ public class PlayerEditorManager implements Listener {
                 String itemName = item.getPersistentDataContainer().get(plugin.getIconKey(), PersistentDataType.STRING);
                 PlayerEditor pe = players.get(player.getUniqueId());
                 pe.presetPoseMenu.handlePresetPose(itemName, player);
-                Bukkit.getScheduler().runTask(plugin, () -> player.closeInventory());
+                scheduler.runForEntity(player, player::closeInventory);
             }
         }
 
@@ -480,7 +487,7 @@ public class PlayerEditorManager implements Listener {
                 String itemName = item.getPersistentDataContainer().get(plugin.getIconKey(), PersistentDataType.STRING);
                 PlayerEditor pe = players.get(player.getUniqueId());
                 pe.sizeModificationMenu.handleAttributeScaling(itemName, player);
-                Bukkit.getScheduler().runTask(plugin, () -> player.closeInventory());
+                scheduler.runForEntity(player, player::closeInventory);
             }
         }
     }
