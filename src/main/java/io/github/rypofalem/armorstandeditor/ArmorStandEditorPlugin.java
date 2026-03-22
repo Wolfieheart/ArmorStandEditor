@@ -19,12 +19,9 @@
 
 package io.github.rypofalem.armorstandeditor;
 
-import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
-import io.github.rypofalem.armorstandeditor.Metrics.SimplePie;
 import io.github.rypofalem.armorstandeditor.language.Language;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
-import io.github.rypofalem.armorstandeditor.UpdateChecker;
 
 import io.papermc.lib.PaperLib;
 
@@ -214,7 +211,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         loadConfigValues();
 
         //Get Metrics from bStats
-        getMetrics();
+       // getMetrics();
 
         editorManager = new PlayerEditorManager(this);
         CommandEx execute = new CommandEx(this);
@@ -583,7 +580,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
 
-    //Metrics/bStats Support
+/*    //Metrics/bStats Support
     private void getMetrics() {
 
         Metrics metrics = new Metrics(this, PLUGIN_ID);
@@ -654,7 +651,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         metrics.addCustomChart(new SimplePie("allowCustomModelData", () -> String.valueOf(getConfig().getBoolean("allowCustomModelData"))));
 
 
-    }
+    }*/
 
 
     private void runWarningsFolia() {
