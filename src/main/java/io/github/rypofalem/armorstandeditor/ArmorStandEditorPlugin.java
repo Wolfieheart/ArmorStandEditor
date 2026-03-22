@@ -19,9 +19,8 @@
 
 package io.github.rypofalem.armorstandeditor;
 
-import com.jeff_media.updatechecker.UpdateCheckSource;
-import com.jeff_media.updatechecker.UpdateChecker;
-import com.jeff_media.updatechecker.UserAgentBuilder;
+import de.jeff_media.updatechecker.UpdateChecker;
+import de.jeff_media.updatechecker.UserAgentBuilder;
 
 import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
 import io.github.rypofalem.armorstandeditor.Metrics.SimplePie;
@@ -58,7 +57,7 @@ import java.util.logging.Level;
 public class ArmorStandEditorPlugin extends JavaPlugin {
 
     //!!! DO NOT REMOVE THESE UNDER ANY CIRCUMSTANCES - Required for BStats and UpdateChecker !!!
-    public static final String HANGAR_RELEASE_CHANNEL = "Wolfieheart/ArmorStandEditor-Reborn/Release";  //Used for Update Checker
+    public static final int RESOURCE_ID = 94503;  //Used for Update Checker
     private static final int PLUGIN_ID = 12668;		     //Used for BStats Metrics
     public Debug debug;
 
@@ -226,7 +225,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     private void runUpdateCheckerConsoleUpdateCheck() {
-        new UpdateChecker(this, UpdateCheckSource.HANGAR, HANGAR_RELEASE_CHANNEL)
+        UpdateChecker.init(this, RESOURCE_ID)
             .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
             .setColoredConsoleOutput(true)
             .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())
@@ -235,7 +234,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     private void runUpdateCheckerWithOPNotifyOnJoinEnabled() {
-        new UpdateChecker(this, UpdateCheckSource.HANGAR, HANGAR_RELEASE_CHANNEL)
+        UpdateChecker.init(this, RESOURCE_ID)
             .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
             .setColoredConsoleOutput(true)
             .setNotifyOpsOnJoin(true)
