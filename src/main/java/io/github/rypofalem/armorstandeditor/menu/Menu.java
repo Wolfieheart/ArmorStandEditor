@@ -44,7 +44,7 @@ public class Menu {
 
     public Menu(PlayerEditor pe) {
         this.pe = pe;
-        this.debug = new Debug(pe.plugin);
+        this.debug = pe.plugin.debug;
         name = pe.plugin.getLang().getMessage("mainmenutitle", "menutitle");
         menuInv = Bukkit.createInventory(pe.getManager().getMenuHolder(), 54, name);
         fillInventory();

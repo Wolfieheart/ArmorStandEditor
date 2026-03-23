@@ -87,8 +87,8 @@ public class PlayerEditor {
     public PlayerEditor(UUID uuid, ArmorStandEditorPlugin plugin) {
         this.uuid = uuid;
         this.plugin = plugin;
-        this.debug = new Debug(plugin);
-        this.scheduler = new Scheduler(plugin);
+        this.debug = plugin.debug;
+        this.scheduler = plugin.getScheduler();
 
         eMode = EditMode.NONE;
         adjMode = AdjustmentMode.COARSE;
@@ -737,6 +737,10 @@ public class PlayerEditor {
 
     public Player getPlayer() {
         return plugin.getServer().getPlayer(getUUID());
+    }
+
+    public Scheduler getScheduler() {
+        return scheduler;
     }
 
     public UUID getUUID() {

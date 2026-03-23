@@ -7,7 +7,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.scheduler.BukkitScheduler;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -20,19 +19,19 @@ public class UpdateChecker implements Listener {
     private static final String HANGAR_URL = "https://hangar.papermc.io/api/v1/projects/Wolfieheart/ArmorStandEditor-Reborn/latest?channel=Release";
 
     private static ArmorStandEditorPlugin plugin = null;
-    private static BukkitScheduler taskScheduler = null;
+    private static Scheduler taskScheduler = null;
     private final String pluginVersion;
     private String versionOnHangar;
     private boolean updateAvailable;
 
     public UpdateChecker(ArmorStandEditorPlugin plugin) {
         UpdateChecker.plugin = plugin;
-        taskScheduler = plugin.getServer().getScheduler();
+        taskScheduler = plugin.getScheduler();
         pluginVersion = plugin.getPluginMeta().getVersion();
     }
 
     public void checkForUpdates() {
-        taskScheduler.runTaskAsynchronously(plugin, () -> {
+        taskScheduler.runAsync(() -> {
             try {
 
                 HttpsURLConnection connection = (HttpsURLConnection) URI
@@ -54,7 +53,7 @@ public class UpdateChecker implements Listener {
             updateAvailable = VersionUtil.fromString(versionOnHangar).isNewerThanOrEquals(VersionUtil.fromString(pluginVersion));
             if (!updateAvailable) return;
 
-            taskScheduler.runTaskAsynchronously(plugin, () -> {
+            taskScheduler.runAsync(() -> {
                 plugin.getLogger().info("A new version of ArmorStandEditor-Reborn is available! (Version " + versionOnHangar + ")");
                 plugin.getLogger().info("Download it from: https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn");
             });

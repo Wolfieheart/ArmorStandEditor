@@ -19,6 +19,7 @@
 
 package io.github.rypofalem.armorstandeditor;
 
+import io.github.rypofalem.armorstandeditor.coreprotect.CoreProtectExtension;
 import io.github.rypofalem.armorstandeditor.language.Language;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
@@ -54,7 +55,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     //!!! DO NOT REMOVE THESE UNDER ANY CIRCUMSTANCES - Required for BStats and UpdateChecker !!!
     public static final String HANGAR_RELEASE_CHANNEL = "Wolfieheart/ArmorStandEditor-Reborn/Release";  //Used for Update Checker
     private static final int PLUGIN_ID = 12668;             //Used for BStats Metrics
-    public Debug debug;
+    public final Debug debug = new Debug(this);
 
     private NamespacedKey iconKey;
     private static ArmorStandEditorPlugin instance;
@@ -126,7 +127,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     //Debugging Options.... Not Exposed globally
     boolean debugFlag;
 
-    private static ArmorStandEditorPlugin plugin;
+    private Scheduler scheduler;
 
     public ArmorStandEditorPlugin() {
         instance = this;
@@ -134,6 +135,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        scheduler = new Scheduler(this);
 
         if (!getHasFolia())
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
@@ -222,6 +224,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(editorManager, this);
 
+        CoreProtectExtension.init(this);
     }
 
 
@@ -540,7 +543,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         debugFlag = getConfig().getBoolean("debugFlag", false);
         if (debugFlag) {
             getServer().getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] ArmorStandEditor Debug Mode is now ENABLED! Use this ONLY for testing Purposes. If you can see this and you have debug disabled, please report it as a bug!");
-            debug = new Debug(this);
         }
 
     }
@@ -656,9 +658,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     private void runWarningsFolia() {
         getLogger().warning("Scoreboards currently do not work on Folia. Scoreboard Coloring will not work");
-        getLogger().warning("This also means the Teams for ASLocked and AS-InUse will also not work. Sever Owners if you see this: ");
-        getLogger().warning("This is not a bug. Warn Players to be careful with ArmorStands and 2 people using them at the same time.... ");
-        getLogger().warning(".... as this is known to cause Duplicate Items. Also warn you server moderation team. ");
     }
 
 
@@ -676,6 +675,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     public String getASEVersion() {
         return ASE_VERSION;
+    }
+
+    public Scheduler getScheduler() {
+        return scheduler;
     }
 
 }

@@ -93,8 +93,8 @@ public class PlayerEditorManager implements Listener {
 
     PlayerEditorManager(ArmorStandEditorPlugin plugin) {
         this.plugin = plugin;
-        this.debug = new Debug(plugin);
-        this.scheduler = new Scheduler(plugin);
+        this.debug = plugin.debug;
+        this.scheduler = plugin.getScheduler();
 
         players = new HashMap<>();
         coarseAdj = Util.FULL_CIRCLE / plugin.coarseRot;
