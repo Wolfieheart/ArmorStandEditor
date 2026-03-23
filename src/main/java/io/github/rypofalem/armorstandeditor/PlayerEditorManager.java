@@ -95,7 +95,7 @@ public class PlayerEditorManager implements Listener {
         coarseMov = 1;
         fineMov = .03125; // 1/32
         counter = new TickCounter();
-        Scheduler.runTaskTimer(plugin, counter, 1, 1);
+        Scheduler.runTaskTimer(counter, 1, 1);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

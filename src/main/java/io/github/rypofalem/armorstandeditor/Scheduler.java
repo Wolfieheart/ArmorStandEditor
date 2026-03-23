@@ -18,93 +18,74 @@
  */
 package io.github.rypofalem.armorstandeditor;
 
-import io.papermc.lib.PaperLib;
-
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
 
-import java.util.function.Consumer;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Scheduler {
+    private static final boolean IS_FOLIA = isFolia();
+    private static ArmorStandEditorPlugin plugin;
+    private static final Set<ScheduledTask> REPEATING = ConcurrentHashMap.newKeySet();
+    private static final Set<BukkitTask> REPEATING_BUKKIT = ConcurrentHashMap.newKeySet();
 
-    private static Boolean IS_FOLIA = null;
-    private static Object GLOBAL_REGION_SCHEDULER = null;
+    public static void init(ArmorStandEditorPlugin plugin) {
+        Scheduler.plugin = plugin;
+    }
 
-    public static <T> T callMethod(Class<?> clazz, Object object, String methodName, Class<?>[] parameterTypes, Object... args) {
-        try {
-            return (T) clazz.getDeclaredMethod(methodName, parameterTypes).invoke(object, args);
-        } catch (Throwable t) {
-            throw new IllegalStateException(t);
+    public static void shutdown() {
+        for (ScheduledTask task : REPEATING) {
+            task.cancel();
         }
-    }
-
-    public static <T> T callMethod(Object object, String methodName, Class<?>[] parameterTypes, Object... args) {
-        return callMethod(object.getClass(), object, methodName, parameterTypes, args);
-    }
-
-    public static <T> T callMethod(Class<?> clazz, String methodName) {
-        return callMethod(clazz, null, methodName, new Class[]{});
-    }
-
-    private static boolean methodExist(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
-        try {
-            clazz.getDeclaredMethod(methodName, parameterTypes);
-            return true;
-        } catch (Throwable ignored) {
+        REPEATING.clear();
+        for (BukkitTask task : REPEATING_BUKKIT) {
+            task.cancel();
         }
-        return false;
+        REPEATING_BUKKIT.clear();
     }
 
     public static Boolean isFolia() {
         try {
             Class.forName("io.papermc.paper.threadedregions.ThreadedRegionizer");
-        }
-        catch (Exception e) {
+            return true;
+        } catch (Exception e) {
             return false;
         }
-        return true;
     }
 
-    public static Object getGlobalRegionScheduler() {
-        if (GLOBAL_REGION_SCHEDULER == null) {
-            GLOBAL_REGION_SCHEDULER = callMethod(Bukkit.class, "getGlobalRegionScheduler");
+    public static void runTask(Runnable runnable) {
+        if (IS_FOLIA) {
+            Bukkit.getGlobalRegionScheduler().run(plugin, t -> runnable.run());
+        } else {
+            Bukkit.getScheduler().runTask(plugin, runnable);
         }
-        return GLOBAL_REGION_SCHEDULER;
     }
 
-    public static void runTask(Plugin plugin, Runnable runnable) {
-        if (isFolia()) {
-            Object globalRegionScheduler = getGlobalRegionScheduler();
-            callMethod(globalRegionScheduler, "run", new Class[]{Plugin.class, Consumer.class}, plugin, (Consumer<?>) (task) -> runnable.run());
-            return;
+    public static void runTaskTimer(Runnable runnable, long initialDelayTicks, long periodTicks) {
+        if (IS_FOLIA) {
+            REPEATING.add(Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, t -> runnable.run(), initialDelayTicks, periodTicks));
+        } else {
+            Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, runnable, initialDelayTicks, periodTicks);
         }
-        Bukkit.getScheduler().runTask(plugin, runnable);
     }
 
-    public static void runTaskTimer(Plugin plugin, Runnable runnable, long initialDelayTicks, long periodTicks) {
-        if (isFolia()) {
-            Object globalRegionScheduler = getGlobalRegionScheduler();
-            callMethod(globalRegionScheduler, "runAtFixedRate", new Class[]{Plugin.class, Consumer.class, long.class, long.class},
-                plugin, (Consumer<?>) (task) -> runnable.run(), initialDelayTicks, periodTicks);
-            return;
+    public static void runTaskLater(Runnable runnable, long delayedTicks) {
+        if (IS_FOLIA) {
+            Bukkit.getGlobalRegionScheduler().runDelayed(plugin, t -> runnable.run(), delayedTicks);
+        } else {
+            REPEATING_BUKKIT.add(Bukkit.getScheduler().runTaskLater(plugin, runnable, delayedTicks));
         }
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, runnable, initialDelayTicks, periodTicks);
-    }
-
-    public static void runTaskLater(Plugin plugin, Runnable runnable, long delayedTicks) {
-        if (isFolia()) {
-            Object globalRegionScheduler = getGlobalRegionScheduler();
-            callMethod(globalRegionScheduler, "runDelayed", new Class[]{Plugin.class, Consumer.class, long.class},
-                plugin, (Consumer<?>) (task) -> runnable.run(), delayedTicks);
-            return;
-        }
-        Bukkit.getScheduler().runTaskLater(plugin, runnable, delayedTicks);
     }
 
     public static void teleport(Entity entity, Location location) {
-        if (isFolia()) PaperLib.teleportAsync(entity, location);
-        else entity.teleport(location);
+        if (IS_FOLIA) {
+            entity.teleportAsync(location);
+        } else {
+            entity.teleport(location);
+        }
     }
 }

@@ -22,6 +22,7 @@ package io.github.rypofalem.armorstandeditor.menu;
 import io.github.rypofalem.armorstandeditor.Debug;
 import io.github.rypofalem.armorstandeditor.PlayerEditor;
 
+import io.github.rypofalem.armorstandeditor.coreprotect.CoreProtectExtension;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 
 import io.papermc.paper.datacomponent.item.ItemLore;
@@ -31,10 +32,12 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.Nullable;
 
 
 @SuppressWarnings("UnstableApiUsage")
@@ -44,6 +47,7 @@ public class EquipmentMenu {
     private PlayerEditor pe;
     private ArmorStand armorstand;
     ItemStack helmet, chest, pants, feetsies, rightHand, leftHand;
+    ItemStack oldHelmet, oldChest, oldPants, oldFeetsies, oldRightHand, oldLeftHand = ItemStack.of(Material.AIR);
 
     public EquipmentMenu(PlayerEditor pe, ArmorStand as) {
         this.pe = pe;
@@ -62,6 +66,12 @@ public class EquipmentMenu {
         ItemStack feetsies = equipment.getBoots();
         ItemStack rightHand = equipment.getItemInMainHand();
         ItemStack leftHand = equipment.getItemInOffHand();
+        oldHelmet = helmet;
+        oldChest = chest;
+        oldPants = pants;
+        oldFeetsies = feetsies;
+        oldRightHand = rightHand;
+        oldLeftHand = leftHand;
         equipment.clear();
 
         ItemStack disabledIcon = ItemStack.of(Material.BARRIER);
@@ -123,27 +133,72 @@ public class EquipmentMenu {
     }
 
     public void equipArmorstand() {
-        helmet = menuInv.getItem(9);
-        chest = menuInv.getItem(10);
-        pants = menuInv.getItem(11);
-        feetsies = menuInv.getItem(12);
-        rightHand = menuInv.getItem(13);
-        leftHand = menuInv.getItem(14);
+        helmet = notNull(menuInv.getItem(9));
+        chest = notNull(menuInv.getItem(10));
+        pants = notNull(menuInv.getItem(11));
+        feetsies = notNull(menuInv.getItem(12));
+        rightHand = notNull(menuInv.getItem(13));
+        leftHand = notNull(menuInv.getItem(14));
 
-        debug.log("Equipping the ArmorStand with the following items: ");
-        debug.log("Helmet: " + helmet);
-        debug.log("Chest: " + chest);
-        debug.log("Chest: " + chest);
-        debug.log("Pants: " + pants);
-        debug.log("Boots: " + feetsies);
-        debug.log("R-Hand: " + rightHand);
-        debug.log("L-Hand: " + leftHand);
+        EntityEquipment equipment = armorstand.getEquipment();;
+        equipment.setHelmet(helmet);
+        equipment.setChestplate(chest);
+        equipment.setLeggings(pants);
+        equipment.setBoots(feetsies);
+        equipment.setItemInMainHand(rightHand);
+        equipment.setItemInOffHand(leftHand);
 
-        armorstand.getEquipment().setHelmet(helmet);
-        armorstand.getEquipment().setChestplate(chest);
-        armorstand.getEquipment().setLeggings(pants);
-        armorstand.getEquipment().setBoots(feetsies);
-        armorstand.getEquipment().setItemInMainHand(rightHand);
-        armorstand.getEquipment().setItemInOffHand(leftHand);
+        checkForChanges();
+    }
+    private void checkForChanges() {
+        debug.log("Equipping ArmorStand and checking changes.");
+        Player player = pe.getPlayer();
+        ItemStack[] oldArray = new ItemStack[] { oldHelmet, oldChest, oldPants, oldFeetsies, oldRightHand, oldLeftHand };
+        ItemStack[] newArray = new ItemStack[] { helmet, chest, pants, feetsies, rightHand, leftHand };
+
+        boolean change = false;
+        if (hasChanged(oldHelmet, helmet)) {
+            debug.log("Helmet changed from " + oldHelmet + " to " + helmet);
+            oldHelmet = helmet;
+            change = true;
+        }
+        if (hasChanged(oldChest, chest)) {
+            debug.log("Chest changed from " + oldChest + " to " + chest);
+            oldChest = chest;
+            change = true;
+        }
+        if (hasChanged(oldPants, pants)) {
+            debug.log("Pants changed from " + oldPants + " to " + pants);
+            oldPants = pants;
+            change = true;
+        }
+        if (hasChanged(oldFeetsies, feetsies)) {
+            debug.log("Boots changed from " + oldFeetsies + " to " + feetsies);
+            oldFeetsies = feetsies;
+            change = true;
+        }
+        if (hasChanged(oldRightHand, rightHand)) {
+            debug.log("R-Hand changed from " + oldRightHand + " to " + rightHand);
+            oldRightHand = rightHand;
+            change = true;
+        }
+        if (hasChanged(oldLeftHand, leftHand)) {
+            debug.log("L-Hand changed from " + oldLeftHand + " to " + leftHand);
+            oldLeftHand = leftHand;
+            change = true;
+        }
+
+        if (change) {
+            CoreProtectExtension.logChange(player, armorstand, oldArray, newArray);
+        }
+    }
+
+    private boolean hasChanged(@Nullable ItemStack before, @Nullable ItemStack after) {
+        if (before == null && after == null) return false;
+        return before == null || !before.equals(after);
+    }
+
+    private ItemStack notNull(@Nullable ItemStack item) {
+        return item != null ? item : ItemStack.of(Material.AIR);
     }
 }

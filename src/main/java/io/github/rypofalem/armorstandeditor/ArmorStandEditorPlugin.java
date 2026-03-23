@@ -24,12 +24,12 @@ import de.jeff_media.updatechecker.UserAgentBuilder;
 
 import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
 import io.github.rypofalem.armorstandeditor.Metrics.SimplePie;
+import io.github.rypofalem.armorstandeditor.coreprotect.CoreProtectExtension;
 import io.github.rypofalem.armorstandeditor.language.Language;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 
 import io.papermc.lib.PaperLib;
-import io.papermc.paper.ServerBuildInfo;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -47,7 +47,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
@@ -139,7 +138,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
+        Scheduler.init(this);
         if (!getHasFolia())
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
 
@@ -222,6 +221,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(editorManager, this);
 
+        CoreProtectExtension.init(this);
     }
 
     private void runUpdateCheckerConsoleUpdateCheck() {
@@ -304,6 +304,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
             unregisterScoreboards(scoreboard);
         }
+
+        Scheduler.shutdown();
     }
 
     public String getNmsVersion() {
