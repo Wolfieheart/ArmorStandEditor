@@ -11,13 +11,16 @@ import org.jetbrains.annotations.NotNull;
 
 public class CoreProtectExtension {
     private static ArmorStandEditorPlugin plugin;
+    private static boolean enabled = false;
 
     public static void init(ArmorStandEditorPlugin plugin) {
         CoreProtectExtension.plugin = plugin;
+        enabled = plugin.getServer().getPluginManager().isPluginEnabled("CoreProtect");
+
     }
 
     public static void logChange(Player player, ArmorStand armorStand, @NotNull ItemStack[] oldContents, @NotNull ItemStack[] newContents) {
-        if (plugin == null || !plugin.getServer().getPluginManager().isPluginEnabled("CoreProtect")) return;
+        if (!enabled) return;
         try { // As this is unstable due to being copied from net.coreprotect.listener.player.ArmorStandManipulateListener, it is prone to errors with updates
             if (!Config.getConfig(player.getWorld()).ITEM_TRANSACTIONS) {
                 return;
