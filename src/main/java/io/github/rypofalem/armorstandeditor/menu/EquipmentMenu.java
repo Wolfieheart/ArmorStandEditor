@@ -140,7 +140,7 @@ public class EquipmentMenu {
         rightHand = notNull(menuInv.getItem(13));
         leftHand = notNull(menuInv.getItem(14));
 
-        EntityEquipment equipment = armorstand.getEquipment();;
+        EntityEquipment equipment = armorstand.getEquipment();
         equipment.setHelmet(helmet);
         equipment.setChestplate(chest);
         equipment.setLeggings(pants);
