@@ -3,6 +3,7 @@ package io.github.rypofalem.armorstandeditor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 /**
@@ -41,8 +42,7 @@ public class Scheduler {
     /** Run a delayed task */
     public void runTaskLater(Runnable task, long delayTicks) {
         if (isFolia) {
-            // Folia has no built-in delay, so we wrap a delayed Paper task
-            Bukkit.getScheduler().runTaskLater(plugin, () -> Bukkit.getGlobalRegionScheduler().run(plugin, t -> task.run()), delayTicks);
+            Bukkit.getGlobalRegionScheduler().runDelayed(plugin, t -> task.run(), delayTicks);
         } else {
             Bukkit.getScheduler().runTaskLater(plugin, task, delayTicks);
         }
@@ -51,11 +51,7 @@ public class Scheduler {
     /** Run a repeating task (Folia-compatible) */
     public void runTaskTimer(Runnable task, long delayTicks, long periodTicks) {
         if (isFolia) {
-            // Schedule first run after delay
-            runTaskLater(() -> {
-                task.run();
-                scheduleRepeating(task, periodTicks);
-            }, delayTicks);
+            Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, t -> task.run(), delayTicks, periodTicks);
         } else {
             Bukkit.getScheduler().runTaskTimer(plugin, task, delayTicks, periodTicks);
         }
@@ -87,6 +83,15 @@ public class Scheduler {
         }
     }
 
+    public void dropItem(Location location, ItemStack item) {
+        Runnable task = () -> location.getWorld().dropItemNaturally(location, item);
+        if (isFolia) {
+            Bukkit.getRegionScheduler().run(plugin, location, t -> task.run());
+        } else {
+            task.run();
+        }
+    }
+
     /** Run a task at a specific location (region-safe) */
     public void runAtLocation(Location location, Runnable task) {
         if (isFolia) {
@@ -99,7 +104,7 @@ public class Scheduler {
     /** Run an async task (Paper only, Folia falls back to region scheduler) */
     public void runAsync(Runnable task) {
         if (isFolia) {
-            Bukkit.getGlobalRegionScheduler().run(plugin, t -> task.run());
+            Bukkit.getAsyncScheduler().runNow(plugin, t -> task.run());
         } else {
             Bukkit.getScheduler().runTaskAsynchronously(plugin, task);
         }

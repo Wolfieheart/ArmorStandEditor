@@ -41,7 +41,7 @@ public class TownyProtection implements Protection {
 
     public TownyProtection() {
         plugin = ArmorStandEditorPlugin.instance();
-        debug = new Debug(plugin);
+        debug = plugin.debug;
         tEnabled = Bukkit.getPluginManager().isPluginEnabled("Towny");
     }
 

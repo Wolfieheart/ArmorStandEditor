@@ -77,6 +77,10 @@
             <id>codemc-repo</id>
             <url>https://repo.codemc.org/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>playpro-repo</id>
+            <url>https://maven.playpro.com</url>
+        </repository>
     </repositories>
 
     <dependencyManagement>
@@ -242,6 +246,14 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.34</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- CoreProtect Support -->
+        <dependency>
+            <groupId>net.coreprotect</groupId>
+            <artifactId>coreprotect</artifactId>
+            <version>23.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -56,7 +56,7 @@ public class PresetArmorPosesMenu {
     public PresetArmorPosesMenu(PlayerEditor pe, ArmorStand as) {
         this.pe = pe;
         this.armorStand = as;
-        this.debug = new Debug(pe.plugin);
+        this.debug = pe.plugin.debug;
         name = plugin.getLang().getMessage("presettitle", "menutitle");
         menuInv = Bukkit.createInventory(pe.getManager().getPresetHolder(), 36, name);
     }
