@@ -41,8 +41,7 @@ public class Scheduler {
     /** Run a delayed task */
     public void runTaskLater(Runnable task, long delayTicks) {
         if (isFolia) {
-            // Folia has no built-in delay, so we wrap a delayed Paper task
-            Bukkit.getScheduler().runTaskLater(plugin, () -> Bukkit.getGlobalRegionScheduler().run(plugin, t -> task.run()), delayTicks);
+            Bukkit.getGlobalRegionScheduler().runDelayed(plugin, t -> task.run(), delayTicks);
         } else {
             Bukkit.getScheduler().runTaskLater(plugin, task, delayTicks);
         }
@@ -51,26 +50,14 @@ public class Scheduler {
     /** Run a repeating task (Folia-compatible) */
     public void runTaskTimer(Runnable task, long delayTicks, long periodTicks) {
         if (isFolia) {
-            // Schedule first run after delay
-            runTaskLater(() -> {
-                task.run();
-                scheduleRepeating(task, periodTicks);
-            }, delayTicks);
+            Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, t -> task.run(), 1, periodTicks);
         } else {
             Bukkit.getScheduler().runTaskTimer(plugin, task, delayTicks, periodTicks);
         }
     }
 
-    /** Recursive helper for Folia repeating tasks */
-    private void scheduleRepeating(Runnable task, long periodTicks) {
-        Bukkit.getGlobalRegionScheduler().run(plugin, t -> {
-            task.run();
-            scheduleRepeating(task, periodTicks);
-        });
-    }
-
     /** Teleport an entity safely */
-    public void teleport(Entity entity, org.bukkit.Location location) {
+    public void teleport(Entity entity, Location location) {
         if (isFolia) {
             entity.teleportAsync(location);
         } else {
