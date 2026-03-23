@@ -18,10 +18,10 @@ public class CoreProtectExtension {
 
     public static void logChange(Player player, ArmorStand armorStand, @NotNull ItemStack[] oldContents, @NotNull ItemStack[] newContents) {
         if (plugin == null || !plugin.getServer().getPluginManager().isPluginEnabled("CoreProtect")) return;
-        if (!Config.getConfig(player.getWorld()).ITEM_TRANSACTIONS) {
-            return;
-        }
         try { // As this is unstable due to being copied from net.coreprotect.listener.player.ArmorStandManipulateListener, it is prone to errors with updates
+            if (!Config.getConfig(player.getWorld()).ITEM_TRANSACTIONS) {
+                return;
+            }
             for (int i = 0; i < oldContents.length; i++) {
                 ItemStack oldItem = oldContents[i];
                 ItemStack newItem = newContents[i];
