@@ -185,7 +185,7 @@ public class PlayerEditorManager implements Listener {
                     // minecraft will set the name after this event even if the event is cancelled.
                     // change it 1 tick later to apply formatting without it being overwritten
                     final Component finalgetName = getName;
-                    Bukkit.getScheduler().runTask(plugin, () -> {
+                    Scheduler.runTask(() -> {
                         as.customName(finalgetName);
                         as.setCustomNameVisible(true);
                     });
@@ -446,7 +446,7 @@ public class PlayerEditorManager implements Listener {
                     return;
                 } else {
                     player.performCommand(command);
-                    Bukkit.getScheduler().runTask(plugin, () -> player.closeInventory());
+                    Scheduler.runTask(player::closeInventory);
                     return;
                 }
             }
@@ -468,7 +468,7 @@ public class PlayerEditorManager implements Listener {
                 String itemName = item.getPersistentDataContainer().get(plugin.getIconKey(), PersistentDataType.STRING);
                 PlayerEditor pe = players.get(player.getUniqueId());
                 pe.presetPoseMenu.handlePresetPose(itemName, player);
-                Bukkit.getScheduler().runTask(plugin, () -> player.closeInventory());
+                Scheduler.runTask(player::closeInventory);
             }
         }
 
@@ -480,7 +480,7 @@ public class PlayerEditorManager implements Listener {
                 String itemName = item.getPersistentDataContainer().get(plugin.getIconKey(), PersistentDataType.STRING);
                 PlayerEditor pe = players.get(player.getUniqueId());
                 pe.sizeModificationMenu.handleAttributeScaling(itemName, player);
-                Bukkit.getScheduler().runTask(plugin, () -> player.closeInventory());
+                Scheduler.runTask(player::closeInventory);
             }
         }
     }
