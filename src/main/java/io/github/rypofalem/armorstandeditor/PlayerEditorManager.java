@@ -446,7 +446,7 @@ public class PlayerEditorManager implements Listener {
                     return;
                 } else {
                     player.performCommand(command);
-                    Scheduler.runTask(player::closeInventory);
+                    player.getScheduler().runDelayed(plugin, t -> player.closeInventory(), null, 1);
                     return;
                 }
             }
@@ -468,7 +468,7 @@ public class PlayerEditorManager implements Listener {
                 String itemName = item.getPersistentDataContainer().get(plugin.getIconKey(), PersistentDataType.STRING);
                 PlayerEditor pe = players.get(player.getUniqueId());
                 pe.presetPoseMenu.handlePresetPose(itemName, player);
-                Scheduler.runTask(player::closeInventory);
+                player.getScheduler().runDelayed(plugin, t -> player.closeInventory(), null, 1);
             }
         }
 
@@ -480,7 +480,7 @@ public class PlayerEditorManager implements Listener {
                 String itemName = item.getPersistentDataContainer().get(plugin.getIconKey(), PersistentDataType.STRING);
                 PlayerEditor pe = players.get(player.getUniqueId());
                 pe.sizeModificationMenu.handleAttributeScaling(itemName, player);
-                Scheduler.runTask(player::closeInventory);
+                player.getScheduler().runDelayed(plugin, t -> player.closeInventory(), null, 1);
             }
         }
     }
