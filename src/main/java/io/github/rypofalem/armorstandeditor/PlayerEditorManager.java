@@ -185,10 +185,10 @@ public class PlayerEditorManager implements Listener {
                     // minecraft will set the name after this event even if the event is cancelled.
                     // change it 1 tick later to apply formatting without it being overwritten
                     final Component finalgetName = getName;
-                    Scheduler.runTask(() -> {
+                    as.getScheduler().run(plugin, t -> {
                         as.customName(finalgetName);
                         as.setCustomNameVisible(true);
-                    });
+                    }, null);
                 }
             }
         } else if (event.getRightClicked() instanceof ItemFrame itemFrame) {
