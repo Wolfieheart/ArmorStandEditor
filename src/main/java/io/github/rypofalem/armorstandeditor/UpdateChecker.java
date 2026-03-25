@@ -1,13 +1,17 @@
 package io.github.rypofalem.armorstandeditor;
 
+import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
@@ -35,9 +39,9 @@ public class UpdateChecker implements Listener {
             try {
 
                 HttpsURLConnection connection = (HttpsURLConnection) URI
-                        .create(HANGAR_URL)
-                        .toURL()
-                        .openConnection();
+                    .create(HANGAR_URL)
+                    .toURL()
+                    .openConnection();
                 connection.setRequestMethod("GET");
 
                 final JsonElement json = new Gson().fromJson(new BufferedReader(new InputStreamReader(connection.getInputStream())), JsonElement.class);
@@ -69,13 +73,13 @@ public class UpdateChecker implements Listener {
         if (evt.getPlayer().hasPermission("asedit.update") || plugin.getAdminOnlyNotifications()) {
             // Build the messages using Components
             Component updateMessage = Component.text("A new version of ArmorStandEditor-Reborn is available! (Version " + versionOnHangar + ")")
-                    .color(NamedTextColor.YELLOW);
+                .color(NamedTextColor.YELLOW);
 
             Component downloadMessage = Component.text("Download it from: ")
-                    .color(NamedTextColor.YELLOW)
-                    .append(Component.text("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
-                            .color(NamedTextColor.AQUA)
-                            .decorate(net.kyori.adventure.text.format.TextDecoration.UNDERLINED));
+                .color(NamedTextColor.YELLOW)
+                .append(Component.text("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
+                    .color(NamedTextColor.AQUA)
+                    .decorate(TextDecoration.UNDERLINED));
 
             // Send to player
             evt.getPlayer().sendMessage(updateMessage);

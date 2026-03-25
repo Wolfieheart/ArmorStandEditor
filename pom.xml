@@ -245,7 +245,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.34</version>
+            <version>1.18.44</version>
             <scope>provided</scope>
         </dependency>
 
@@ -268,12 +268,19 @@
                 <configuration>
                     <activeRecipes>
                         <recipe>org.openrewrite.java.format.AutoFormat</recipe>
-                        <recipe>org.openrewrite.java.recipes.FindRecipes</recipe>
                         <recipe>org.openrewrite.java.OrderImports</recipe>
                         <recipe>org.openrewrite.java.ShortenFullyQualifiedTypeReferences</recipe>
                         <recipe>org.openrewrite.java.RemoveUnusedImports</recipe>
+                        <recipe>org.openrewrite.java.migrate.UpgradeToJava25</recipe>
                     </activeRecipes>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.openrewrite.recipe</groupId>
+                        <artifactId>rewrite-migrate-java</artifactId>
+                        <version>3.31.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -303,8 +310,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.15.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <release>${java.version}</release>
                 </configuration>
             </plugin>
             <plugin>

@@ -19,14 +19,14 @@
 
 package io.github.rypofalem.armorstandeditor.protections;
 
+import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
+
 import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.lists.Flags;
 import world.bentobox.bentobox.managers.AddonsManager;
 import world.bentobox.bentobox.managers.IslandsManager;
-
-import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;

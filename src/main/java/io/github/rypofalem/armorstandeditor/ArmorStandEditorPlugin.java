@@ -25,11 +25,8 @@ import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 
 import io.papermc.lib.PaperLib;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-
-import static net.kyori.adventure.text.format.NamedTextColor.RED;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -46,8 +43,12 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
+
+import static net.kyori.adventure.text.format.NamedTextColor.RED;
 
 
 public class ArmorStandEditorPlugin extends JavaPlugin {
@@ -213,7 +214,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         loadConfigValues();
 
         //Get Metrics from bStats
-       // getMetrics();
+        // getMetrics();
 
         editorManager = new PlayerEditorManager(this);
         CommandEx execute = new CommandEx(this);
@@ -299,7 +300,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             Class.forName("io.papermc.paper.configuration.Configuration");
             nmsVersionNotLatest = "PaperMC ASAP.";
             return true;
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException _) {
             nmsVersionNotLatest = "";
             return false;
         }
@@ -309,7 +310,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         try {
             Class.forName("io.papermc.paper.threadedregions.ThreadedRegionizer");
             return true;
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException _) {
             return false;
         }
     }
@@ -444,7 +445,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             // If there is no Custom Model Data, we return true since it is not required to be present.
             // This allows for more flexibility in the use of the Edit Tool.
 
-            return component.getFloats().get(0).intValue() == (double) customModelDataInt;
+            return component.getFloats().getFirst().intValue() == (double) customModelDataInt;
         }
 
         return true;
@@ -582,78 +583,78 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
 
-/*    //Metrics/bStats Support
-    private void getMetrics() {
-
-        Metrics metrics = new Metrics(this, PLUGIN_ID);
-
-        //RequireToolLore Metric
-        metrics.addCustomChart(new SimplePie("tool_lore_enabled", () -> getConfig().getString("requireToolLore")));
-
-        //RequireToolData
-        metrics.addCustomChart(new SimplePie("tool_data_enabled", () -> getConfig().getString("requireToolData")));
-
-        //Send Messages to ActionBar
-        metrics.addCustomChart(new SimplePie("action_bar_messages", () -> getConfig().getString("sendMessagesToActionBar")));
-
-        //Check for Sneaking
-        metrics.addCustomChart(new SimplePie("require_sneaking", () -> getConfig().getString("requireSneaking")));
-
-        //Language is used
-        metrics.addCustomChart(new DrilldownPie("language_used", () -> {
-            Map<String, Map<String, Integer>> map = new HashMap<>();
-            Map<String, Integer> entry = new HashMap<>();
-
-            String languageUsed = getConfig().getString("lang");
-            assert languageUsed != null;
-
-            if (languageUsed.startsWith("nl")) {
-                map.put("Dutch", entry);
-            } else if (languageUsed.startsWith("de")) {
-                map.put("German", entry);
-            } else if (languageUsed.startsWith("es")) {
-                map.put("Spanish", entry);
-            } else if (languageUsed.startsWith("fr")) {
-                map.put("French", entry);
-            } else if (languageUsed.startsWith("ja")) {
-                map.put("Japanese", entry);
-            } else if (languageUsed.startsWith("pl")) {
-                map.put("Polish", entry);
-            } else if (languageUsed.startsWith("ru")) { //See PR# 41 by KPidS
-                map.put("Russian", entry);
-            } else if (languageUsed.startsWith("ro")) {
-                map.put("Romanian", entry);
-            } else if (languageUsed.startsWith("uk")) {
-                map.put("Ukrainian", entry);
-            } else if (languageUsed.startsWith("zh")) {
-                map.put("Chinese", entry);
-            } else if (languageUsed.startsWith("pt")) {
-                map.put("Brazilian", entry);
-            } else {
-                map.put("English", entry);
-            }
-            return map;
-        }));
-
-        //ArmorStandInvis Config
-        metrics.addCustomChart(new SimplePie("armor_stand_invisibility_usage", () -> getConfig().getString("armorStandVisibility")));
-
-        //ArmorStandInvis Config
-        metrics.addCustomChart(new SimplePie("itemframe_invisibility_used", () -> getConfig().getString("invisibleItemFrames")));
-
-        //Add tracking to see who is using Custom Naming in BStats
-        metrics.addCustomChart(new SimplePie("custom_toolname_enabled", () -> getConfig().getString("requireToolName")));
-
-        metrics.addCustomChart(new SimplePie("using_the_update_checker", () -> getConfig().getString("runTheUpdateChecker")));
-
-        metrics.addCustomChart(new SimplePie("op_updates", () -> getConfig().getString("opUpdateNotification")));
-
-        metrics.addCustomChart(new SimplePie("per_world_enabled", () -> String.valueOf(getConfig().getBoolean("enablePerWorldSupport"))));
-
-        metrics.addCustomChart(new SimplePie("allowCustomModelData", () -> String.valueOf(getConfig().getBoolean("allowCustomModelData"))));
-
-
-    }*/
+    /*    //Metrics/bStats Support
+        private void getMetrics() {
+    
+            Metrics metrics = new Metrics(this, PLUGIN_ID);
+    
+            //RequireToolLore Metric
+            metrics.addCustomChart(new SimplePie("tool_lore_enabled", () -> getConfig().getString("requireToolLore")));
+    
+            //RequireToolData
+            metrics.addCustomChart(new SimplePie("tool_data_enabled", () -> getConfig().getString("requireToolData")));
+    
+            //Send Messages to ActionBar
+            metrics.addCustomChart(new SimplePie("action_bar_messages", () -> getConfig().getString("sendMessagesToActionBar")));
+    
+            //Check for Sneaking
+            metrics.addCustomChart(new SimplePie("require_sneaking", () -> getConfig().getString("requireSneaking")));
+    
+            //Language is used
+            metrics.addCustomChart(new DrilldownPie("language_used", () -> {
+                Map<String, Map<String, Integer>> map = new HashMap<>();
+                Map<String, Integer> entry = new HashMap<>();
+    
+                String languageUsed = getConfig().getString("lang");
+                assert languageUsed != null;
+    
+                if (languageUsed.startsWith("nl")) {
+                    map.put("Dutch", entry);
+                } else if (languageUsed.startsWith("de")) {
+                    map.put("German", entry);
+                } else if (languageUsed.startsWith("es")) {
+                    map.put("Spanish", entry);
+                } else if (languageUsed.startsWith("fr")) {
+                    map.put("French", entry);
+                } else if (languageUsed.startsWith("ja")) {
+                    map.put("Japanese", entry);
+                } else if (languageUsed.startsWith("pl")) {
+                    map.put("Polish", entry);
+                } else if (languageUsed.startsWith("ru")) { //See PR# 41 by KPidS
+                    map.put("Russian", entry);
+                } else if (languageUsed.startsWith("ro")) {
+                    map.put("Romanian", entry);
+                } else if (languageUsed.startsWith("uk")) {
+                    map.put("Ukrainian", entry);
+                } else if (languageUsed.startsWith("zh")) {
+                    map.put("Chinese", entry);
+                } else if (languageUsed.startsWith("pt")) {
+                    map.put("Brazilian", entry);
+                } else {
+                    map.put("English", entry);
+                }
+                return map;
+            }));
+    
+            //ArmorStandInvis Config
+            metrics.addCustomChart(new SimplePie("armor_stand_invisibility_usage", () -> getConfig().getString("armorStandVisibility")));
+    
+            //ArmorStandInvis Config
+            metrics.addCustomChart(new SimplePie("itemframe_invisibility_used", () -> getConfig().getString("invisibleItemFrames")));
+    
+            //Add tracking to see who is using Custom Naming in BStats
+            metrics.addCustomChart(new SimplePie("custom_toolname_enabled", () -> getConfig().getString("requireToolName")));
+    
+            metrics.addCustomChart(new SimplePie("using_the_update_checker", () -> getConfig().getString("runTheUpdateChecker")));
+    
+            metrics.addCustomChart(new SimplePie("op_updates", () -> getConfig().getString("opUpdateNotification")));
+    
+            metrics.addCustomChart(new SimplePie("per_world_enabled", () -> String.valueOf(getConfig().getBoolean("enablePerWorldSupport"))));
+    
+            metrics.addCustomChart(new SimplePie("allowCustomModelData", () -> String.valueOf(getConfig().getBoolean("allowCustomModelData"))));
+    
+    
+        }*/
 
 
     private void runWarningsFolia() {

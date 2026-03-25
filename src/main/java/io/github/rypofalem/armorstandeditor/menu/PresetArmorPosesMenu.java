@@ -26,7 +26,6 @@ import io.github.rypofalem.armorstandeditor.PlayerEditor;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ItemLore;
 import io.papermc.paper.datacomponent.item.TooltipDisplay;
-
 import net.kyori.adventure.text.Component;
 
 import org.bukkit.Bukkit;
@@ -201,7 +200,7 @@ public class PresetArmorPosesMenu {
         }
     }
 
-    public void triggerHowToPreset(Player player){
+    public void triggerHowToPreset(Player player) {
         player.sendMessage(pe.plugin.getLang().getMessage("howtopresetmsg"));
         player.sendMessage(pe.plugin.getLang().getMessage("helpurl"));
         player.sendMessage(pe.plugin.getLang().getMessage("helpdiscord"));

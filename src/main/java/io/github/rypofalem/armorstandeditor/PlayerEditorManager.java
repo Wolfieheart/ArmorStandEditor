@@ -24,10 +24,12 @@ import io.github.rypofalem.armorstandeditor.protections.*;
 import io.github.rypofalem.armorstandeditor.utils.Util;
 
 import io.papermc.lib.PaperLib;
-
 import net.kyori.adventure.text.Component;
 
-import org.bukkit.*;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Rotation;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -50,8 +52,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacy;
 import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText;
@@ -106,7 +108,7 @@ public class PlayerEditorManager implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    void onArmorStandSpawn(EntityPlaceEvent event){
+    void onArmorStandSpawn(EntityPlaceEvent event) {
         if (!(event.getEntity() instanceof ArmorStand armorStand)) return;
         debug.log("Entity being spawned is an ArmorStand");
 
@@ -114,9 +116,9 @@ public class PlayerEditorManager implements Listener {
         Location location = player.getLocation();
 
         debug.log("Player " + player.getName()
-                + " is placing an ArmorStand at (approx) X: " + Math.round(location.getX())
-                + ", Y: " + Math.round(location.getY())
-                + ", Z: " + Math.round(location.getZ())
+            + " is placing an ArmorStand at (approx) X: " + Math.round(location.getX())
+            + ", Y: " + Math.round(location.getY())
+            + ", Z: " + Math.round(location.getZ())
         );
 
         armorStand.setGravity(plugin.getDefaultGravity());
@@ -244,7 +246,7 @@ public class PlayerEditorManager implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     void onArmorStandBreak(EntityDamageByEntityEvent event) { // Fixes issue #309
         if (!(event.getDamager() instanceof Player)) return; // If the damager is not a player, ignore.
-        if (!(event.getEntity()  instanceof ArmorStand)) return; // If the damaged entity is not an ArmorStand, ignore.
+        if (!(event.getEntity() instanceof ArmorStand)) return; // If the damaged entity is not an ArmorStand, ignore.
 
         if (event.getEntity() instanceof ArmorStand entityAS) {
             // Check if the ArmorStand is invulnerable and if the damager is a player.

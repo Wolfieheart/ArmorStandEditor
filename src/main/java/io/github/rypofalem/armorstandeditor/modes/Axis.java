@@ -20,7 +20,7 @@
 package io.github.rypofalem.armorstandeditor.modes;
 
 public enum Axis {
-    X("X"),Y("Y"),Z("Z");
+    X("X"), Y("Y"), Z("Z");
 
     String name;
 

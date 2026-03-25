@@ -25,7 +25,6 @@ import io.github.rypofalem.armorstandeditor.modes.EditMode;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.Util;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
-import io.github.rypofalem.armorstandeditor.UpdateChecker;
 
 import net.kyori.adventure.text.Component;
 
@@ -225,7 +224,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                     player.sendMessage(LISTSLOT);
                 }
 
-            } catch (NumberFormatException nfe) {
+            } catch (NumberFormatException _) {
                 player.sendMessage(LISTSLOT);
             }
         }
@@ -417,6 +416,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                 argList.add("mode");
                 argList.add("axis");
                 argList.add("adj");
+                argList.add("adj");
                 argList.add("slot");
                 argList.add("help");
                 argList.add("version");
@@ -467,17 +467,17 @@ public class CommandEx implements CommandExecutor, TabCompleter {
 
     private boolean isCommandValid(String commandName) {
         return commandName.equalsIgnoreCase("ase") ||
-                commandName.equalsIgnoreCase("armorstandeditor") ||
-                commandName.equalsIgnoreCase("asedit");
+            commandName.equalsIgnoreCase("armorstandeditor") ||
+            commandName.equalsIgnoreCase("asedit");
     }
 
     private List<String> getModeOptions() {
         return List.of(
-                "None", "Invisible", "ShowArms", "Gravity", "BasePlate",
-                "Size", "Copy", "Paste", "Head", "Body", "LeftArm",
-                "RightArm", "LeftLeg", "RightLeg", "Placement",
-                "DisableSlots", "Rotate", "Equipment", "Reset",
-                "ItemFrame", "ItemFrameGlow", "Vulnerability", "ArmorStandGlow"
+            "None", "Invisible", "ShowArms", "Gravity", "BasePlate",
+            "Size", "Copy", "Paste", "Head", "Body", "LeftArm",
+            "RightArm", "LeftLeg", "RightLeg", "Placement",
+            "DisableSlots", "Rotate", "Equipment", "Reset",
+            "ItemFrame", "ItemFrameGlow", "Vulnerability", "ArmorStandGlow"
         );
     }
 
@@ -498,7 +498,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
      */
     private Component label(String label, Object value) {
         return text(label + ": ", YELLOW)
-                .append(text(String.valueOf(value), AQUA));
+            .append(text(String.valueOf(value), AQUA));
     }
 
     private void sendArmorStandStats(Player player, ArmorStand as) {
@@ -525,12 +525,12 @@ public class CommandEx implements CommandExecutor, TabCompleter {
 
     private void sendPose(Player player, String name, EulerAngle angle) {
         player.sendMessage(
-                text(name + ": ", YELLOW)
-                        .append(text(
-                                round(angle.getX()) + " / " +
-                                        round(angle.getY()) + " / " +
-                                        round(angle.getZ()),
-                                AQUA))
+            text(name + ": ", YELLOW)
+                .append(text(
+                    round(angle.getX()) + " / " +
+                        round(angle.getY()) + " / " +
+                        round(angle.getZ()),
+                    AQUA))
         );
     }
 
@@ -543,91 +543,91 @@ public class CommandEx implements CommandExecutor, TabCompleter {
         if (isScaleSupported()) {
             double scale = Objects.requireNonNull(as.getAttribute(Attribute.SCALE)).getBaseValue();
             player.sendMessage(
-                    text("Size: ", YELLOW)
-                            .append(text(scale + "/" + plugin.getMaxScaleValue(), AQUA))
-                            .append(text(". ", YELLOW))
-                            .append(label("Is Glowing", as.isGlowing()))
-                            .append(text(". ", YELLOW))
-                            .append(label("Is Locked", isLocked(as)))
-                            .append(text(". ", YELLOW))
-                            .append(label("Is InUse", isInUse(as)))
+                text("Size: ", YELLOW)
+                    .append(text(scale + "/" + plugin.getMaxScaleValue(), AQUA))
+                    .append(text(". ", YELLOW))
+                    .append(label("Is Glowing", as.isGlowing()))
+                    .append(text(". ", YELLOW))
+                    .append(label("Is Locked", isLocked(as)))
+                    .append(text(". ", YELLOW))
+                    .append(label("Is InUse", isInUse(as)))
             );
             return;
         }
 
         player.sendMessage(
-                label("Is Small", as.isSmall())
-                        .append(text(". ", YELLOW))
-                        .append(label("Is Glowing", as.isGlowing()))
-                        .append(text(". ", YELLOW))
-                        .append(label("Is Locked", isLocked(as)))
-                        .append(text(". ", YELLOW))
-                        .append(label("Is InUse", isInUse(as)))
+            label("Is Small", as.isSmall())
+                .append(text(". ", YELLOW))
+                .append(label("Is Glowing", as.isGlowing()))
+                .append(text(". ", YELLOW))
+                .append(label("Is Locked", isLocked(as)))
+                .append(text(". ", YELLOW))
+                .append(label("Is InUse", isInUse(as)))
         );
     }
 
     private boolean isScaleSupported() {
         return VersionUtil.fromString(plugin.getNmsVersion())
-                .isNewerThanOrEquals(MinecraftVersion.MINECRAFT_1_20_4);
+            .isNewerThanOrEquals(MinecraftVersion.MINECRAFT_1_20_4);
     }
 
     private boolean isLocked(ArmorStand as) {
         return plugin.scoreboard
-                .getTeam(plugin.lockedTeam)
-                .hasEntry(as.getUniqueId().toString());
+            .getTeam(plugin.lockedTeam)
+            .hasEntry(as.getUniqueId().toString());
     }
 
     private boolean isInUse(ArmorStand as) {
         return plugin.scoreboard
-                .getTeam(plugin.inUseTeam)
-                .hasEntry(as.getUniqueId().toString());
+            .getTeam(plugin.inUseTeam)
+            .hasEntry(as.getUniqueId().toString());
     }
 
     private void sendCoordinates(Player player, Location loc) {
         player.sendMessage(
-                text("Coordinates: ", YELLOW)
-                        .append(text(
-                                "X: " + loc.getX() +
-                                        " / Y: " + loc.getY() +
-                                        " / Z: " + loc.getZ(),
-                                AQUA))
+            text("Coordinates: ", YELLOW)
+                .append(text(
+                    "X: " + loc.getX() +
+                        " / Y: " + loc.getY() +
+                        " / Z: " + loc.getZ(),
+                    AQUA))
         );
     }
 
     private void sendVisibility(Player player, ArmorStand as) {
         player.sendMessage(
-                label("Is Visible", as.isVisible())
-                        .append(text(". ", YELLOW))
-                        .append(label("Arms Visible", as.hasArms()))
-                        .append(text(". ", YELLOW))
-                        .append(label("Base Plate Visible", as.hasBasePlate()))
+            label("Is Visible", as.isVisible())
+                .append(text(". ", YELLOW))
+                .append(label("Arms Visible", as.hasArms()))
+                .append(text(". ", YELLOW))
+                .append(label("Base Plate Visible", as.hasBasePlate()))
         );
     }
 
     private void sendPhysics(Player player, ArmorStand as) {
         player.sendMessage(
-                label("Is Vulnerable", as.isInvulnerable())
-                        .append(text(". ", YELLOW))
-                        .append(label("Affected by Gravity", as.hasGravity()))
+            label("Is Vulnerable", as.isInvulnerable())
+                .append(text(". ", YELLOW))
+                .append(label("Affected by Gravity", as.hasGravity()))
         );
     }
 
     private record PoseData(
-            EulerAngle head,
-            EulerAngle body,
-            EulerAngle rightArm,
-            EulerAngle leftArm,
-            EulerAngle rightLeg,
-            EulerAngle leftLeg
+    EulerAngle head,
+    EulerAngle body,
+    EulerAngle rightArm,
+    EulerAngle leftArm,
+    EulerAngle rightLeg,
+    EulerAngle leftLeg
     ) {
         static PoseData from(ArmorStand as) {
             return new PoseData(
-                    as.getHeadPose(),
-                    as.getBodyPose(),
-                    as.getRightArmPose(),
-                    as.getLeftArmPose(),
-                    as.getRightLegPose(),
-                    as.getLeftLegPose()
+                as.getHeadPose(),
+                as.getBodyPose(),
+                as.getRightArmPose(),
+                as.getLeftArmPose(),
+                as.getRightLegPose(),
+                as.getLeftLegPose()
             );
         }
     }

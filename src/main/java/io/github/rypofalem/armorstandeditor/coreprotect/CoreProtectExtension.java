@@ -1,8 +1,10 @@
 package io.github.rypofalem.armorstandeditor.coreprotect;
 
 import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
+
 import net.coreprotect.config.Config;
 import net.coreprotect.listener.player.PlayerInteractEntityListener;
+
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;

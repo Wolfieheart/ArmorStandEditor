@@ -26,7 +26,6 @@ import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ItemLore;
 import io.papermc.paper.datacomponent.item.PotionContents;
 import io.papermc.paper.datacomponent.item.TooltipDisplay;
-
 import net.kyori.adventure.text.Component;
 
 import org.bukkit.Bukkit;
@@ -219,16 +218,16 @@ public class Menu {
                 "copy", "mode copy");
 
             slot1 = createIcon(ItemStack.of(Material.BOOK),
-                    copySlotText, "slot 1", "1");
+                copySlotText, "slot 1", "1");
 
             slot2 = createIcon(ItemStack.of(Material.BOOK, 2),
-                    copySlotText, "slot 2", "2");
+                copySlotText, "slot 2", "2");
 
             slot3 = createIcon(ItemStack.of(Material.BOOK, 3),
-                    copySlotText, "slot 3", "3");
+                copySlotText, "slot 3", "3");
 
             slot4 = createIcon(ItemStack.of(Material.BOOK, 4),
-                    copySlotText, "slot 4", "4");
+                copySlotText, "slot 4", "4");
         }
 
         if (pe.getPlayer().hasPermission("asedit.paste")) {

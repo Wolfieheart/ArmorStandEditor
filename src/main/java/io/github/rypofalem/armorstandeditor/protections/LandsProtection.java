@@ -18,13 +18,13 @@
  */
 package io.github.rypofalem.armorstandeditor.protections;
 
+import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
+
 import me.angeschossen.lands.api.LandsIntegration;
 import me.angeschossen.lands.api.land.Area;
 import me.angeschossen.lands.api.land.LandWorld;
 import me.angeschossen.lands.api.player.LandPlayer;
 import me.angeschossen.lands.api.role.Role;
-
-import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -72,7 +72,8 @@ public class LandsProtection implements Protection {
                     if (landAreaOfAS.getRole(playerUUID) == visitorRole) return false;
 
                     // If Player is Trusted OR Player is Owner of the Area/Claim, Allow Edits
-                    if (landAreaOfAS.isTrusted(playerUUID) || landAreaOfAS.getOwnerUID() == landPlayer.getUID()) return true; else if (landAreaOfAS.hasRoleFlag(playerUUID, BLOCK_BREAK) ||
+                    if (landAreaOfAS.isTrusted(playerUUID) || landAreaOfAS.getOwnerUID() == landPlayer.getUID()) return true;
+                    else if (landAreaOfAS.hasRoleFlag(playerUUID, BLOCK_BREAK) ||
                         landAreaOfAS.hasRoleFlag(playerUUID, BLOCK_PLACE) ||
                         landAreaOfAS.hasRoleFlag(playerUUID, INTERACT_CONTAINER) ||
                         landAreaOfAS.hasRoleFlag(playerUUID, INTERACT_GENERAL)) {

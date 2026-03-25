@@ -21,10 +21,9 @@ package io.github.rypofalem.armorstandeditor.menu;
 
 import io.github.rypofalem.armorstandeditor.Debug;
 import io.github.rypofalem.armorstandeditor.PlayerEditor;
-
 import io.github.rypofalem.armorstandeditor.coreprotect.CoreProtectExtension;
-import io.papermc.paper.datacomponent.DataComponentTypes;
 
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ItemLore;
 import io.papermc.paper.datacomponent.item.TooltipDisplay;
 import net.kyori.adventure.text.Component;
@@ -33,16 +32,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
 
 
 @SuppressWarnings("UnstableApiUsage")
@@ -94,8 +88,8 @@ public class EquipmentMenu {
         ItemStack leftHandIcon = createIcon(Material.SHIELD, "lhand");
         ItemStack[] items =
             {
-                    helmetIcon, chestIcon, pantsIcon, feetsiesIcon, rightHandIcon, leftHandIcon, disabledIcon, disabledIcon, disabledIcon,
-                    helmet, chest, pants, feetsies, rightHand, leftHand, disabledIcon, disabledIcon, disabledIcon
+                helmetIcon, chestIcon, pantsIcon, feetsiesIcon, rightHandIcon, leftHandIcon, disabledIcon, disabledIcon, disabledIcon,
+                helmet, chest, pants, feetsies, rightHand, leftHand, disabledIcon, disabledIcon, disabledIcon
             };
         menuInv.setContents(items);
     }
@@ -112,18 +106,18 @@ public class EquipmentMenu {
         String friendlyDesc = pe.plugin.getLang().getString("equipslot.description." + slot);
 
         icon.editPersistentDataContainer(
-                pdc -> pdc.set(pe.plugin.getIconKey(), PersistentDataType.STRING, "ase icon"));
+            pdc -> pdc.set(pe.plugin.getIconKey(), PersistentDataType.STRING, "ase icon"));
 
         // 3. Pass the friendly name into the <x> placeholder
         icon.setData(DataComponentTypes.CUSTOM_NAME,
-                pe.plugin.getLang().getMessage("equipslot", "iconname", friendlyName));
+            pe.plugin.getLang().getMessage("equipslot", "iconname", friendlyName));
 
         // 4. Pass the description-friendly name into the <x> placeholder
         icon.setData(DataComponentTypes.LORE, ItemLore.lore()
-                .addLine(pe.plugin.getLang().getMessage("equipslot.description", "icondescription", friendlyDesc)));
+            .addLine(pe.plugin.getLang().getMessage("equipslot.description", "icondescription", friendlyDesc)));
 
         icon.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay()
-                .addHiddenComponents(DataComponentTypes.ATTRIBUTE_MODIFIERS).build());
+            .addHiddenComponents(DataComponentTypes.ATTRIBUTE_MODIFIERS).build());
 
         return icon;
     }
@@ -145,7 +139,7 @@ public class EquipmentMenu {
         rightHand = notNull(menuInv.getItem(13));
         leftHand = notNull(menuInv.getItem(14));
 
-        EntityEquipment equipment = armorstand.getEquipment();;
+        EntityEquipment equipment = armorstand.getEquipment();
         equipment.setHelmet(helmet);
         equipment.setChestplate(chest);
         equipment.setLeggings(pants);
@@ -159,8 +153,8 @@ public class EquipmentMenu {
     private void checkForChanges() {
         debug.log("Equipping ArmorStand and checking changes.");
         Player player = pe.getPlayer();
-        ItemStack[] oldArray = new ItemStack[] { oldHelmet, oldChest, oldPants, oldFeetsies, oldRightHand, oldLeftHand };
-        ItemStack[] newArray = new ItemStack[] { helmet, chest, pants, feetsies, rightHand, leftHand };
+        ItemStack[] oldArray = new ItemStack[]{oldHelmet, oldChest, oldPants, oldFeetsies, oldRightHand, oldLeftHand};
+        ItemStack[] newArray = new ItemStack[]{helmet, chest, pants, feetsies, rightHand, leftHand};
 
         boolean change = false;
         if (hasChanged(oldHelmet, helmet)) {
