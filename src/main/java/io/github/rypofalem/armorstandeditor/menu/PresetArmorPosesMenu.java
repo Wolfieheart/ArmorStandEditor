@@ -212,7 +212,7 @@ public class PresetArmorPosesMenu {
     public void setPresetPose(Player player, double rightArmRoll, double rightArmYaw, double rightArmPitch,
         double leftArmRoll, double leftArmYaw, double leftArmPitch,
         double rightLegRoll, double rightLegYaw, double rightLegPitch,
-        double leftLegRoll, double LeftLegYaw, double llp_yaw,
+        double leftLegRoll, double leftLegYaw, double leftLegPitch,
         double headRoll, double headYaw, double headPitch,
         double bodyRoll, double bodyYaw, double bodyPitch) {
 
@@ -242,9 +242,9 @@ public class PresetArmorPosesMenu {
 
         // Calculate and set left leg settings
         leftLegRoll = Math.toRadians(leftLegRoll);
-        LeftLegYaw = Math.toRadians(LeftLegYaw);
-        llp_yaw = Math.toRadians(llp_yaw);
-        EulerAngle leftLegEulerAngle = new EulerAngle(leftLegRoll, LeftLegYaw, llp_yaw);
+        leftLegYaw = Math.toRadians(leftLegYaw);
+        leftLegPitch = Math.toRadians(leftLegPitch);
+        EulerAngle leftLegEulerAngle = new EulerAngle(leftLegRoll, leftLegYaw, leftLegPitch);
         armorStand.setLeftLegPose(leftLegEulerAngle);
 
         // Calculate and set body settings
