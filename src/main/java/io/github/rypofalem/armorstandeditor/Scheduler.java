@@ -66,7 +66,7 @@ public class Scheduler {
     }
 
     /** Teleport an entity safely */
-    public void teleport(Entity entity, org.bukkit.Location location) {
+    public void teleport(Entity entity, Location location) {
         if (isFolia) {
             entity.teleportAsync(location);
         } else {
