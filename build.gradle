@@ -8,6 +8,8 @@ version = '26.1.1-51'
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 repositories {
@@ -93,6 +95,7 @@ shadowJar {
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    minimize()
 }
 
 // Regular JAR task for plugin
