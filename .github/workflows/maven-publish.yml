@@ -27,6 +27,10 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'zulu'
 
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
       # 3. Cache Gradle packages
       - name: Cache Gradle packages
         uses: actions/cache@v5
@@ -39,6 +43,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       # 4. Build and verify with Gradle
+
       - name: Clean and Build
         run: ./gradlew clean build --no-daemon
 
