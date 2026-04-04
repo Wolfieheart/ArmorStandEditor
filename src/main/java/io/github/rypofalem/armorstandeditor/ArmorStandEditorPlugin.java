@@ -23,6 +23,8 @@ import io.github.rypofalem.armorstandeditor.coreprotect.CoreProtectExtension;
 import io.github.rypofalem.armorstandeditor.language.Language;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
+import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
+import io.github.rypofalem.armorstandeditor.Metrics.SimplePie;
 
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
@@ -43,9 +45,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Level;
 
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
@@ -54,7 +54,6 @@ import static net.kyori.adventure.text.format.NamedTextColor.RED;
 public class ArmorStandEditorPlugin extends JavaPlugin {
 
     //!!! DO NOT REMOVE THESE UNDER ANY CIRCUMSTANCES - Required for BStats and UpdateChecker !!!
-    public static final String HANGAR_RELEASE_CHANNEL = "Wolfieheart/ArmorStandEditor-Reborn/Release";  //Used for Update Checker
     private static final int PLUGIN_ID = 12668;             //Used for BStats Metrics
     public final Debug debug = new Debug(this);
 
@@ -72,7 +71,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String versionLogPrefix;
 
     //Hardcode the ASE Version
-    public static final String ASE_VERSION = "26.1-DEV";
+    public static final String ASE_VERSION = "26.1.1-51-Alpha1";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;
@@ -152,10 +151,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         nmsVersion = getServer().getMinecraftVersion();
         versionLogPrefix = warningMCVer + nmsVersion;
 
-        if (VersionUtil.fromString(nmsVersion).isNewerThanOrEquals(MinecraftVersion.CURRENT_VERSION)) {
+        if (VersionUtil.fromString(nmsVersion).isNewerThan(MinecraftVersion.CURRENT_VERSION)) {
             getLogger().info(versionLogPrefix);
             getLogger().info("ArmorStandEditor is compatible with this version of Minecraft. Loading continuing.");
-        } else if (VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(MinecraftVersion.MINECRAFT_1_21)) {
+        } else if (VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(MinecraftVersion.MINECRAFT_26_1_1)) {
             getLogger().warning(versionLogPrefix);
             getLogger().warning("ArmorStandEditor is compatible with this version of Minecraft, but it is not the latest supported version.");
             getLogger().warning("Loading continuing, but please consider updating to the latest version.");
@@ -214,7 +213,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         loadConfigValues();
 
         //Get Metrics from bStats
-        // getMetrics();
+        getMetrics();
 
         editorManager = new PlayerEditorManager(this);
         CommandEx execute = new CommandEx(this);
@@ -583,7 +582,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
 
-    /*    //Metrics/bStats Support
+        //Metrics/bStats Support
         private void getMetrics() {
     
             Metrics metrics = new Metrics(this, PLUGIN_ID);
@@ -654,7 +653,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             metrics.addCustomChart(new SimplePie("allowCustomModelData", () -> String.valueOf(getConfig().getBoolean("allowCustomModelData"))));
     
     
-        }*/
+        }
 
 
     private void runWarningsFolia() {

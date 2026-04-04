@@ -90,5 +90,5 @@ public class VersionUtil implements Comparable<VersionUtil> {
         return this.compareTo(other) < 0;
     }
 
-
+    public boolean isNewerThan(@NotNull VersionUtil other) { return this.compareTo(other) > 0; }
 }

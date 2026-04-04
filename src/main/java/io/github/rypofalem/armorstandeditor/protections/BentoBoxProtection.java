@@ -84,7 +84,7 @@ public class BentoBoxProtection implements Protection {
 
             if (islandOptional.isEmpty()) return true;
 
-            if (islandsManager.isOwner(block.getWorld(), player.getUniqueId())) return true;
+            if (islandsManager.hasIsland(block.getWorld(), player.getUniqueId())) return true;
 
             Island theIsland = islandOptional.get();
 

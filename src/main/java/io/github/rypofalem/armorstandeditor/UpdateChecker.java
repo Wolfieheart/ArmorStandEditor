@@ -25,8 +25,8 @@ public class UpdateChecker implements Listener {
     private static ArmorStandEditorPlugin plugin = null;
     private static Scheduler taskScheduler = null;
     private final String pluginVersion;
-    private String versionOnHangar;
-    private boolean updateAvailable;
+    public String versionOnHangar;
+    public boolean updateAvailable;
 
     public UpdateChecker(ArmorStandEditorPlugin plugin) {
         UpdateChecker.plugin = plugin;
@@ -36,32 +36,40 @@ public class UpdateChecker implements Listener {
 
     public void checkForUpdates() {
         taskScheduler.runAsync(() -> {
-            try {
-
-                HttpsURLConnection connection = (HttpsURLConnection) URI
-                    .create(HANGAR_URL)
-                    .toURL()
-                    .openConnection();
-                connection.setRequestMethod("GET");
-
-                final JsonElement json = new Gson().fromJson(new BufferedReader(new InputStreamReader(connection.getInputStream())), JsonElement.class);
-                versionOnHangar = json.getAsJsonObject().get("version_name").getAsString();
-            } catch (Exception exception) {
-                plugin.getLogger().warning("Failed to get the latest version from Hangar. Please check your internet connection.");
-                plugin.debug.log("Error while checking for updates: " + exception.getMessage());
+            if (!fetchLatestVersion()) {
                 return;
             }
 
-            if (versionOnHangar == null || versionOnHangar.isEmpty()) return;
-
-            updateAvailable = VersionUtil.fromString(versionOnHangar).isNewerThanOrEquals(VersionUtil.fromString(pluginVersion));
-            if (!updateAvailable) return;
-
-            taskScheduler.runAsync(() -> {
+            if (isUpdateAvailable()) {
                 plugin.getLogger().info("A new version of ArmorStandEditor-Reborn is available! (Version " + versionOnHangar + ")");
                 plugin.getLogger().info("Download it from: https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn");
-            });
+            }
         });
+    }
+
+    private boolean fetchLatestVersion() {
+        try {
+            HttpsURLConnection connection = (HttpsURLConnection) URI
+                .create(HANGAR_URL)
+                .toURL()
+                .openConnection();
+            connection.setRequestMethod("GET");
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                JsonElement json = new Gson().fromJson(reader, JsonElement.class);
+                versionOnHangar = json.getAsJsonObject().get("version_name").getAsString();
+                return versionOnHangar != null && !versionOnHangar.isEmpty();
+            }
+        } catch (Exception exception) {
+            plugin.getLogger().warning("Failed to get the latest version from Hangar. Please check your internet connection.");
+            plugin.debug.log("Error while checking for updates: " + exception.getMessage());
+            return false;
+        }
+    }
+
+    private boolean isUpdateAvailable() {
+        updateAvailable = VersionUtil.fromString(versionOnHangar).isNewerThan(VersionUtil.fromString(pluginVersion));
+        return updateAvailable;
     }
 
     @EventHandler
@@ -69,23 +77,25 @@ public class UpdateChecker implements Listener {
         // Only notify if an update is available
         if (!updateAvailable) return;
 
-        // Notify if the player has permission OR if AdminOnlyNotifications is enabled
-        if (evt.getPlayer().hasPermission("asedit.update") || plugin.getAdminOnlyNotifications()) {
-            // Build the messages using Components
-            Component updateMessage = Component.text("A new version of ArmorStandEditor-Reborn is available! (Version " + versionOnHangar + ")")
-                .color(NamedTextColor.YELLOW);
+        // Notify if the player has permission OR if AdminOnlyNotifications is disabled
+        boolean hasPermission = evt.getPlayer().hasPermission("asedit.update");
+        boolean shouldNotify = hasPermission || !plugin.getAdminOnlyNotifications();
 
-            Component downloadMessage = Component.text("Download it from: ")
-                .color(NamedTextColor.YELLOW)
-                .append(Component.text("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
-                    .color(NamedTextColor.AQUA)
-                    .decorate(TextDecoration.UNDERLINED));
+        if (!shouldNotify) return;
 
-            // Send to player
-            evt.getPlayer().sendMessage(updateMessage);
-            evt.getPlayer().sendMessage(downloadMessage);
-        }
+        // Build the messages using Components
+        Component updateMessage = Component.text("A new version of ArmorStandEditor-Reborn is available! (Version " + versionOnHangar + ")")
+            .color(NamedTextColor.YELLOW);
+
+        Component downloadMessage = Component.text("Download it from: ")
+            .color(NamedTextColor.YELLOW)
+            .append(Component.text("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
+                .color(NamedTextColor.AQUA)
+                .decorate(TextDecoration.UNDERLINED));
+
+        // Send to player
+        evt.getPlayer().sendMessage(updateMessage);
+        evt.getPlayer().sendMessage(downloadMessage);
     }
-
 
 }

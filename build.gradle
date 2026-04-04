@@ -4,7 +4,24 @@ plugins {
 }
 
 group = 'io.github.rypofalem.armorstandeditor'
-version = '26.1.1-51'
+
+// Read version from plugin.yml at configuration time
+version = getPluginVersion()
+
+String getPluginVersion() {
+    File pluginYml = file('src/main/resources/plugin.yml')
+    if (!pluginYml.exists()) {
+        return '0.0.0'
+    }
+
+    String versionLine = pluginYml.readLines().find { it =~ /^version:\s*/ }
+    if (versionLine == null) {
+        return '0.0.0'
+    }
+
+    String extractedVersion = versionLine.replaceAll(/^version:\s*['"]?(.+?)['"]?\s*$/, '$1')
+    return extractedVersion ?: '0.0.0'
+}
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
@@ -76,7 +93,7 @@ dependencies {
 
     // PaperLib (needs to be shaded)
     implementation "io.papermc:paperlib:1.0.8"
-
+    
     // Testing
     testImplementation "junit:junit:4.13.2"
 }
@@ -89,12 +106,17 @@ tasks.withType(JavaCompile).configureEach {
 // ShadowJar only for PaperLib relocation
 shadowJar {
     archiveBaseName.set('ArmorStandEditor')
+    archiveVersion.set(project.version.toString())
     mergeServiceFiles()
+
     relocate 'io.papermc.lib', 'io.github.rypofalem.armorstandeditor.libs.paperlib'
+
     exclude 'META-INF/*.SF'
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
+
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
     minimize()
 }
 
@@ -104,7 +126,7 @@ tasks.jar {
         include 'plugin.yml'
     }
     archiveBaseName.set('ArmorStandEditor')
-    archiveVersion.set('26.1.1-51')
+    archiveVersion.set(project.version.toString())
 
     // Fix duplicate plugin.yml issue
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
