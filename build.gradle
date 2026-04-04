@@ -1,0 +1,112 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'io.github.rypofalem.armorstandeditor'
+version = '26.1.1-51'
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+}
+
+repositories {
+    mavenCentral()
+    maven { url = "https://repo.papermc.io/repository/maven-public/" }
+    maven { url = "https://maven.enginehub.org/repo/" }
+    maven { url = "https://oss.sonatype.org/content/groups/public/" }
+    maven { url = "https://s01.oss.sonatype.org/content/groups/public/" }
+    maven { url = "https://s01.oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url = "https://repo.glaremasters.me/repository/towny/" }
+    maven { url = "https://repo.glaremasters.me/repository/bloodshot/" }
+    maven { url = "https://jitpack.io" }
+    maven { url = "https://repo.bg-software.com/repository/api/" }
+    maven { url = "https://repo.codemc.org/repository/maven-public/" }
+    maven { url = "https://maven.playpro.com" }
+}
+
+dependencies {
+    // Paper API only (compile-time)
+    compileOnly "io.papermc.paper:paper-api:26.1.1.build.+"
+
+    // Adventure
+    compileOnly "net.kyori:adventure-api:4.25.0"
+    compileOnly "net.kyori:adventure-text-minimessage:4.25.0"
+
+    // WorldGuard
+    compileOnly "com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT"
+
+    // PlotSquared
+    compileOnly("com.intellectualsites.plotsquared:plotsquared-core:7.5.12") {
+        exclude group: "net.kyori"
+    }
+    compileOnly("com.intellectualsites.plotsquared:plotsquared-bukkit:7.5.12") {
+        exclude group: "net.kyori"
+    }
+
+    // Towny
+    compileOnly "com.palmergames.bukkit.towny:towny:0.102.0.7"
+
+    // SuperiorSkyblock
+    compileOnly "com.bgsoftware:SuperiorSkyblockAPI:2024.1"
+
+    // GriefDefender
+    compileOnly("com.griefdefender:api:2.1.1-SNAPSHOT") {
+        exclude group: "net.kyori"
+    }
+
+    // Lands
+    compileOnly "com.github.angeschossen:LandsAPI:7.25.4"
+
+    // Bentobox (compileOnly to avoid bundling)
+    compileOnly "world.bentobox:bentobox:2.7.0-SNAPSHOT"
+
+    // ItemAdder
+    compileOnly "com.github.LoneDev6:api-itemsadder:3.6.1"
+
+    // CoreProtect
+    compileOnly "net.coreprotect:coreprotect:23.1"
+
+    // Lombok
+    compileOnly "org.projectlombok:lombok:1.18.44"
+    annotationProcessor "org.projectlombok:lombok:1.18.44"
+
+    // PaperLib (needs to be shaded)
+    implementation "io.papermc:paperlib:1.0.8"
+
+    // Testing
+    testImplementation "junit:junit:4.13.2"
+}
+
+// Compile UTF-8
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+// ShadowJar only for PaperLib relocation
+shadowJar {
+    archiveBaseName.set('ArmorStandEditor')
+    mergeServiceFiles()
+    relocate 'io.papermc.lib', 'io.github.rypofalem.armorstandeditor.libs.paperlib'
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// Regular JAR task for plugin
+tasks.jar {
+    from('src/main/resources') {
+        include 'plugin.yml'
+    }
+    archiveBaseName.set('ArmorStandEditor')
+    archiveVersion.set('26.1.1-51')
+
+    // Fix duplicate plugin.yml issue
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// Ensure build produces the normal plugin JAR, not ShadowJar
+tasks.build {
+    dependsOn tasks.jar
+}
