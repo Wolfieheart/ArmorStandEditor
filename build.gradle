@@ -28,6 +28,7 @@ repositories {
 dependencies {
     // Paper API only (compile-time)
     compileOnly "io.papermc.paper:paper-api:26.1.1.build.+"
+    compileOnly "dev.folia:folia-api:1.20.1-R0.1-SNAPSHOT"
 
     // Adventure
     compileOnly "net.kyori:adventure-api:4.25.0"
