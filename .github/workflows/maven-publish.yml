@@ -53,10 +53,15 @@ jobs:
       - name: Run tests
         run: ./gradlew test --no-daemon
 
-      # 6. Upload the built JAR
+      # 6. Get Version from JAR name
+      - name: Get Version
+        id: get_version
+        run: echo "version=$(ls build/libs/ArmorStandEditor-*-all.jar | sed 's/.*ArmorStandEditor-\(.*\)-all.jar/\1/')" >> $GITHUB_OUTPUT
+
+      # 7. Upload the built JAR
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ArmorStandEditor-JAR
-          path: build/libs/ArmorStandEditor-*.jar
+          name: ArmorStandEditor-${{ steps.get_version.outputs.version }}
+          path: build/libs/ArmorStandEditor-*-all.jar
           if-no-files-found: error
