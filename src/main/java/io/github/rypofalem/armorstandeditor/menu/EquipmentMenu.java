@@ -46,8 +46,18 @@ public class EquipmentMenu {
     private PlayerEditor pe;
     private ArmorStand armorstand;
     private CoreProtectExtension coreProtectExtension;
-    ItemStack helmet, chest, pants, feetsies, rightHand, leftHand = ItemStack.of(Material.AIR);
-    ItemStack oldHelmet, oldChest, oldPants, oldFeetsies, oldRightHand, oldLeftHand = ItemStack.of(Material.AIR);
+    ItemStack helmet;
+    ItemStack chest;
+    ItemStack pants;
+    ItemStack feetsies;
+    ItemStack rightHand;
+    ItemStack leftHand = ItemStack.of(Material.AIR);
+    ItemStack oldHelmet;
+    ItemStack oldChest;
+    ItemStack oldPants;
+    ItemStack oldFeetsies;
+    ItemStack oldRightHand;
+    ItemStack oldLeftHand = ItemStack.of(Material.AIR);
 
     public EquipmentMenu(PlayerEditor pe, ArmorStand as) {
         this.pe = pe;
