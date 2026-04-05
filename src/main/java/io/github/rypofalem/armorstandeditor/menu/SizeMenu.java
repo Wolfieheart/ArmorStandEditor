@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class SizeMenu extends ASEHolder {
 
-    public ArmorStandEditorPlugin plugin = ArmorStandEditorPlugin.instance();
+    public ArmorStandEditorPlugin plugin;
     Inventory menuInv;
     private Debug debug;
     private PlayerEditor pe;
@@ -34,6 +34,7 @@ public class SizeMenu extends ASEHolder {
         this.pe = pe;
         this.as = as;
         this.debug = pe.plugin.debug;
+        this.plugin = pe.plugin;
         name = pe.plugin.getLang().getMessage("sizeMenu", "menutitle");
         menuInv = Bukkit.createInventory(pe.getManager().getSizeMenuHolder(), 27, name);
     }

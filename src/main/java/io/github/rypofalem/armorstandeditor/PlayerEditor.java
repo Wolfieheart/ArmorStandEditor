@@ -749,7 +749,6 @@ public class PlayerEditor {
 
     public void openMenu() {
         if (!isMenuCancelled()) {
-            //Scheduler.runTaskLater(plugin, getPlayer(), new OpenMenuTask(), 1);
             scheduler.runTaskLater(() -> scheduler.runForEntity(getPlayer(), new OpenMenuTask()), 1L);
         }
     }

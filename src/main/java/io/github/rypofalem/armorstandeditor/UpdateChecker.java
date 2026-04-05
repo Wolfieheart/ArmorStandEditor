@@ -21,16 +21,16 @@ public class UpdateChecker implements Listener {
     private static final String HANGAR_URL = "https://hangar.papermc.io/api/v1/projects/Wolfieheart/ArmorStandEditor-Reborn/latest?channel=Release";
     private static final String HANGAR_DOWNLOAD = "https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn";
 
-    private static ArmorStandEditorPlugin plugin = null;
-    private static Scheduler taskScheduler = null;
+    private final ArmorStandEditorPlugin plugin;
+    private final Scheduler taskScheduler;
     private final String pluginVersion;
-    public String versionOnHangar;
-    public boolean updateAvailable;
+    private String versionOnHangar;
+    private boolean updateAvailable;
 
     public UpdateChecker(ArmorStandEditorPlugin plugin) {
-        UpdateChecker.plugin = plugin;
-        taskScheduler = plugin.getScheduler();
-        pluginVersion = plugin.getASEVersion();
+        this.plugin = plugin;
+        this.taskScheduler = plugin.getScheduler();
+        this.pluginVersion = plugin.getASEVersion();
     }
 
     /**
