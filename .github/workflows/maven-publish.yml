@@ -60,11 +60,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew clean shadowJar sonar --no-daemon -Dsonar.projectKey=wolfieheart_ArmorStandEditor
 
-
-      # 4. Build and verify with Gradle
-      - name: Clean and Build
-        run: ./gradlew clean shadowJar --no-daemon
-
       # 5. Optional: Run tests
       - name: Run tests
         run: ./gradlew test --no-daemon
