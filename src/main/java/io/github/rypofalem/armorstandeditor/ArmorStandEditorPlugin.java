@@ -60,6 +60,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     private NamespacedKey iconKey;
     private static ArmorStandEditorPlugin instance;
     private Language lang;
+    private CoreProtectExtension coreProtectExtension;
 
     //Server Version Detection: Paper or Spigot and Invalid NMS Version
     String nmsVersion;
@@ -217,6 +218,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         editorManager = new PlayerEditorManager(this);
         CommandEx execute = new CommandEx(this);
+        coreProtectExtension = new CoreProtectExtension(this);
 
         //CommandExecution and TabCompletion
         Objects.requireNonNull(getCommand("ase")).setExecutor(execute);
@@ -224,7 +226,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(editorManager, this);
 
-        CoreProtectExtension.init(this);
+
     }
 
 
@@ -679,6 +681,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     public Scheduler getScheduler() {
         return scheduler;
+    }
+
+    public CoreProtectExtension getCoreProtectExtension() {
+        return coreProtectExtension;
     }
 
 }

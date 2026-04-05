@@ -45,6 +45,7 @@ public class EquipmentMenu {
     private Debug debug;
     private PlayerEditor pe;
     private ArmorStand armorstand;
+    private CoreProtectExtension coreProtectExtension;
     ItemStack helmet, chest, pants, feetsies, rightHand, leftHand = ItemStack.of(Material.AIR);
     ItemStack oldHelmet, oldChest, oldPants, oldFeetsies, oldRightHand, oldLeftHand = ItemStack.of(Material.AIR);
 
@@ -52,6 +53,7 @@ public class EquipmentMenu {
         this.pe = pe;
         this.armorstand = as;
         this.debug = pe.plugin.debug;
+        this.coreProtectExtension = pe.plugin.getCoreProtectExtension();
         Component name = pe.plugin.getLang().getMessage("equiptitle", "menutitle");
         menuInv = Bukkit.createInventory(pe.getManager().getEquipmentHolder(), 18, name);
     }
@@ -189,7 +191,7 @@ public class EquipmentMenu {
         }
 
         if (change) {
-            CoreProtectExtension.logChange(player, armorstand, oldArray, newArray);
+            coreProtectExtension.logChange(player, armorstand, oldArray, newArray);
         }
     }
 
