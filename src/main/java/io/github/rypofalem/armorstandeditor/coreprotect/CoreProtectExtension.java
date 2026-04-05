@@ -41,8 +41,8 @@ public class CoreProtectExtension {
             }
 
             PlayerInteractEntityListener.queueContainerSpecifiedItems(player.getName(), Material.ARMOR_STAND, new Object[]{oldContents, newContents}, armorStand.getLocation(), false);
-        } catch (Throwable throwable) {
-            plugin.getSLF4JLogger().warn("Error/Exception while logging with CoreProtect", throwable);
+        } catch (Exception exception) {
+            plugin.getSLF4JLogger().warn("Error/Exception while logging with CoreProtect", exception);
         }
     }
 }
