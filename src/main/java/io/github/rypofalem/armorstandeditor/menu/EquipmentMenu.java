@@ -40,68 +40,72 @@ import org.jetbrains.annotations.Nullable;
 
 
 @SuppressWarnings("UnstableApiUsage")
+
 public class EquipmentMenu {
     Inventory menuInv;
-    private Debug debug;
-    private PlayerEditor pe;
-    private ArmorStand armorstand;
-    private CoreProtectExtension coreProtectExtension;
+    private final Debug debug;
+    private final PlayerEditor pe;
+    private final ArmorStand armorstand;
     ItemStack helmet;
     ItemStack chest;
     ItemStack pants;
-    ItemStack feetsies;
+    ItemStack boots;
     ItemStack rightHand;
     ItemStack leftHand = ItemStack.of(Material.AIR);
     ItemStack oldHelmet;
     ItemStack oldChest;
     ItemStack oldPants;
-    ItemStack oldFeetsies;
+    ItemStack oldBoots;
     ItemStack oldRightHand;
     ItemStack oldLeftHand = ItemStack.of(Material.AIR);
+    private final CoreProtectExtension coreProtectExtension;
 
     public EquipmentMenu(PlayerEditor pe, ArmorStand as) {
         this.pe = pe;
         this.armorstand = as;
         this.debug = pe.plugin.debug;
-        this.coreProtectExtension = pe.plugin.getCoreProtectExtension();
+
+        //noinspection ConstantConditions
+        coreProtectExtension = pe.plugin.getCoreProtectExtension();
+
         Component name = pe.plugin.getLang().getMessage("equiptitle", "menutitle");
         menuInv = Bukkit.createInventory(pe.getManager().getEquipmentHolder(), 18, name);
     }
 
     private void fillInventory() {
         menuInv.clear();
-        EntityEquipment equipment = armorstand.getEquipment();
-        ItemStack helmet = equipment.getHelmet();
-        ItemStack chest = equipment.getChestplate();
-        ItemStack pants = equipment.getLeggings();
-        ItemStack feetsies = equipment.getBoots();
-        ItemStack rightHand = equipment.getItemInMainHand();
-        ItemStack leftHand = equipment.getItemInOffHand();
-        oldHelmet = helmet;
-        oldChest = chest;
-        oldPants = pants;
-        oldFeetsies = feetsies;
-        oldRightHand = rightHand;
-        oldLeftHand = leftHand;
+        EntityEquipment equipment       = armorstand.getEquipment();
+        ItemStack currentHelmet         = equipment.getHelmet();
+        ItemStack currentChestplate     = equipment.getChestplate();
+        ItemStack currentLeggings       = equipment.getLeggings();
+        ItemStack currentBoots          = equipment.getBoots();
+        ItemStack currentMainHandItem   = equipment.getItemInMainHand();
+        ItemStack currentOffHandItem    = equipment.getItemInOffHand();
+        oldHelmet = currentHelmet;
+        oldChest = currentChestplate;
+        oldPants = currentLeggings;
+        oldBoots = currentBoots;
+        oldRightHand = currentMainHandItem;
+        oldLeftHand = currentOffHandItem;
         equipment.clear();
 
         ItemStack disabledIcon = ItemStack.of(Material.BARRIER);
         disabledIcon.setData(DataComponentTypes.CUSTOM_NAME,
             pe.plugin.getLang().getMessage("disabled", "warn")); //equipslot.msg <option>
         disabledIcon.editPersistentDataContainer(
-            pdc -> pdc.set(pe.plugin.getIconKey(), PersistentDataType.STRING, "ase icon")); // mark as icon)
+            pdc -> pdc.set(pe.plugin.getIconKey(), PersistentDataType.STRING, "ase icon")); // mark as icon
 
 
         ItemStack helmetIcon = createIcon(Material.LEATHER_HELMET, "helm");
-        ItemStack chestIcon = createIcon(Material.LEATHER_CHESTPLATE, "chest");
+        ItemStack chestIcon = createIcon(Material.LEATHER_CHESTPLATE, "currentChestplate");
         ItemStack pantsIcon = createIcon(Material.LEATHER_LEGGINGS, "pants");
-        ItemStack feetsiesIcon = createIcon(Material.LEATHER_BOOTS, "boots");
+        ItemStack bootsIcon = createIcon(Material.LEATHER_BOOTS, "boots");
         ItemStack rightHandIcon = createIcon(Material.WOODEN_SWORD, "rhand");
         ItemStack leftHandIcon = createIcon(Material.SHIELD, "lhand");
         ItemStack[] items =
             {
-                helmetIcon, chestIcon, pantsIcon, feetsiesIcon, rightHandIcon, leftHandIcon, disabledIcon, disabledIcon, disabledIcon,
-                helmet, chest, pants, feetsies, rightHand, leftHand, disabledIcon, disabledIcon, disabledIcon
+                helmetIcon, chestIcon, pantsIcon, bootsIcon, rightHandIcon, leftHandIcon, disabledIcon, disabledIcon, disabledIcon,
+                    currentHelmet, currentChestplate, currentLeggings, currentBoots, currentMainHandItem, currentOffHandItem, disabledIcon, disabledIcon, disabledIcon
             };
         menuInv.setContents(items);
     }
@@ -113,7 +117,7 @@ public class EquipmentMenu {
         // This looks at 'equipslot.helm'
         String friendlyName = pe.plugin.getLang().getString("equipslot." + slot);
 
-        // 2. Get the description name (e.g., "Helmet" or "Feetsies")
+        // 2. Get the description name (e.g., "Helmet" or "boots")
         // This looks at 'equipslot.description.helm'
         String friendlyDesc = pe.plugin.getLang().getString("equipslot.description." + slot);
 
@@ -147,7 +151,7 @@ public class EquipmentMenu {
         helmet = notNull(menuInv.getItem(9));
         chest = notNull(menuInv.getItem(10));
         pants = notNull(menuInv.getItem(11));
-        feetsies = notNull(menuInv.getItem(12));
+        boots = notNull(menuInv.getItem(12));
         rightHand = notNull(menuInv.getItem(13));
         leftHand = notNull(menuInv.getItem(14));
 
@@ -155,18 +159,19 @@ public class EquipmentMenu {
         equipment.setHelmet(helmet);
         equipment.setChestplate(chest);
         equipment.setLeggings(pants);
-        equipment.setBoots(feetsies);
+        equipment.setBoots(boots);
         equipment.setItemInMainHand(rightHand);
         equipment.setItemInOffHand(leftHand);
 
         checkForChanges();
     }
 
+    @SuppressWarnings("java:S2209")
     private void checkForChanges() {
         debug.log("Equipping ArmorStand and checking changes.");
         Player player = pe.getPlayer();
-        ItemStack[] oldArray = new ItemStack[]{oldHelmet, oldChest, oldPants, oldFeetsies, oldRightHand, oldLeftHand};
-        ItemStack[] newArray = new ItemStack[]{helmet, chest, pants, feetsies, rightHand, leftHand};
+        ItemStack[] oldArray = new ItemStack[]{oldHelmet, oldChest, oldPants, oldBoots, oldRightHand, oldLeftHand};
+        ItemStack[] newArray = new ItemStack[]{helmet, chest, pants, boots, rightHand, leftHand};
 
         boolean change = false;
         if (hasChanged(oldHelmet, helmet)) {
@@ -184,9 +189,9 @@ public class EquipmentMenu {
             oldPants = pants;
             change = true;
         }
-        if (hasChanged(oldFeetsies, feetsies)) {
-            debug.log("Boots changed from " + oldFeetsies + " to " + feetsies);
-            oldFeetsies = feetsies;
+        if (hasChanged(oldBoots, boots)) {
+            debug.log("Boots changed from " + oldBoots + " to " + boots);
+            oldBoots = boots;
             change = true;
         }
         if (hasChanged(oldRightHand, rightHand)) {
