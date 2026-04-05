@@ -43,9 +43,8 @@ jobs:
             ${{ runner.os }}-gradle-
 
       # 4. Build and verify with Gradle
-
       - name: Clean and Build
-        run: ./gradlew clean build --no-daemon
+        run: ./gradlew clean shadowJar --no-daemon
 
       # 5. Optional: Run tests
       - name: Run tests
