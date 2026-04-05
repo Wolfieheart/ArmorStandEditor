@@ -1,6 +1,14 @@
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'com.gradleup.shadow' version '9.4.1'
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'com.google.guava:guava:33.3.1-jre'
+        force 'com.google.code.gson:gson:2.11.0'
+        force 'it.unimi.dsi:fastutil:8.5.15'
+    }
 }
 
 group = 'io.github.rypofalem.armorstandeditor'
@@ -31,6 +39,7 @@ java {
 
 repositories {
     mavenCentral()
+    gradlePluginPortal()
     maven { url = "https://repo.papermc.io/repository/maven-public/" }
     maven { url = "https://maven.enginehub.org/repo/" }
     maven { url = "https://oss.sonatype.org/content/groups/public/" }
@@ -117,7 +126,6 @@ shadowJar {
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    minimize()
 }
 
 // Regular JAR task for plugin
@@ -133,6 +141,9 @@ tasks.jar {
 }
 
 // Ensure build produces the normal plugin JAR, not ShadowJar
-tasks.build {
+/*tasks.build {
     dependsOn tasks.jar
+}*/
+tasks.build{
+    dependsOn shadowJar
 }

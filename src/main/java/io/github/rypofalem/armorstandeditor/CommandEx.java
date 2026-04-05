@@ -309,17 +309,13 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     private void commandUpdate(Player player) {
         if (!(checkPermission(player, "update", true))) return;
 
-        //Only Run if the Update Command Works
         debug.log("Current ArmorStandEditor Version is: " + ArmorStandEditorPlugin.ASE_VERSION);
-        if (!plugin.getHasFolia() && plugin.getRunTheUpdateChecker()) {
+
+        if (plugin.getRunTheUpdateChecker()) {
             debug.log("Plugin is on Server: Paper/Spigot or a fork thereof.");
-            new UpdateChecker(plugin).checkForUpdates();
-        } else if (plugin.getHasFolia()) {
-            debug.log("Plugin is on Folia");
-            player.sendMessage(text("[ArmorStandEditor] Update Checker does not currently work on Folia.", YELLOW));
-            player.sendMessage(text("[ArmorStandEditor] Report all bugs to: https://github.com/Wolfieheart/ArmorStandEditor/issues", YELLOW));
+            new UpdateChecker(plugin).checkForUpdatesAndNotify(player);
         } else {
-            player.sendMessage(text("[ArmorStandEditor] Update Checker is not enabled on this server", YELLOW));
+            player.sendMessage(text("[ArmorStandEditor] Update Checker is not enabled on this server.", YELLOW));
         }
     }
 
