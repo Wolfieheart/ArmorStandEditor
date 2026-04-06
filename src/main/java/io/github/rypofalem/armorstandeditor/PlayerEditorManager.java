@@ -26,6 +26,7 @@ import io.github.rypofalem.armorstandeditor.utils.Util;
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -44,6 +45,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
@@ -170,12 +172,15 @@ public class PlayerEditorManager implements Listener {
             if (player.getInventory().getItemInMainHand().getType() == Material.NAME_TAG && player.hasPermission("asedit.rename")) {
                 ItemStack nameTag = player.getInventory().getItemInMainHand();
                 Component getName;
-                if (nameTag.getItemMeta() != null && nameTag.getItemMeta().hasDisplayName()) {
-                    String name = plainText().serialize(nameTag.getItemMeta().displayName());
-                    if (player.hasPermission("asedit.rename.color")) {
-                        getName = legacy('&').deserialize(name);
+                ItemMeta meta = nameTag.getItemMeta();
+                if (meta != null && meta.hasDisplayName()) {
+                    // The display name is stored as a raw MiniMessage string, so parse it into a Component
+                    Component displayName = MiniMessage.miniMessage().deserialize(
+                            plainText().serialize(meta.displayName()));
+                    if (!player.hasPermission("asedit.rename.color")) {
+                        getName = Component.text(plainText().serialize(displayName));
                     } else {
-                        getName = Component.text(name);
+                        getName = displayName;
                     }
                 } else {
                     getName = null;
