@@ -23,7 +23,7 @@ public class CoreProtectExtension {
 
     public void logChange(Player player, ArmorStand armorStand, @NotNull ItemStack[] oldContents, @NotNull ItemStack[] newContents) {
         if (!enabled) return;
-        try {
+        try {// As this is unstable due to being copied from net.coreprotect.listener.player.ArmorStandManipulateListener, it is prone to errors with updates
             if (!Config.getConfig(player.getWorld()).ITEM_TRANSACTIONS) {
                 return;
             }
