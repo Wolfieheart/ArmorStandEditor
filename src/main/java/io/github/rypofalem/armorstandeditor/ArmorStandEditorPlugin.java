@@ -72,7 +72,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String versionLogPrefix;
 
     //Hardcode the ASE Version
-    public static final String ASE_VERSION = "26.1.1-51-Alpha2";
+    public static final String ASE_VERSION = "26.1.1-51-BETA1";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;
@@ -126,6 +126,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String inUseTeam = "AS-InUse";
 
     //Blocked Names
+    boolean enableBlockedNames = false;
     List<String> blockedNames = new ArrayList<>();
 
     //Debugging Options.... Not Exposed globally
@@ -154,20 +155,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         //Get NMS Version
         nmsVersion = getServer().getMinecraftVersion();
         versionLogPrefix = warningMCVer + nmsVersion;
-
-        if (VersionUtil.fromString(nmsVersion).isNewerThan(MinecraftVersion.CURRENT_VERSION)) {
-            getLogger().info(versionLogPrefix);
-            getLogger().info("ArmorStandEditor is compatible with this version of Minecraft. Loading continuing.");
-        } else if (VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(MinecraftVersion.MINECRAFT_26_1_1)) {
-            getLogger().warning(versionLogPrefix);
-            getLogger().warning("ArmorStandEditor is compatible with this version of Minecraft, but it is not the latest supported version.");
-            getLogger().warning("Loading continuing, but please consider updating to the latest version.");
-        } else if (VersionUtil.fromString(nmsVersion).isOlderThan(MinecraftVersion.OLDEST_SUPPORTED_VERSION)) {
-            getLogger().severe(versionLogPrefix);
-            getLogger().severe("ArmorStandEditor is not compatible with this version of Minecraft. Please update to at least version 1.17. Loading failed.");
-            getLogger().info(SEPARATOR_FIELD);
-            getServer().getPluginManager().disablePlugin(this);
-        }
+        doVersionCheck();
 
         //If Paper and Folia are both FALSE - Disable the plugin
         if (!hasPaper && !hasFolia) {
@@ -182,8 +170,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         if (!hasFolia) {
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
             registerScoreboards(scoreboard);
-            asTeams.add(lockedTeam);
-            asTeams.add(inUseTeam);
+            if (!asTeams.contains(lockedTeam)) asTeams.add(lockedTeam);
+            if (!asTeams.contains(inUseTeam)) asTeams.add(inUseTeam);
         } else {
             runWarningsFolia();
         }
@@ -230,6 +218,22 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(editorManager, this);
 
 
+    }
+
+    private void doVersionCheck() {
+        if (VersionUtil.fromString(nmsVersion).isOlderThan(MinecraftVersion.OLDEST_SUPPORTED_VERSION)) {
+            getLogger().severe(versionLogPrefix);
+            getLogger().severe("ArmorStandEditor is not compatible with this version of Minecraft. Please update to at least version 1.17. Loading failed.");
+            getLogger().info(SEPARATOR_FIELD);
+            getServer().getPluginManager().disablePlugin(this);
+        } else if (VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(MinecraftVersion.MINECRAFT_26_1_1)) {
+            getLogger().warning(versionLogPrefix);
+            getLogger().warning("ArmorStandEditor is compatible with this version of Minecraft, but it is not the latest supported version.");
+            getLogger().warning("Loading continuing, but please consider updating to the latest version.");
+        } else {
+            getLogger().info(versionLogPrefix);
+            getLogger().info("ArmorStandEditor is compatible with this version of Minecraft. Loading continuing.");
+        }
     }
 
 
@@ -295,8 +299,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         }
     }
 
-    public String getNmsVersion() {
-        return this.getMinecraftVersion();
+    public String getNmsVersion() { return getServer().getMinecraftVersion();
     }
 
     public boolean getHasPaper() {
@@ -404,7 +407,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             Component itemName = itemMeta.displayName();
 
             //If the name of the Edit Tool is not the Name specified in Config then Return false
-            if (!itemName.equals(editToolName)) {
+            if (itemName == null || !itemName.equals(editToolName)) {
                 return false;
             }
 
@@ -545,7 +548,16 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         adminOnlyNotifications = getConfig().getBoolean("adminOnlyNotifications", true);
 
-        blockedNames = getConfig().getStringList("blocked-names");
+        enableBlockedNames = getConfig().getBoolean("enableBlockedNames", true);
+        if(enableBlockedNames){
+            blockedNames = getConfig().getStringList("blocked-names");
+            if (!blockedNames.isEmpty()) {
+                getLogger().info("Blocked Names Enabled. The following names are blocked from being used on Armor Stands:");
+                for (String name : blockedNames) {
+                    getLogger().info("- " + name);
+                }
+            }
+        }
 
         debugFlag = getConfig().getBoolean("debugFlag", false);
         if (debugFlag) {
@@ -562,9 +574,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             unregisterScoreboards(scoreboard);
         }
 
-        //Perform Reload
-        reloadConfig();
-
         //Re-Register Scoreboards
         if (!hasFolia) {
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
@@ -575,10 +584,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             runWarningsFolia();
         }
 
-        //Reload Config File
+        //Reload Config File + load the config values
         reloadConfig();
-
-        // load the new config values
         loadConfigValues();
 
 
@@ -612,8 +619,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
                 Map<String, Integer> entry = new HashMap<>();
     
                 String languageUsed = getConfig().getString("lang");
-                assert languageUsed != null;
-    
                 if (languageUsed.startsWith("nl")) {
                     map.put("Dutch", entry);
                 } else if (languageUsed.startsWith("de")) {

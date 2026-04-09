@@ -115,6 +115,7 @@ adminOnlyNotifications: false
 #----------- BLOCKED NAMES
 # Armor stands with the following names will not be able to be edited
 # Use exact name matching (case sensitive)
+enableBlockedNames: false
 blocked-names:
   - "BlockedArmorStandName"
   # - "ItemsAdder_furniture"
