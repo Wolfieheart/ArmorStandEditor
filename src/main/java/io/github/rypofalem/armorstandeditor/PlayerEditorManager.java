@@ -376,6 +376,14 @@ public class PlayerEditorManager implements Listener {
 
 
     boolean canEdit(Player player, Entity entity) {
+        // Check if the entity has a blocked name
+        if (entity.customName() != null) {
+            String name = plainText().serialize(entity.customName());
+            if (plugin.blockedNames.contains(name)) {
+                return false;
+            }
+        }
+
         // Check if all protections allow this edit, if one fails, don't allow edit
         return protections.stream().allMatch(protection -> protection.checkPermission(entity, player));
     }
