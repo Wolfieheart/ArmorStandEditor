@@ -112,6 +112,13 @@ allowedToRetrieveOwnPlayerHead: false
 #if this setting is made true
 adminOnlyNotifications: false
 
+#----------- BLOCKED NAMES
+# Armor stands with the following names will not be able to be edited
+# Use exact name matching (case sensitive)
+blocked-names:
+  - "BlockedArmorStandName"
+  # - "ItemsAdder_furniture"
+
 #Debug Mode - For Development and Support Purposes ONLY!
 # --- Do Not Enable. Will Generate ALOT OF NOISE in your Log Files
 debugFlag: false

@@ -128,6 +128,9 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String lockedTeam = "ASLocked";
     String inUseTeam = "AS-InUse";
 
+    //Blocked Names
+    List<String> blockedNames = new ArrayList<>();
+
     //Debugging Options.... Not Exposed globally
     boolean debugFlag;
 
@@ -548,6 +551,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         allowedToRetrieveOwnPlayerHead = getConfig().getBoolean("allowedToRetrieveOwnPlayerHead", true);
 
         adminOnlyNotifications = getConfig().getBoolean("adminOnlyNotifications", true);
+
+        blockedNames = getConfig().getStringList("blocked-names");
 
         debugFlag = getConfig().getBoolean("debugFlag", false);
         if (debugFlag) {
