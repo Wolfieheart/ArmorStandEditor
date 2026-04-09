@@ -1,0 +1,162 @@
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version '9.4.1'
+    id "org.sonarqube" version "6.2.0.5505"
+}
+
+jar {
+    enabled = false
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "wolfieheart_ArmorStandEditor"
+        property "sonar.organization", "wolfieheart"
+        property "sonar.host.url", "https://sonarcloud.io"
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'com.google.guava:guava:33.3.1-jre'
+        force 'com.google.code.gson:gson:2.11.0'
+        force 'it.unimi.dsi:fastutil:8.5.15'
+    }
+}
+
+group = 'io.github.rypofalem.armorstandeditor'
+
+// Read version from plugin.yml at configuration time
+version = getPluginVersion()
+
+String getPluginVersion() {
+    File pluginYml = file('src/main/resources/plugin.yml')
+    if (!pluginYml.exists()) {
+        return '0.0.0'
+    }
+
+    String versionLine = pluginYml.readLines().find { it =~ /^version:\s*/ }
+    if (versionLine == null) {
+        return '0.0.0'
+    }
+
+    String extractedVersion = versionLine.replaceAll(/^version:\s*['"]?(.+?)['"]?\s*$/, '$1')
+    return extractedVersion ?: '0.0.0'
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
+
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+    maven { url = "https://repo.papermc.io/repository/maven-public/" }
+    maven { url = "https://maven.enginehub.org/repo/" }
+    maven { url = "https://oss.sonatype.org/content/groups/public/" }
+    maven { url = "https://s01.oss.sonatype.org/content/groups/public/" }
+    maven { url = "https://s01.oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url = "https://repo.glaremasters.me/repository/towny/" }
+    maven { url = "https://repo.glaremasters.me/repository/bloodshot/" }
+    maven { url = "https://jitpack.io" }
+    maven { url = "https://repo.bg-software.com/repository/api/" }
+    maven { url = "https://repo.codemc.org/repository/maven-public/" }
+    maven { url = "https://maven.playpro.com" }
+}
+
+dependencies {
+    // Paper API only (compile-time)
+    compileOnly "io.papermc.paper:paper-api:26.1.1.build.+"
+    compileOnly "dev.folia:folia-api:1.20.1-R0.1-SNAPSHOT"
+
+    // Adventure
+    compileOnly "net.kyori:adventure-api:4.25.0"
+    compileOnly "net.kyori:adventure-text-minimessage:4.25.0"
+
+    // WorldGuard
+    compileOnly "com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT"
+
+    // PlotSquared
+    compileOnly("com.intellectualsites.plotsquared:plotsquared-core:7.5.12") {
+        exclude group: "net.kyori"
+    }
+    compileOnly("com.intellectualsites.plotsquared:plotsquared-bukkit:7.5.12") {
+        exclude group: "net.kyori"
+    }
+
+    // Towny
+    compileOnly "com.palmergames.bukkit.towny:towny:0.102.0.7"
+
+    // SuperiorSkyblock
+    compileOnly "com.bgsoftware:SuperiorSkyblockAPI:2024.1"
+
+    // GriefDefender
+    compileOnly("com.griefdefender:api:2.1.1-SNAPSHOT") {
+        exclude group: "net.kyori"
+    }
+
+    // Lands
+    compileOnly "com.github.angeschossen:LandsAPI:7.25.4"
+
+    // Bentobox (compileOnly to avoid bundling)
+    compileOnly "world.bentobox:bentobox:2.7.0-SNAPSHOT"
+
+    // ItemAdder
+    compileOnly "com.github.LoneDev6:api-itemsadder:3.6.1"
+
+    // CoreProtect
+    compileOnly "net.coreprotect:coreprotect:23.1"
+
+    // Lombok
+    compileOnly "org.projectlombok:lombok:1.18.44"
+    annotationProcessor "org.projectlombok:lombok:1.18.44"
+
+    // PaperLib (needs to be shaded)
+    implementation "io.papermc:paperlib:1.0.8"
+    
+    // Testing
+    testImplementation "junit:junit:4.13.2"
+}
+
+// Compile UTF-8
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+// ShadowJar only for PaperLib relocation
+shadowJar {
+    archiveBaseName.set('ArmorStandEditor')
+    archiveVersion.set(project.version.toString())
+    mergeServiceFiles()
+
+    relocate 'io.papermc.lib', 'io.github.rypofalem.armorstandeditor.libs.paperlib'
+
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+}
+
+// Regular JAR task for plugin
+tasks.jar {
+    from('src/main/resources') {
+        include 'plugin.yml'
+    }
+    archiveBaseName.set('ArmorStandEditor')
+    archiveVersion.set(project.version.toString())
+
+    // Fix duplicate plugin.yml issue
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// Ensure build produces the normal plugin JAR, not ShadowJar
+/*tasks.build {
+    dependsOn tasks.jar
+}*/
+tasks.build{
+    dependsOn shadowJar
+}

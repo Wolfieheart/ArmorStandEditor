@@ -1,110 +1,112 @@
-/*
- * ArmorStandEditor: Bukkit plugin to allow editing armor stand attributes
- * Copyright (C) 2016-2023  RypoFalem
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
 package io.github.rypofalem.armorstandeditor;
-
-import io.papermc.lib.PaperLib;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import java.util.function.Consumer;
-
+/**
+ * Folia & Paper-compatible Scheduler utility.
+ * Handles runTask, runTaskLater, runTaskTimer, entity-based and location-based tasks safely.
+ */
 public class Scheduler {
 
-    private static Boolean IS_FOLIA = null;
-    private static Object GLOBAL_REGION_SCHEDULER = null;
+    private final Plugin plugin;
+    private final boolean isFolia;
 
-    public static <T> T callMethod(Class<?> clazz, Object object, String methodName, Class<?>[] parameterTypes, Object... args) {
+    public Scheduler(Plugin plugin) {
+        this.plugin = plugin;
+        this.isFolia = detectFolia();
+    }
+
+    /** Detects if the server is running Folia */
+    private static boolean detectFolia() {
         try {
-            return (T) clazz.getDeclaredMethod(methodName, parameterTypes).invoke(object, args);
-        } catch (Throwable t) {
-            throw new IllegalStateException(t);
-        }
-    }
-
-    public static <T> T callMethod(Object object, String methodName, Class<?>[] parameterTypes, Object... args) {
-        return callMethod(object.getClass(), object, methodName, parameterTypes, args);
-    }
-
-    public static <T> T callMethod(Class<?> clazz, String methodName) {
-        return callMethod(clazz, null, methodName, new Class[]{});
-    }
-
-    private static boolean methodExist(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
-        try {
-            clazz.getDeclaredMethod(methodName, parameterTypes);
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
             return true;
-        } catch (Throwable ignored) {
-        }
-        return false;
-    }
-
-    public static Boolean isFolia() {
-        try {
-            Class.forName("io.papermc.paper.threadedregions.ThreadedRegionizer");
-        }
-        catch (Exception e) {
+        } catch (ClassNotFoundException _) {
             return false;
         }
-        return true;
     }
 
-    public static Object getGlobalRegionScheduler() {
-        if (GLOBAL_REGION_SCHEDULER == null) {
-            GLOBAL_REGION_SCHEDULER = callMethod(Bukkit.class, "getGlobalRegionScheduler");
+    /** Run a task on the next tick */
+    public void runTask(Runnable task) {
+        if (isFolia) {
+            Bukkit.getGlobalRegionScheduler().run(plugin, _ -> task.run());
+        } else {
+            Bukkit.getScheduler().runTask(plugin, task);
         }
-        return GLOBAL_REGION_SCHEDULER;
     }
 
-    public static void runTask(Plugin plugin, Runnable runnable) {
-        if (isFolia()) {
-            Object globalRegionScheduler = getGlobalRegionScheduler();
-            callMethod(globalRegionScheduler, "run", new Class[]{Plugin.class, Consumer.class}, plugin, (Consumer<?>) (task) -> runnable.run());
-            return;
+    /** Run a delayed task */
+    public void runTaskLater(Runnable task, long delayTicks) {
+        if (isFolia) {
+            Bukkit.getGlobalRegionScheduler().runDelayed(plugin, _ -> task.run(), delayTicks);
+        } else {
+            Bukkit.getScheduler().runTaskLater(plugin, task, delayTicks);
         }
-        Bukkit.getScheduler().runTask(plugin, runnable);
     }
 
-    public static void runTaskTimer(Plugin plugin, Runnable runnable, long initialDelayTicks, long periodTicks) {
-        if (isFolia()) {
-            Object globalRegionScheduler = getGlobalRegionScheduler();
-            callMethod(globalRegionScheduler, "runAtFixedRate", new Class[]{Plugin.class, Consumer.class, long.class, long.class},
-                plugin, (Consumer<?>) (task) -> runnable.run(), initialDelayTicks, periodTicks);
-            return;
+    /** Run a repeating task (Folia-compatible) */
+    public void runTaskTimer(Runnable task, long delayTicks, long periodTicks) {
+        if (isFolia) {
+            Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, _ -> task.run(), delayTicks, periodTicks);
+        } else {
+            Bukkit.getScheduler().runTaskTimer(plugin, task, delayTicks, periodTicks);
         }
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, runnable, initialDelayTicks, periodTicks);
     }
 
-    public static void runTaskLater(Plugin plugin, Runnable runnable, long delayedTicks) {
-        if (isFolia()) {
-            Object globalRegionScheduler = getGlobalRegionScheduler();
-            callMethod(globalRegionScheduler, "runDelayed", new Class[]{Plugin.class, Consumer.class, long.class},
-                plugin, (Consumer<?>) (task) -> runnable.run(), delayedTicks);
-            return;
+    /** Recursive helper for Folia repeating tasks */
+    private void scheduleRepeating(Runnable task, long periodTicks) {
+        Bukkit.getGlobalRegionScheduler().run(plugin, _ -> {
+            task.run();
+            scheduleRepeating(task, periodTicks);
+        });
+    }
+
+    /** Teleport an entity safely */
+    public void teleport(Entity entity, Location location) {
+        if (isFolia) {
+            entity.teleportAsync(location);
+        } else {
+            entity.teleport(location);
         }
-        Bukkit.getScheduler().runTaskLater(plugin, runnable, delayedTicks);
     }
 
-    public static void teleport(Entity entity, Location location) {
-        if (isFolia()) PaperLib.teleportAsync(entity, location);
-        else entity.teleport(location);
+    /** Run a task for a specific entity */
+    public void runForEntity(Entity entity, Runnable task) {
+        if (isFolia) {
+            entity.getScheduler().run(plugin, _ -> task.run(), null);
+        } else {
+            runTask(task);
+        }
+    }
+
+    public void dropItem(Location location, ItemStack item) {
+        Runnable task = () -> location.getWorld().dropItemNaturally(location, item);
+        if (isFolia) {
+            Bukkit.getRegionScheduler().run(plugin, location, _ -> task.run());
+        } else {
+            task.run();
+        }
+    }
+
+    /** Run a task at a specific location (region-safe) */
+    public void runAtLocation(Location location, Runnable task) {
+        if (isFolia) {
+            Bukkit.getRegionScheduler().run(plugin, location, _ -> task.run());
+        } else {
+            runTask(task);
+        }
+    }
+
+    /** Run an async task (Paper only, Folia falls back to region scheduler) */
+    public void runAsync(Runnable task) {
+        if (isFolia) {
+            Bukkit.getAsyncScheduler().runNow(plugin, _ -> task.run());
+        } else {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, task);
+        }
     }
 }

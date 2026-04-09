@@ -24,10 +24,13 @@ import io.github.rypofalem.armorstandeditor.protections.*;
 import io.github.rypofalem.armorstandeditor.utils.Util;
 
 import io.papermc.lib.PaperLib;
-
 import net.kyori.adventure.text.Component;
 
-import org.bukkit.*;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Rotation;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -42,6 +45,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
@@ -50,21 +54,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacy;
 import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText;
 
 //Manages PlayerEditors and Player Events related to editing armorstands
 public class PlayerEditorManager implements Listener {
+
     private Debug debug;
     private ArmorStandEditorPlugin plugin;
     private HashMap<UUID, PlayerEditor> players;
+    private Scheduler scheduler;
+
     private ASEHolder menuHolder = new ASEHolder(); //Inventory holder that owns the main ase menu inventories for the plugin
     private ASEHolder equipmentHolder = new ASEHolder(); //Inventory holder that owns the equipment menu
     private ASEHolder presetHolder = new ASEHolder(); //Inventory Holder that owns the PresetArmorStand Post Menu
     private ASEHolder sizeMenuHolder = new ASEHolder(); //Inventory Holder that owns the PresetArmorStand Post Menu
+
+
     double coarseAdj;
     double fineAdj;
     double coarseMov;
@@ -88,18 +97,20 @@ public class PlayerEditorManager implements Listener {
 
     PlayerEditorManager(ArmorStandEditorPlugin plugin) {
         this.plugin = plugin;
-        this.debug = new Debug(plugin);
+        this.debug = plugin.debug;
+        this.scheduler = plugin.getScheduler();
+
         players = new HashMap<>();
         coarseAdj = Util.FULL_CIRCLE / plugin.coarseRot;
         fineAdj = Util.FULL_CIRCLE / plugin.fineRot;
         coarseMov = 1;
         fineMov = .03125; // 1/32
         counter = new TickCounter();
-        Scheduler.runTaskTimer(plugin, counter, 1, 1);
+        scheduler.runTaskTimer(counter, 1, 1);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    void onArmorStandSpawn(EntityPlaceEvent event){
+    void onArmorStandSpawn(EntityPlaceEvent event) {
         if (!(event.getEntity() instanceof ArmorStand armorStand)) return;
         debug.log("Entity being spawned is an ArmorStand");
 
@@ -107,9 +118,9 @@ public class PlayerEditorManager implements Listener {
         Location location = player.getLocation();
 
         debug.log("Player " + player.getName()
-                + " is placing an ArmorStand at (approx) X: " + Math.round(location.getX())
-                + ", Y: " + Math.round(location.getY())
-                + ", Z: " + Math.round(location.getZ())
+            + " is placing an ArmorStand at (approx) X: " + Math.round(location.getX())
+            + ", Y: " + Math.round(location.getY())
+            + ", Z: " + Math.round(location.getZ())
         );
 
         armorStand.setGravity(plugin.getDefaultGravity());
@@ -161,12 +172,15 @@ public class PlayerEditorManager implements Listener {
             if (player.getInventory().getItemInMainHand().getType() == Material.NAME_TAG && player.hasPermission("asedit.rename")) {
                 ItemStack nameTag = player.getInventory().getItemInMainHand();
                 Component getName;
-                if (nameTag.getItemMeta() != null && nameTag.getItemMeta().hasDisplayName()) {
-                    String name = plainText().serialize(nameTag.getItemMeta().displayName());
-                    if (player.hasPermission("asedit.rename.color")) {
-                        getName = legacy('&').deserialize(name);
+                ItemMeta meta = nameTag.getItemMeta();
+                if (meta != null && meta.hasDisplayName()) {
+                    // The display name is stored as a raw MiniMessage string, so parse it into a Component
+                    Component displayName = MiniMessage.miniMessage().deserialize(
+                            plainText().serialize(meta.displayName()));
+                    if (!player.hasPermission("asedit.rename.color")) {
+                        getName = Component.text(plainText().serialize(displayName));
                     } else {
-                        getName = Component.text(name);
+                        getName = displayName;
                     }
                 } else {
                     getName = null;
@@ -185,7 +199,7 @@ public class PlayerEditorManager implements Listener {
                     // minecraft will set the name after this event even if the event is cancelled.
                     // change it 1 tick later to apply formatting without it being overwritten
                     final Component finalgetName = getName;
-                    Bukkit.getScheduler().runTask(plugin, () -> {
+                    scheduler.runTask(() -> {
                         as.customName(finalgetName);
                         as.setCustomNameVisible(true);
                     });
@@ -237,7 +251,7 @@ public class PlayerEditorManager implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     void onArmorStandBreak(EntityDamageByEntityEvent event) { // Fixes issue #309
         if (!(event.getDamager() instanceof Player)) return; // If the damager is not a player, ignore.
-        if (!(event.getEntity()  instanceof ArmorStand)) return; // If the damaged entity is not an ArmorStand, ignore.
+        if (!(event.getEntity() instanceof ArmorStand)) return; // If the damaged entity is not an ArmorStand, ignore.
 
         if (event.getEntity() instanceof ArmorStand entityAS) {
             // Check if the ArmorStand is invulnerable and if the damager is a player.
@@ -454,7 +468,7 @@ public class PlayerEditorManager implements Listener {
                     return;
                 } else {
                     player.performCommand(command);
-                    Bukkit.getScheduler().runTask(plugin, () -> player.closeInventory());
+                    scheduler.runForEntity(player, player::closeInventory);
                     return;
                 }
             }
@@ -476,7 +490,7 @@ public class PlayerEditorManager implements Listener {
                 String itemName = item.getPersistentDataContainer().get(plugin.getIconKey(), PersistentDataType.STRING);
                 PlayerEditor pe = players.get(player.getUniqueId());
                 pe.presetPoseMenu.handlePresetPose(itemName, player);
-                Bukkit.getScheduler().runTask(plugin, () -> player.closeInventory());
+                scheduler.runForEntity(player, player::closeInventory);
             }
         }
 
@@ -488,7 +502,7 @@ public class PlayerEditorManager implements Listener {
                 String itemName = item.getPersistentDataContainer().get(plugin.getIconKey(), PersistentDataType.STRING);
                 PlayerEditor pe = players.get(player.getUniqueId());
                 pe.sizeModificationMenu.handleAttributeScaling(itemName, player);
-                Bukkit.getScheduler().runTask(plugin, () -> player.closeInventory());
+                scheduler.runForEntity(player, player::closeInventory);
             }
         }
     }

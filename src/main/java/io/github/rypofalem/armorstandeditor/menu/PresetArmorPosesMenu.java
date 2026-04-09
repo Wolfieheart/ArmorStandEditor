@@ -26,10 +26,10 @@ import io.github.rypofalem.armorstandeditor.PlayerEditor;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ItemLore;
 import io.papermc.paper.datacomponent.item.TooltipDisplay;
-
 import net.kyori.adventure.text.Component;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
@@ -44,14 +44,19 @@ public class PresetArmorPosesMenu {
     Inventory menuInv;
     private Debug debug;
     private final PlayerEditor pe;
-    public ArmorStandEditorPlugin plugin = ArmorStandEditorPlugin.instance();
+    public ArmorStandEditorPlugin plugin;
     private ArmorStand armorStand;
     Component name;
+
+    Sound soundToUse = Sound.BLOCK_COMPARATOR_CLICK;
+    Location playerLocation;
+    Integer volumePitch = 1;
 
     public PresetArmorPosesMenu(PlayerEditor pe, ArmorStand as) {
         this.pe = pe;
         this.armorStand = as;
-        this.debug = new Debug(pe.plugin);
+        this.plugin = pe.plugin;
+        this.debug = pe.plugin.debug;
         name = plugin.getLang().getMessage("presettitle", "menutitle");
         menuInv = Bukkit.createInventory(pe.getManager().getPresetHolder(), 36, name);
     }
@@ -126,62 +131,64 @@ public class PresetArmorPosesMenu {
         if (itemName == null) return;
         if (player == null) return;
 
+        playerLocation = player.getLocation();
+
         debug.log("Player '" + player.getName() + "' has chosen the Preset AS Pose '" + itemName + "'");
 
         //Do the Preset
         switch (itemName) {
             case "sitting" -> {
                 setPresetPose(player, 345, 0, 10, 350, 0, 350, 280, 20, 0, 280, 340, 0, 0, 0, 0, 0, 0, 0);
-                player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 1);
+                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
                 player.closeInventory();
             }
             case "waving" -> {
                 setPresetPose(player, 220, 20, 0, 350, 0, 350, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-                player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 1);
+                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
                 player.closeInventory();
             }
             case "greeting 1" -> {
                 setPresetPose(player, 260, 20, 0, 260, 340, 0, 340, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0);
-                player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 1);
+                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
                 player.closeInventory();
             }
             case "greeting 2" -> {
                 setPresetPose(player, 260, 10, 0, 260, 350, 0, 320, 0, 0, 10, 0, 0, 340, 0, 350, 0, 0, 0);
-                player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 1);
+                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
                 player.closeInventory();
             }
             case "archer" -> {
                 setPresetPose(player, 270, 350, 0, 280, 50, 0, 340, 0, 10, 20, 0, 350, 0, 0, 0, 0, 0, 0);
-                player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 1);
+                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
                 player.closeInventory();
             }
             case "dancing" -> {
                 setPresetPose(player, 14, 0, 110, 20, 0, 250, 250, 330, 0, 15, 330, 0, 350, 350, 0, 0, 0, 0);
-                player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 1);
+                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
                 player.closeInventory();
             }
             case "cheers" -> {
                 setPresetPose(player, 250, 60, 0, 20, 10, 0, 10, 0, 0, 350, 0, 0, 340, 0, 0, 0, 0, 0);
-                player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 1);
+                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
                 player.closeInventory();
             }
             case "hanging" -> {
                 setPresetPose(player, 1, 33, 67, -145, -33, -4, -42, 21, 1, -100, 0, -1, -29, -38, -18, 0, -4, 0);
-                player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 1);
+                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
                 player.closeInventory();
             }
             case "present" -> {
                 setPresetPose(player, 280, 330, 0, 10, 0, 350, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-                player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 1);
+                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
                 player.closeInventory();
             }
             case "fishing" -> {
                 setPresetPose(player, 300, 320, 0, 300, 40, 0, 280, 20, 0, 280, 340, 0, 0, 0, 0, 0, 0, 0);
-                player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 1);
+                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
                 player.closeInventory();
             }
             case "backtomenu" -> {
-                player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 1);
+                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
                 player.closeInventory();
                 pe.openMenu();
             }
@@ -194,18 +201,18 @@ public class PresetArmorPosesMenu {
         }
     }
 
-    public void triggerHowToPreset(Player player){
+    public void triggerHowToPreset(Player player) {
         player.sendMessage(pe.plugin.getLang().getMessage("howtopresetmsg"));
         player.sendMessage(pe.plugin.getLang().getMessage("helpurl"));
         player.sendMessage(pe.plugin.getLang().getMessage("helpdiscord"));
-        player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 1);
+        player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
         player.closeInventory();
     }
 
     public void setPresetPose(Player player, double rightArmRoll, double rightArmYaw, double rightArmPitch,
         double leftArmRoll, double leftArmYaw, double leftArmPitch,
         double rightLegRoll, double rightLegYaw, double rightLegPitch,
-        double leftLegRoll, double LeftLegYaw, double llp_yaw,
+        double leftLegRoll, double leftLegYaw, double leftLegPitch,
         double headRoll, double headYaw, double headPitch,
         double bodyRoll, double bodyYaw, double bodyPitch) {
 
@@ -235,9 +242,9 @@ public class PresetArmorPosesMenu {
 
         // Calculate and set left leg settings
         leftLegRoll = Math.toRadians(leftLegRoll);
-        LeftLegYaw = Math.toRadians(LeftLegYaw);
-        llp_yaw = Math.toRadians(llp_yaw);
-        EulerAngle leftLegEulerAngle = new EulerAngle(leftLegRoll, LeftLegYaw, llp_yaw);
+        leftLegYaw = Math.toRadians(leftLegYaw);
+        leftLegPitch = Math.toRadians(leftLegPitch);
+        EulerAngle leftLegEulerAngle = new EulerAngle(leftLegRoll, leftLegYaw, leftLegPitch);
         armorStand.setLeftLegPose(leftLegEulerAngle);
 
         // Calculate and set body settings

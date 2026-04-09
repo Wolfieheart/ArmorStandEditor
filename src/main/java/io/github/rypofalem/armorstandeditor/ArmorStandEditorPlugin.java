@@ -19,21 +19,16 @@
 
 package io.github.rypofalem.armorstandeditor;
 
-import de.jeff_media.updatechecker.UpdateChecker;
-import de.jeff_media.updatechecker.UserAgentBuilder;
-
-import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
-import io.github.rypofalem.armorstandeditor.Metrics.SimplePie;
+import io.github.rypofalem.armorstandeditor.coreprotect.CoreProtectExtension;
 import io.github.rypofalem.armorstandeditor.language.Language;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
+import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
+import io.github.rypofalem.armorstandeditor.Metrics.SimplePie;
 
 import io.papermc.lib.PaperLib;
-import io.papermc.paper.ServerBuildInfo;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import static net.kyori.adventure.text.format.NamedTextColor.RED;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -44,26 +39,28 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 
+import static net.kyori.adventure.text.format.NamedTextColor.RED;
+
 
 public class ArmorStandEditorPlugin extends JavaPlugin {
 
     //!!! DO NOT REMOVE THESE UNDER ANY CIRCUMSTANCES - Required for BStats and UpdateChecker !!!
-    public static final String HANGAR_LINK = "https://hangar.papermc.io/api/v1/projects/WolfieHeart/ArmorStandEditor-Reborn/latest?channel=Release";  //Used for Update Checker
-    private static final int PLUGIN_ID = 12668;		     //Used for BStats Metrics
-    public Debug debug;
+    private static final int PLUGIN_ID = 12668;             //Used for BStats Metrics
+    public final Debug debug = new Debug(this);
 
     private NamespacedKey iconKey;
     private static ArmorStandEditorPlugin instance;
     private Language lang;
+    private CoreProtectExtension coreProtectExtension;
 
     //Server Version Detection: Paper or Spigot and Invalid NMS Version
     String nmsVersion;
@@ -75,7 +72,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String versionLogPrefix;
 
     //Hardcode the ASE Version
-    public static final String ASE_VERSION = "1.21.11-50.1";
+    public static final String ASE_VERSION = "26.1.1-51-Alpha2";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;
@@ -103,7 +100,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     //Custom Data Model Support - Readded
     boolean allowCustomModelData = false;
-    Integer customModelDataInt = Integer.MIN_VALUE;
+    float customModelDataInt;
 
     //GUI Settings
     boolean requireSneaking = false;
@@ -134,7 +131,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     //Debugging Options.... Not Exposed globally
     boolean debugFlag;
 
-    private static ArmorStandEditorPlugin plugin;
+    private Scheduler scheduler;
 
     public ArmorStandEditorPlugin() {
         instance = this;
@@ -142,6 +139,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        scheduler = new Scheduler(this);
 
         if (!getHasFolia())
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
@@ -157,10 +155,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         nmsVersion = getServer().getMinecraftVersion();
         versionLogPrefix = warningMCVer + nmsVersion;
 
-        if (VersionUtil.fromString(nmsVersion).isNewerThanOrEquals(MinecraftVersion.CURRENT_VERSION)) {
+        if (VersionUtil.fromString(nmsVersion).isNewerThan(MinecraftVersion.CURRENT_VERSION)) {
             getLogger().info(versionLogPrefix);
             getLogger().info("ArmorStandEditor is compatible with this version of Minecraft. Loading continuing.");
-        } else if (VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(MinecraftVersion.MINECRAFT_1_21)) {
+        } else if (VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(MinecraftVersion.MINECRAFT_26_1_1)) {
             getLogger().warning(versionLogPrefix);
             getLogger().warning("ArmorStandEditor is compatible with this version of Minecraft, but it is not the latest supported version.");
             getLogger().warning("Loading continuing, but please consider updating to the latest version.");
@@ -188,6 +186,11 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             asTeams.add(inUseTeam);
         } else {
             runWarningsFolia();
+        }
+
+        //Run the update checker if enabled in config
+        if (getRunTheUpdateChecker()) {
+            new UpdateChecker(this).checkForUpdates();
         }
 
         getLogger().info(SEPARATOR_FIELD);
@@ -218,6 +221,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         editorManager = new PlayerEditorManager(this);
         CommandEx execute = new CommandEx(this);
+        coreProtectExtension = new CoreProtectExtension(this);
 
         //CommandExecution and TabCompletion
         Objects.requireNonNull(getCommand("ase")).setExecutor(execute);
@@ -225,25 +229,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(editorManager, this);
 
-    }
 
-    private void runUpdateCheckerConsoleUpdateCheck() {
-        UpdateChecker.init(this, HANGAR_LINK)
-            .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
-            .setColoredConsoleOutput(true)
-            .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())
-            .checkEveryXHours(updateCheckerInterval)
-            .checkNow();
-    }
-
-    private void runUpdateCheckerWithOPNotifyOnJoinEnabled() {
-        UpdateChecker.init(this, HANGAR_LINK)
-            .setDownloadLink("https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn")
-            .setColoredConsoleOutput(true)
-            .setNotifyOpsOnJoin(true)
-            .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion().addServerVersion())
-            .checkEveryXHours(updateCheckerInterval)
-            .checkNow();
     }
 
 
@@ -318,7 +304,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             Class.forName("io.papermc.paper.configuration.Configuration");
             nmsVersionNotLatest = "PaperMC ASAP.";
             return true;
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException _) {
             nmsVersionNotLatest = "";
             return false;
         }
@@ -328,7 +314,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         try {
             Class.forName("io.papermc.paper.threadedregions.ThreadedRegionizer");
             return true;
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException _) {
             return false;
         }
     }
@@ -384,8 +370,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return this.getConfig().getDouble("maxScaleValue");
     }
 
-    public Integer getCustomModelDataInt() {
-        return this.getConfig().getInt("customModelDataInt");
+    public float getCustomModelDataInt() {
+        return (float) this.getConfig().getDouble("customModelDataInt");
     }
 
     public boolean isEditTool(ItemStack itemStk) {
@@ -450,19 +436,26 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         }
 
-        if (allowCustomModelData && customModelDataInt != null) {
+        if (allowCustomModelData && customModelDataInt != 0) {
             //If the ItemStack does not have Metadata then we return false
             if (!itemStk.hasItemMeta()) {
                 return false;
             }
-            Integer itemCustomModel = itemMeta.getCustomModelData(); //TODO: Depreciated - TO Fix later
-            return itemCustomModel.equals(customModelDataInt);
+
+            ItemMeta meta = itemStk.getItemMeta();
+            CustomModelDataComponent component = meta.getCustomModelDataComponent();
+
+            if (component.getFloats().isEmpty()) return true;
+            // If there is no Custom Model Data, we return true since it is not required to be present.
+            // This allows for more flexibility in the use of the Edit Tool.
+
+            return component.getFloats().getFirst().intValue() == (double) customModelDataInt;
         }
 
         return true;
     }
 
-    public void loadConfigValues(){
+    public void loadConfigValues() {
         lang = new Language(getConfig().getString("lang"), this);
 
         //Rotation
@@ -557,18 +550,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         debugFlag = getConfig().getBoolean("debugFlag", false);
         if (debugFlag) {
             getServer().getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] ArmorStandEditor Debug Mode is now ENABLED! Use this ONLY for testing Purposes. If you can see this and you have debug disabled, please report it as a bug!");
-            debug = new Debug(this);
-        }
-
-        //Run UpdateChecker - Reports out to Console on Startup ONLY!
-        if (!hasFolia && runTheUpdateChecker) {
-
-            if (opUpdateNotification) {
-                runUpdateCheckerWithOPNotifyOnJoinEnabled();
-            } else {
-                runUpdateCheckerConsoleUpdateCheck();
-            }
-
         }
 
     }
@@ -608,85 +589,82 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
 
-    //Metrics/bStats Support
-    private void getMetrics() {
-
-        Metrics metrics = new Metrics(this, PLUGIN_ID);
-
-        //RequireToolLore Metric
-        metrics.addCustomChart(new SimplePie("tool_lore_enabled", () -> getConfig().getString("requireToolLore")));
-
-        //RequireToolData
-        metrics.addCustomChart(new SimplePie("tool_data_enabled", () -> getConfig().getString("requireToolData")));
-
-        //Send Messages to ActionBar
-        metrics.addCustomChart(new SimplePie("action_bar_messages", () -> getConfig().getString("sendMessagesToActionBar")));
-
-        //Check for Sneaking
-        metrics.addCustomChart(new SimplePie("require_sneaking", () -> getConfig().getString("requireSneaking")));
-
-        //Language is used
-        metrics.addCustomChart(new DrilldownPie("language_used", () -> {
-            Map<String, Map<String, Integer>> map = new HashMap<>();
-            Map<String, Integer> entry = new HashMap<>();
-
-            String languageUsed = getConfig().getString("lang");
-            assert languageUsed != null;
-
-            if (languageUsed.startsWith("nl")) {
-                map.put("Dutch", entry);
-            } else if (languageUsed.startsWith("de")) {
-                map.put("German", entry);
-            } else if (languageUsed.startsWith("es")) {
-                map.put("Spanish", entry);
-            } else if (languageUsed.startsWith("fr")) {
-                map.put("French", entry);
-            } else if (languageUsed.startsWith("ja")) {
-                map.put("Japanese", entry);
-            } else if (languageUsed.startsWith("pl")) {
-                map.put("Polish", entry);
-            } else if (languageUsed.startsWith("ru")) { //See PR# 41 by KPidS
-                map.put("Russian", entry);
-            } else if (languageUsed.startsWith("ro")) {
-                map.put("Romanian", entry);
-            } else if (languageUsed.startsWith("uk")) {
-                map.put("Ukrainian", entry);
-            } else if (languageUsed.startsWith("zh")) {
-                map.put("Chinese", entry);
-            } else if (languageUsed.startsWith("pt")) {
-                map.put("Brazilian", entry);
-            } else {
-                map.put("English", entry);
-            }
-            return map;
-        }));
-
-        //ArmorStandInvis Config
-        metrics.addCustomChart(new SimplePie("armor_stand_invisibility_usage", () -> getConfig().getString("armorStandVisibility")));
-
-        //ArmorStandInvis Config
-        metrics.addCustomChart(new SimplePie("itemframe_invisibility_used", () -> getConfig().getString("invisibleItemFrames")));
-
-        //Add tracking to see who is using Custom Naming in BStats
-        metrics.addCustomChart(new SimplePie("custom_toolname_enabled", () -> getConfig().getString("requireToolName")));
-
-        metrics.addCustomChart(new SimplePie("using_the_update_checker", () -> getConfig().getString("runTheUpdateChecker")));
-
-        metrics.addCustomChart(new SimplePie("op_updates", () -> getConfig().getString("opUpdateNotification")));
-
-        metrics.addCustomChart(new SimplePie("per_world_enabled", () -> String.valueOf(getConfig().getBoolean("enablePerWorldSupport"))));
-
-        metrics.addCustomChart(new SimplePie("allowCustomModelData", () -> String.valueOf(getConfig().getBoolean("allowCustomModelData"))));
-
-
-    }
+        //Metrics/bStats Support
+        private void getMetrics() {
+    
+            Metrics metrics = new Metrics(this, PLUGIN_ID);
+    
+            //RequireToolLore Metric
+            metrics.addCustomChart(new SimplePie("tool_lore_enabled", () -> getConfig().getString("requireToolLore")));
+    
+            //RequireToolData
+            metrics.addCustomChart(new SimplePie("tool_data_enabled", () -> getConfig().getString("requireToolData")));
+    
+            //Send Messages to ActionBar
+            metrics.addCustomChart(new SimplePie("action_bar_messages", () -> getConfig().getString("sendMessagesToActionBar")));
+    
+            //Check for Sneaking
+            metrics.addCustomChart(new SimplePie("require_sneaking", () -> getConfig().getString("requireSneaking")));
+    
+            //Language is used
+            metrics.addCustomChart(new DrilldownPie("language_used", () -> {
+                Map<String, Map<String, Integer>> map = new HashMap<>();
+                Map<String, Integer> entry = new HashMap<>();
+    
+                String languageUsed = getConfig().getString("lang");
+                assert languageUsed != null;
+    
+                if (languageUsed.startsWith("nl")) {
+                    map.put("Dutch", entry);
+                } else if (languageUsed.startsWith("de")) {
+                    map.put("German", entry);
+                } else if (languageUsed.startsWith("es")) {
+                    map.put("Spanish", entry);
+                } else if (languageUsed.startsWith("fr")) {
+                    map.put("French", entry);
+                } else if (languageUsed.startsWith("ja")) {
+                    map.put("Japanese", entry);
+                } else if (languageUsed.startsWith("pl")) {
+                    map.put("Polish", entry);
+                } else if (languageUsed.startsWith("ru")) { //See PR# 41 by KPidS
+                    map.put("Russian", entry);
+                } else if (languageUsed.startsWith("ro")) {
+                    map.put("Romanian", entry);
+                } else if (languageUsed.startsWith("uk")) {
+                    map.put("Ukrainian", entry);
+                } else if (languageUsed.startsWith("zh")) {
+                    map.put("Chinese", entry);
+                } else if (languageUsed.startsWith("pt")) {
+                    map.put("Brazilian", entry);
+                } else {
+                    map.put("English", entry);
+                }
+                return map;
+            }));
+    
+            //ArmorStandInvis Config
+            metrics.addCustomChart(new SimplePie("armor_stand_invisibility_usage", () -> getConfig().getString("armorStandVisibility")));
+    
+            //ArmorStandInvis Config
+            metrics.addCustomChart(new SimplePie("itemframe_invisibility_used", () -> getConfig().getString("invisibleItemFrames")));
+    
+            //Add tracking to see who is using Custom Naming in BStats
+            metrics.addCustomChart(new SimplePie("custom_toolname_enabled", () -> getConfig().getString("requireToolName")));
+    
+            metrics.addCustomChart(new SimplePie("using_the_update_checker", () -> getConfig().getString("runTheUpdateChecker")));
+    
+            metrics.addCustomChart(new SimplePie("op_updates", () -> getConfig().getString("opUpdateNotification")));
+    
+            metrics.addCustomChart(new SimplePie("per_world_enabled", () -> String.valueOf(getConfig().getBoolean("enablePerWorldSupport"))));
+    
+            metrics.addCustomChart(new SimplePie("allowCustomModelData", () -> String.valueOf(getConfig().getBoolean("allowCustomModelData"))));
+    
+    
+        }
 
 
     private void runWarningsFolia() {
         getLogger().warning("Scoreboards currently do not work on Folia. Scoreboard Coloring will not work");
-        getLogger().warning("This also means the Teams for ASLocked and AS-InUse will also not work. Sever Owners if you see this: ");
-        getLogger().warning("This is not a bug. Warn Players to be careful with ArmorStands and 2 people using them at the same time.... ");
-        getLogger().warning(".... as this is known to cause Duplicate Items. Also warn you server moderation team. ");
     }
 
 
@@ -704,6 +682,14 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     public String getASEVersion() {
         return ASE_VERSION;
+    }
+
+    public Scheduler getScheduler() {
+        return scheduler;
+    }
+
+    public CoreProtectExtension getCoreProtectExtension() {
+        return coreProtectExtension;
     }
 
 }

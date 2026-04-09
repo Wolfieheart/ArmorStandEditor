@@ -19,8 +19,6 @@
 
 package io.github.rypofalem.armorstandeditor;
 
-import de.jeff_media.updatechecker.UpdateChecker;
-
 import io.github.rypofalem.armorstandeditor.modes.AdjustmentMode;
 import io.github.rypofalem.armorstandeditor.modes.Axis;
 import io.github.rypofalem.armorstandeditor.modes.EditMode;
@@ -43,6 +41,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.util.EulerAngle;
 
 import java.util.ArrayList;
@@ -72,7 +71,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
 
     public CommandEx(ArmorStandEditorPlugin armorStandEditorPlugin) {
         this.plugin = armorStandEditorPlugin;
-        this.debug = new Debug(plugin);
+        this.debug = plugin.debug;
     }
 
     @Override
@@ -158,7 +157,11 @@ public class CommandEx implements CommandExecutor, TabCompleter {
         if (player.hasPermission("asedit.give")) {
             ItemStack stack = new ItemStack(plugin.getEditTool());
             ItemMeta meta = stack.getItemMeta();
-            meta.setCustomModelData(plugin.getCustomModelDataInt()); //TODO: Depreciated - Will need fixed later
+
+            CustomModelDataComponent dC = meta.getCustomModelDataComponent();
+            dC.setFloats(List.of(plugin.getCustomModelDataInt()));
+            meta.setCustomModelDataComponent(dC);
+
             meta.setUnbreakable(true);
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             stack.setItemMeta(meta);
@@ -171,12 +174,12 @@ public class CommandEx implements CommandExecutor, TabCompleter {
 
 
     private void commandResetWithinRange(Player player, String[] args) {
-        if(player.hasPermission("asedit.reset.withinRange")){
+        if (player.hasPermission("asedit.reset.withinRange")) {
             debug.log(" Player '" + player.getName() + "' is resetting armor stands within range.");
             double range = Double.parseDouble(args[1]);
             debug.log(" Range Chosen: " + range);
 
-            if(range > plugin.getMaxResetRange()){
+            if (range > plugin.getMaxResetRange()) {
                 player.sendMessage(plugin.getLang().getMessage("resetwithinrangeexceed", "warn"));
                 return;
             }
@@ -184,7 +187,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
             Location playerLoc = player.getLocation();
             plugin.editorManager.getPlayerEditor(player.getUniqueId()).resetArmorStandsWithinRange(playerLoc, range);
             player.sendMessage(plugin.getLang().getMessage("resetwithinrange", "info"));
-        } else{
+        } else {
             player.sendMessage(plugin.getLang().getMessage("nopermoption", "warn", "resetwithinrange"));
         }
     }
@@ -221,7 +224,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                     player.sendMessage(LISTSLOT);
                 }
 
-            } catch (NumberFormatException nfe) {
+            } catch (NumberFormatException _) {
                 player.sendMessage(LISTSLOT);
             }
         }
@@ -271,8 +274,10 @@ public class CommandEx implements CommandExecutor, TabCompleter {
         if (args.length > 1) {
             for (EditMode mode : EditMode.values()) {
                 if (mode.toString().toLowerCase().contentEquals(args[1].toLowerCase())) {
-                    if (args[1].equals("invisible") && !(checkPermission(player, "togglearmorstandvisibility", true) || plugin.getArmorStandVisibility())) return;
-                    if (args[1].equals("itemframe") && !(checkPermission(player, "toggleitemframevisibility", true) || plugin.getItemFrameVisibility())) return;
+                    if (args[1].equals("invisible") && !(checkPermission(player, "togglearmorstandvisibility", true) || plugin.getArmorStandVisibility()))
+                        return;
+                    if (args[1].equals("itemframe") && !(checkPermission(player, "toggleitemframevisibility", true) || plugin.getItemFrameVisibility()))
+                        return;
                     plugin.editorManager.getPlayerEditor(player.getUniqueId()).setMode(mode);
                     debug.log("Player '" + player.getName() + "' chose the mode: " + mode);
                     return;
@@ -304,17 +309,13 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     private void commandUpdate(Player player) {
         if (!(checkPermission(player, "update", true))) return;
 
-        //Only Run if the Update Command Works
         debug.log("Current ArmorStandEditor Version is: " + ArmorStandEditorPlugin.ASE_VERSION);
-        if (!plugin.getHasFolia() && plugin.getRunTheUpdateChecker()) {
+
+        if (plugin.getRunTheUpdateChecker()) {
             debug.log("Plugin is on Server: Paper/Spigot or a fork thereof.");
-            UpdateChecker.init(plugin, ArmorStandEditorPlugin.HANGAR_LINK).checkNow(player); //Runs Update Check
-        } else if (plugin.getHasFolia()) {
-            debug.log("Plugin is on Folia");
-            player.sendMessage(text("[ArmorStandEditor] Update Checker does not currently work on Folia.", YELLOW));
-            player.sendMessage(text("[ArmorStandEditor] Report all bugs to: https://github.com/Wolfieheart/ArmorStandEditor/issues", YELLOW));
+            new UpdateChecker(plugin).checkForUpdatesAndNotify(player);
         } else {
-            player.sendMessage(text("[ArmorStandEditor] Update Checker is not enabled on this server", YELLOW));
+            player.sendMessage(text("[ArmorStandEditor] Update Checker is not enabled on this server.", YELLOW));
         }
     }
 
@@ -377,19 +378,26 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     private boolean getPermissionBasic(Player player) {
         return checkPermission(player, "basic", false);
     }
+
     private boolean getPermissionUpdate(Player player) {
         return checkPermission(player, "update", false);
     }
+
     private boolean getPermissionReload(Player player) {
         return checkPermission(player, "reload", false);
     }
+
     private boolean getPermissionPlayerHead(Player player) {
         return checkPermission(player, "head", false);
     }
+
     private boolean getPermissionStats(Player player) {
         return checkPermission(player, "stats", false);
     }
-    private boolean getPermissionResetWithinRange(Player player) { return checkPermission(player, "reset.withinRange", false);    }
+
+    private boolean getPermissionResetWithinRange(Player player) {
+        return checkPermission(player, "reset.withinRange", false);
+    }
 
 
     //REFACTOR COMPLETION
@@ -404,9 +412,10 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                 argList.add("mode");
                 argList.add("axis");
                 argList.add("adj");
+                argList.add("adj");
                 argList.add("slot");
                 argList.add("help");
-                argList.add ("version");
+                argList.add("version");
 
                 argList.add("?");
 
@@ -425,7 +434,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                     argList.add("stats");
                 }
 
-                if(getPermissionResetWithinRange(player)){
+                if (getPermissionResetWithinRange(player)) {
                     argList.add("resetwithinrange");
                 }
             }
@@ -481,7 +490,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     }
 
     /*
-    * Helper Functions for Stats
+     * Helper Functions for Stats
      */
     private Component label(String label, Object value) {
         return text(label + ": ", YELLOW)

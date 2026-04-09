@@ -7,7 +7,6 @@ import io.github.rypofalem.armorstandeditor.PlayerEditor;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ItemLore;
 import io.papermc.paper.datacomponent.item.TooltipDisplay;
-
 import net.kyori.adventure.text.Component;
 
 import org.bukkit.Bukkit;
@@ -24,7 +23,7 @@ import java.util.Map;
 
 public class SizeMenu extends ASEHolder {
 
-    public ArmorStandEditorPlugin plugin = ArmorStandEditorPlugin.instance();
+    public ArmorStandEditorPlugin plugin;
     Inventory menuInv;
     private Debug debug;
     private PlayerEditor pe;
@@ -34,7 +33,8 @@ public class SizeMenu extends ASEHolder {
     public SizeMenu(PlayerEditor pe, ArmorStand as) {
         this.pe = pe;
         this.as = as;
-        this.debug = new Debug(pe.plugin);
+        this.debug = pe.plugin.debug;
+        this.plugin = pe.plugin;
         name = pe.plugin.getLang().getMessage("sizeMenu", "menutitle");
         menuInv = Bukkit.createInventory(pe.getManager().getSizeMenuHolder(), 27, name);
     }

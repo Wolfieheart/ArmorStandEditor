@@ -60,7 +60,7 @@ toolLore:
 #Also please if you are using this, ensure that you also give people the ability asedit.give in
 #order to allow them to change their edit tool for the right Custom Model Data
 allowCustomModelData: false
-customModelDataInt: 0
+customModelDataInt: 0.0
 
 
 #----------- ARMOR STAND SPECIFICS
