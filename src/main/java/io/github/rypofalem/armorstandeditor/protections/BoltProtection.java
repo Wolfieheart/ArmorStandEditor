@@ -18,7 +18,7 @@ public class BoltProtection implements Protection {
     public boolean checkPermission(Entity entity, Player player) {
 
         if (!boltenabled) return true;
-        if (player.isOp() || player.hasPermission("bolt.admin")) return true;
+        if (player.isOp() || player.hasPermission("asedit.ignoreProtection.bolt")) return true;
 
         if (!bolt.isProtected(entity)) return true;
 
