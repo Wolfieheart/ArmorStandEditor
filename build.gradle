@@ -21,6 +21,7 @@ configurations.configureEach {
         force 'com.google.guava:guava:33.3.1-jre'
         force 'com.google.code.gson:gson:2.11.0'
         force 'it.unimi.dsi:fastutil:8.5.15'
+        force 'org.popcraft:bolt-bukkit:1.1.33'
     }
 }
 
@@ -63,7 +64,7 @@ repositories {
     maven { url = "https://jitpack.io" }
     maven { url = "https://repo.bg-software.com/repository/api/" }
     maven { url = "https://repo.codemc.org/repository/maven-public/" }
-    maven {url = "https://repo.codemc.io/repository/maven-public/" }
+    maven { url = "https://repo.codemc.io/repository/maven-public/" }
     maven { url = "https://maven.playpro.com" }
 }
 
@@ -111,7 +112,8 @@ dependencies {
     compileOnly "net.coreprotect:coreprotect:23.1"
 
     // Bolt
-    compileOnly 'org.popcraft:bolt-bukkit:1.1.33'
+    compileOnly "org.popcraft:bolt-bukkit:1.1.33"
+    compileOnly "org.popcraft:bolt-common:1.1.33"
 
     // Lombok
     compileOnly "org.projectlombok:lombok:1.18.44"
