@@ -265,7 +265,7 @@
         <dependency>
             <groupId>org.popcraft</groupId>
             <artifactId>bolt-bukkit</artifactId>
-            <version>1.1.33</version>
+            <version>1.2.86</version>
             <scope>provided</scope>
         </dependency>
 
