@@ -77,6 +77,14 @@
             <id>codemc-repo</id>
             <url>https://repo.codemc.org/repository/maven-public/</url>
         </repository>
+
+        <!-- Bolt API -->
+        <repository>
+            <id>codemc-repo</id>
+            <url>https://repo.codemc.io/repository/maven-public/</url>
+        </repository>
+
+
     </repositories>
 
     <dependencyManagement>
@@ -252,6 +260,15 @@
             <version>1.18.34</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- Bolt -->
+        <dependency>
+            <groupId>org.popcraft</groupId>
+            <artifactId>bolt-bukkit</artifactId>
+            <version>1.1.33</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
     <!--Java 8-->
 
