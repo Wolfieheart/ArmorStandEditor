@@ -124,6 +124,9 @@ permissions:
   asedit.ignoreProtection.itemAdder:
     description: Allows user to ignore ItemAdder/LoneDev Protection Limitations.
     default: false
+  asedit.ignoreProtection.boltProtection:
+    description: Allows user to ignore Bolt Protection Limitations
+    default: false
 
   asedit.townyProtection.canEditInWild:
     description: Allows for editing in the Wilderness - ONLY use IF you have Towny
