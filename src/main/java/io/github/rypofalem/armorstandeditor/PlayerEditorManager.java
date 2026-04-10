@@ -84,7 +84,8 @@ public class PlayerEditorManager implements Listener {
         new TownyProtection(),
         new WorldGuardProtection(),
         new itemAdderProtection(),
-        new BentoBoxProtection());
+        new BentoBoxProtection(),
+        new BoltProtection());
 
     PlayerEditorManager(ArmorStandEditorPlugin plugin) {
         this.plugin = plugin;
