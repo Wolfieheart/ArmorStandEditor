@@ -21,10 +21,9 @@ package io.github.rypofalem.armorstandeditor.protections;
 import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
 import io.github.rypofalem.armorstandeditor.Debug;
 
-import com.palmergames.bukkit.towny.TownyAPI;
-import com.palmergames.bukkit.towny.object.TownyPermission;
-import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
-
+import com.palmergames.bukkit.towny.event.executors.TownyActionEventExecutor;
+import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
+import io.github.rypofalem.armorstandeditor.Debug;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -73,14 +72,7 @@ public class TownyProtection implements Protection {
                 return false;
             }
         }
-
-        // --- towny permission check ---
-        return PlayerCacheUtil.getCachePermission(
-            player,
-            entityOnBlock.getLocation(),            // use the stand's actual location
-            Material.ARMOR_STAND,                   // treat the target as an ArmorStand
-            TownyPermission.ActionType.BUILD
-        );
+        return TownyActionEventExecutor.canBuild(player, entityOnBlock.getLocation(), Material.ARMOR_STAND);
     }
 }
 
