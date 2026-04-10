@@ -68,12 +68,12 @@ repositories {
 
 dependencies {
     // Paper API only (compile-time)
-    compileOnly "io.papermc.paper:paper-api:26.1.1.build.+"
+    compileOnly "io.papermc.paper:paper-api:26.1.2.build.+"
     compileOnly "dev.folia:folia-api:1.20.1-R0.1-SNAPSHOT"
 
     // Adventure
-    compileOnly "net.kyori:adventure-api:4.25.0"
-    compileOnly "net.kyori:adventure-text-minimessage:4.25.0"
+    compileOnly "net.kyori:adventure-api:4.26.1"
+    compileOnly "net.kyori:adventure-text-minimessage:4.26.1"
 
     // WorldGuard
     compileOnly "com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT"
@@ -90,7 +90,7 @@ dependencies {
     compileOnly "com.palmergames.bukkit.towny:towny:0.102.0.13"
 
     // SuperiorSkyblock
-    compileOnly "com.bgsoftware:SuperiorSkyblockAPI:2024.1"
+    compileOnly "com.bgsoftware:SuperiorSkyblockAPI:2025.2.1"
 
     // GriefDefender
     compileOnly("com.griefdefender:api:2.1.1-SNAPSHOT") {
