@@ -23,6 +23,7 @@ public class BoltProtection implements Protection {
         this.plugin = ArmorStandEditorPlugin.instance();
     }
 
+    @Override
     public boolean checkPermission(Entity entity, Player player) {
         if (!boltenabled || player.isOp() || player.hasPermission("asedit.ignoreProtection.bolt")) return true;
         debug.log("Checking Bolt Protection for player " + player.getName() + " on entity " + entity.getUniqueId());

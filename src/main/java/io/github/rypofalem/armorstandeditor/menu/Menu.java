@@ -235,7 +235,7 @@ public class Menu {
                 "paste", "mode paste");
         }
 
-        if (pe.getPlayer().hasPermission("asedit.head") || pe.plugin.getallowedToRetrieveOwnPlayerHead()) {
+        if (pe.getPlayer().hasPermission("asedit.head") || pe.plugin.getAllowedToRetrieveOwnPlayerHead()) {
             playerHead = createIcon(ItemStack.of(Material.PLAYER_HEAD),
                 "playerheadmenu",
                 "playerhead");

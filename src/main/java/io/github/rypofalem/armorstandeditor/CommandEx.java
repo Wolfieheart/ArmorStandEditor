@@ -44,8 +44,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.util.EulerAngle;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,20 +51,20 @@ import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.AQUA;
 import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
 
-public class CommandEx implements CommandExecutor, TabCompleter {
+public class CommandEx implements CommandExecutor {
     ArmorStandEditorPlugin plugin;
-    final Component LISTMODE = text("/ase mode <" + Util.getEnumList(EditMode.class) + ">", YELLOW);
-    final Component LISTAXIS = text("/ase axis <" + Util.getEnumList(Axis.class) + ">", YELLOW);
-    final Component LISTADJUSTMENT = text("/ase adj <" + Util.getEnumList(AdjustmentMode.class) + ">", YELLOW);
-    final Component RESETWITHINRANGE = text("/ase resetWithinRange <range>", YELLOW);
-    final Component GIVE = text("/ase give", YELLOW);
-    final Component LISTSLOT = text("/ase slot <1-9>", YELLOW);
-    final Component HELP = text("/ase help or /ase ?", YELLOW);
-    final Component VERSION = text("/ase version", YELLOW);
-    final Component UPDATE = text("/ase update", YELLOW);
-    final Component RELOAD = text("/ase reload", YELLOW);
-    final Component GIVEPLAYERHEAD = text("/ase playerhead", YELLOW);
-    final Component GETARMORSTATS = text("/ase stats", YELLOW);
+    final Component listMode = text("/ase mode <" + Util.getEnumList(EditMode.class) + ">", YELLOW);
+    final Component listAxis = text("/ase axis <" + Util.getEnumList(Axis.class) + ">", YELLOW);
+    final Component listAdjustment = text("/ase adj <" + Util.getEnumList(AdjustmentMode.class) + ">", YELLOW);
+    final Component resetWithinRange = text("/ase resetWithinRange <range>", YELLOW);
+    final Component give = text("/ase give", YELLOW);
+    final Component listSlot = text("/ase slot <1-9>", YELLOW);
+    final Component help = text("/ase help or /ase ?", YELLOW);
+    final Component version = text("/ase version", YELLOW);
+    final Component update = text("/ase update", YELLOW);
+    final Component reload = text("/ase reload", YELLOW);
+    final Component givePlayerHead = text("/ase playerhead", YELLOW);
+    final Component getArmorStats = text("/ase stats", YELLOW);
     Debug debug;
 
     public CommandEx(ArmorStandEditorPlugin armorStandEditorPlugin) {
@@ -80,9 +78,9 @@ public class CommandEx implements CommandExecutor, TabCompleter {
         if (sender instanceof ConsoleCommandSender) { //Fix to Support #267
             debug.log("Sender is CONSOLE!");
             if (args.length == 0) {
-                sender.sendMessage(VERSION);
-                sender.sendMessage(HELP);
-                sender.sendMessage(RELOAD);
+                sender.sendMessage(version);
+                sender.sendMessage(help);
+                sender.sendMessage(reload);
                 return true;
             } else {
                 switch (args[0].toLowerCase()) {
@@ -105,17 +103,17 @@ public class CommandEx implements CommandExecutor, TabCompleter {
 
             debug.log("Sender is Player and asedit.basic is " + getPermissionBasic(player));
             if (args.length == 0) {
-                player.sendMessage(LISTMODE);
-                player.sendMessage(LISTAXIS);
-                player.sendMessage(LISTSLOT);
-                player.sendMessage(LISTADJUSTMENT);
-                player.sendMessage(VERSION);
-                player.sendMessage(UPDATE);
-                player.sendMessage(HELP);
-                player.sendMessage(RELOAD);
-                player.sendMessage(GIVEPLAYERHEAD);
-                player.sendMessage(GIVE);
-                player.sendMessage(GETARMORSTATS);
+                player.sendMessage(listMode);
+                player.sendMessage(listAxis);
+                player.sendMessage(listSlot);
+                player.sendMessage(listAdjustment);
+                player.sendMessage(version);
+                player.sendMessage(update);
+                player.sendMessage(help);
+                player.sendMessage(reload);
+                player.sendMessage(givePlayerHead);
+                player.sendMessage(give);
+                player.sendMessage(getArmorStats);
                 return true;
             }
             switch (args[0].toLowerCase()) {
@@ -132,17 +130,17 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                 case "stats" -> commandStats(player);
                 case "resetwithinrange" -> commandResetWithinRange(player, args);
                 default -> {
-                    sender.sendMessage(LISTMODE);
-                    sender.sendMessage(LISTAXIS);
-                    sender.sendMessage(LISTSLOT);
-                    sender.sendMessage(LISTADJUSTMENT);
-                    sender.sendMessage(RESETWITHINRANGE);
-                    sender.sendMessage(VERSION);
-                    sender.sendMessage(UPDATE);
-                    sender.sendMessage(HELP);
-                    sender.sendMessage(RELOAD);
-                    sender.sendMessage(GIVEPLAYERHEAD);
-                    sender.sendMessage(GETARMORSTATS);
+                    player.sendMessage(listMode);
+                    player.sendMessage(listAxis);
+                    player.sendMessage(listSlot);
+                    player.sendMessage(listAdjustment);
+                    player.sendMessage(version);
+                    player.sendMessage(update);
+                    player.sendMessage(help);
+                    player.sendMessage(reload);
+                    player.sendMessage(givePlayerHead);
+                    player.sendMessage(give);
+                    player.sendMessage(getArmorStats);
                 }
             }
             return true;
@@ -159,7 +157,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
             ItemMeta meta = stack.getItemMeta();
 
             CustomModelDataComponent dC = meta.getCustomModelDataComponent();
-            dC.setFloats(List.of(plugin.getCustomModelDataInt()));
+            dC.setFloats(List.of((float) plugin.getCustomModelDataValue()));
             meta.setCustomModelDataComponent(dC);
 
             meta.setUnbreakable(true);
@@ -193,7 +191,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     }
 
     private void commandGivePlayerHead(Player player) {
-        if (player.hasPermission("asedit.head") || plugin.getallowedToRetrieveOwnPlayerHead()) {
+        if (player.hasPermission("asedit.head") || plugin.getAllowedToRetrieveOwnPlayerHead()) {
             debug.log("Creating a player head for the OfflinePlayer '" + player.getName() + "'");
             OfflinePlayer offlinePlayer = player.getPlayer();
             ItemStack item = new ItemStack(Material.PLAYER_HEAD, 1);
@@ -211,7 +209,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
 
         if (args.length <= 1) {
             player.sendMessage(plugin.getLang().getMessage("noslotnumcom", "warn"));
-            player.sendMessage(LISTSLOT);
+            player.sendMessage(listSlot);
         }
 
         if (args.length > 1) {
@@ -221,11 +219,11 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                     debug.log("Player has chosen slot: " + slot);
                     plugin.editorManager.getPlayerEditor(player.getUniqueId()).setCopySlot(slot);
                 } else {
-                    player.sendMessage(LISTSLOT);
+                    player.sendMessage(listSlot);
                 }
 
             } catch (NumberFormatException _) {
-                player.sendMessage(LISTSLOT);
+                player.sendMessage(listSlot);
             }
         }
     }
@@ -233,7 +231,7 @@ public class CommandEx implements CommandExecutor, TabCompleter {
     private void commandAdj(Player player, String[] args) {
         if (args.length <= 1) {
             player.sendMessage(plugin.getLang().getMessage("noadjcom", "warn"));
-            player.sendMessage(LISTADJUSTMENT);
+            player.sendMessage(listAdjustment);
         }
 
         if (args.length > 1) {
@@ -243,14 +241,14 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                     return;
                 }
             }
-            player.sendMessage(LISTADJUSTMENT);
+            player.sendMessage(listAdjustment);
         }
     }
 
     private void commandAxis(Player player, String[] args) {
         if (args.length <= 1) {
             player.sendMessage(plugin.getLang().getMessage("noaxiscom", "warn"));
-            player.sendMessage(LISTAXIS);
+            player.sendMessage(listAxis);
         }
 
         if (args.length > 1) {
@@ -261,29 +259,24 @@ public class CommandEx implements CommandExecutor, TabCompleter {
                     return;
                 }
             }
-            player.sendMessage(LISTAXIS);
+            player.sendMessage(listAxis);
         }
     }
 
     private void commandMode(Player player, String[] args) {
         if (args.length <= 1) {
             player.sendMessage(plugin.getLang().getMessage("nomodecom", "warn"));
-            player.sendMessage(LISTMODE);
+            player.sendMessage(listMode);
+            return; // early return lets us drop the second `if` entirely
         }
 
-        if (args.length > 1) {
-            for (EditMode mode : EditMode.values()) {
-                if (mode.toString().toLowerCase().contentEquals(args[1].toLowerCase())) {
-                    if (args[1].equals("invisible") && !(checkPermission(player, "togglearmorstandvisibility", true) || plugin.getArmorStandVisibility()))
-                        return;
-                    if (args[1].equals("itemframe") && !(checkPermission(player, "toggleitemframevisibility", true) || plugin.getItemFrameVisibility()))
-                        return;
-                    plugin.editorManager.getPlayerEditor(player.getUniqueId()).setMode(mode);
-                    debug.log("Player '" + player.getName() + "' chose the mode: " + mode);
-                    return;
-                }
-            }
-        }
+        EditMode matched = findMatchingMode(args[1]);
+        if (matched == null) return;
+
+        if (!isVisibilityAllowed(player, args[1])) return;
+
+        plugin.editorManager.getPlayerEditor(player.getUniqueId()).setMode(matched);
+        debug.log("Player '" + player.getName() + "' chose the mode: " + matched);
     }
 
     private void commandHelp(Player player) {
@@ -399,95 +392,6 @@ public class CommandEx implements CommandExecutor, TabCompleter {
         return checkPermission(player, "reset.withinRange", false);
     }
 
-
-    //REFACTOR COMPLETION
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        List<String> argList = new ArrayList<>();
-        Player player = (Player) sender;
-
-        if (isCommandValid(command.getName())) {
-
-            if (args.length == 1) {
-                argList.add("mode");
-                argList.add("axis");
-                argList.add("adj");
-                argList.add("adj");
-                argList.add("slot");
-                argList.add("help");
-                argList.add("version");
-
-                argList.add("?");
-
-                //Will Only work with permissions
-                if (getPermissionUpdate(player)) {
-                    argList.add("update");
-                }
-                if (getPermissionReload(player)) {
-                    argList.add("reload");
-                }
-                if (getPermissionPlayerHead(player) || plugin.getallowedToRetrieveOwnPlayerHead()) {
-                    argList.add("playerhead");
-                }
-
-                if (getPermissionStats(player)) {
-                    argList.add("stats");
-                }
-
-                if (getPermissionResetWithinRange(player)) {
-                    argList.add("resetwithinrange");
-                }
-            }
-
-            if (args.length == 2 && args[0].equalsIgnoreCase("mode")) {
-                argList.addAll(getModeOptions());
-            }
-
-            if (args.length == 2 && args[0].equalsIgnoreCase("axis")) {
-                argList.addAll(getAxisOptions());
-            }
-
-            if (args.length == 2 && args[0].equalsIgnoreCase("slot")) {
-                argList.addAll(getSlotOptions());
-            }
-
-            if (args.length == 2 && args[0].equalsIgnoreCase("adj")) {
-                argList.addAll(getAdjOptions());
-            }
-
-            return argList.stream().filter(a -> a.startsWith(args[0])).toList();
-        }
-
-        return Collections.emptyList();
-    }
-
-    private boolean isCommandValid(String commandName) {
-        return commandName.equalsIgnoreCase("ase") ||
-            commandName.equalsIgnoreCase("armorstandeditor") ||
-            commandName.equalsIgnoreCase("asedit");
-    }
-
-    private List<String> getModeOptions() {
-        return List.of(
-            "None", "Invisible", "ShowArms", "Gravity", "BasePlate",
-            "Size", "Copy", "Paste", "Head", "Body", "LeftArm",
-            "RightArm", "LeftLeg", "RightLeg", "Placement",
-            "DisableSlots", "Rotate", "Equipment", "Reset",
-            "ItemFrame", "ItemFrameGlow", "Vulnerability", "ArmorStandGlow"
-        );
-    }
-
-    private List<String> getAxisOptions() {
-        return List.of("X", "Y", "Z");
-    }
-
-    private List<String> getSlotOptions() {
-        return List.of("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
-    }
-
-    private List<String> getAdjOptions() {
-        return List.of("Coarse", "Fine");
-    }
 
     /*
      * Helper Functions for Stats
@@ -628,5 +532,29 @@ public class CommandEx implements CommandExecutor, TabCompleter {
         }
     }
 
+
+
+    /**
+     * Returns the EditMode whose name matches the given argument (case-insensitive),
+     * or null if none matches.
+     */
+    private EditMode findMatchingMode(String arg) {
+        for (EditMode mode : EditMode.values()) {
+            if (mode.toString().equalsIgnoreCase(arg)) return mode;
+        }
+        return null;
+    }
+
+    /**
+     * Returns false if the requested mode is a restricted visibility toggle
+     * that the player lacks permission to use and the feature is disabled globally.
+     */
+    private boolean isVisibilityAllowed(Player player, String arg) {
+        if (arg.equals("invisible"))
+            return checkPermission(player, "togglearmorstandvisibility", true) || plugin.getArmorStandVisibility();
+        if (arg.equals("itemframe"))
+            return checkPermission(player, "toggleitemframevisibility", true) || plugin.getItemFrameVisibility();
+        return true;
+    }
 
 }

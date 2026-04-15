@@ -70,12 +70,12 @@ repositories {
 
 dependencies {
     // Paper API only (compile-time)
-    compileOnly "io.papermc.paper:paper-api:26.1.1.build.+"
+    compileOnly "io.papermc.paper:paper-api:26.1.2.build.+"
     compileOnly "dev.folia:folia-api:1.20.1-R0.1-SNAPSHOT"
 
     // Adventure
-    compileOnly "net.kyori:adventure-api:4.26.1"
-    compileOnly "net.kyori:adventure-text-minimessage:4.26.1"
+    compileOnly "net.kyori:adventure-api:5.0.0"
+    compileOnly "net.kyori:adventure-text-minimessage:5.0.0"
 
     // WorldGuard
     compileOnly "com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT"
