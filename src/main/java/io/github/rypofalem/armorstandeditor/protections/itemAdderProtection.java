@@ -1,8 +1,8 @@
 package io.github.rypofalem.armorstandeditor.protections;
 
-import dev.lone.itemsadder.api.CustomFurniture;
-
 import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
+
+import dev.lone.itemsadder.api.CustomFurniture;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -36,8 +36,8 @@ public class itemAdderProtection implements Protection {
         entities = world.getNearbyEntities(player.getLocation(), player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ());
 
         for (Entity e : entities) {
-            if (e instanceof ArmorStand) {
-                as = (ArmorStand) e;
+            if (e instanceof ArmorStand stand) {
+                as = stand;
                 break;
             }
         }

@@ -56,7 +56,7 @@ public class Language {
 
         try {
             input = new FileInputStream(langFile);
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException _) {
             return;
         }
 

@@ -1,6 +1,6 @@
 name: ArmorStandEditor
 main: io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin
-version: 1.21.11-50.1
+version: 26.1.2-51-BETA1
 api-version: "1.17"
 folia-supported: true
 website: https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn
@@ -124,9 +124,9 @@ permissions:
   asedit.ignoreProtection.itemAdder:
     description: Allows user to ignore ItemAdder/LoneDev Protection Limitations.
     default: false
-  asedit.ignoreProtection.bolt:
+  asedit.ignoreProtection.boltProtection:
     description: Allows user to ignore Bolt Protection Limitations
-    default: fase
+    default: false
 
   asedit.townyProtection.canEditInWild:
     description: Allows for editing in the Wilderness - ONLY use IF you have Towny

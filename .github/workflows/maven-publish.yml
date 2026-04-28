@@ -1,63 +1,78 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+name: Java CI with Gradle
+permissions:
+  contents: read
+  pull-requests: write
 
-name: Java CI with Maven
-on: [push, pull_request]
+on:
+  push:
+    branches: ["main"]
+  pull_request:
 
 jobs:
-  compile:
-    if: "!contains(github.event.head_commit.message, 'ci-skip') || !contains(github.event.head_commit.message, 'CI-SKIP') || !contains(github.event.head_commit.message, 'CI SKIP') || !contains(github.event.head_commit.message, 'ci skip') "
+  build:
+    if: "!contains(github.event.head_commit.message, 'ci-skip') && !contains(github.event.head_commit.message, 'CI-SKIP') && !contains(github.event.head_commit.message, 'CI SKIP') && !contains(github.event.head_commit.message, 'ci skip')"
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: ['21']
+        java: ['25']
+
     steps:
-      # 1. Check out the current working tree
+      # 1. Check out the repository
       - name: Checkout ArmorStandEditor Repository
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
 
-      # 2. Setup Java JDK
-      - name: Set up JDK Environments
+      # 2. Set up JDK
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java }}
           distribution: 'zulu'
 
-      # 3. Setup local Maven package cache to speed up building
-      - name: Cache SonarCloud packages
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      # 3. Cache Gradle packages
+      - name: Cache Gradle packages
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle', '**/settings.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # Cache SonarCloud for analysis
+      - name: Cache SonarCloud for Analysis
         uses: actions/cache@v5
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-          
-      - name: Cache Maven packages
-        uses: actions/cache@v5
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      
-      # 4. Build via Maven
-      - name: Build and analyze
+
+      # Build and analyze via Gradle + SonarCloud
+      - name: Build and Analyze via Gradle
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=wolfieheart_ArmorStandEditor
+        run: ./gradlew clean shadowJar sonar --no-daemon -Dsonar.projectKey=wolfieheart_ArmorStandEditor
 
-      #5: Create a Clean Package - and Verify it
-      - name: Clean package
-        run: mvn -B clean package
+      # 5. Optional: Run tests
+      - name: Run tests
+        run: ./gradlew test --no-daemon
 
-      - name: Clean Verify
-        run: mvn -B clean verify
+      # 6. Get Version from JAR name
+      - name: Get Version
+        id: get_version
+        run: echo "version=$(ls build/libs/ArmorStandEditor-*-all.jar | sed 's/.*ArmorStandEditor-\(.*\)-all.jar/\1/')" >> $GITHUB_OUTPUT
 
-      #6 Upload Artifacts (Debug Purposes)
-      - name: Upload Artifact for Debugging
-        uses: actions/upload-artifact@v7.0.0
+      # 7. Upload the built JAR
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v7
         with:
-          name: artifact
-          path: /home/runner/work/ArmorStandEditor/ArmorStandEditor/target/armorstandeditor-*-*.jar
+          name: ArmorStandEditor-${{ steps.get_version.outputs.version }}
+          path: build/libs/ArmorStandEditor-*-all.jar
           if-no-files-found: error

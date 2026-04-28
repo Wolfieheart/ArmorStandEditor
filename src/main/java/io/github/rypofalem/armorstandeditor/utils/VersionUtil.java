@@ -11,7 +11,7 @@ public class VersionUtil implements Comparable<VersionUtil> {
     private final String version;
     private static final Pattern SEPARATOR = Pattern.compile("\\.");
     private static final Pattern VERSION_PATTERN =
-            Pattern.compile("\\d+(?:" + SEPARATOR + "\\d+)*");
+        Pattern.compile("\\d+(?:" + SEPARATOR + "\\d+)*");
     private final String[] components;
 
     private VersionUtil(String version) {
@@ -90,5 +90,5 @@ public class VersionUtil implements Comparable<VersionUtil> {
         return this.compareTo(other) < 0;
     }
 
-
+    public boolean isNewerThan(@NotNull VersionUtil other) { return this.compareTo(other) > 0; }
 }
