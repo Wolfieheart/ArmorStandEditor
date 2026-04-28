@@ -18,9 +18,9 @@ public class BoltProtection implements Protection {
 
     public BoltProtection() {
         boltenabled = Bukkit.getPluginManager().isPluginEnabled("Bolt");
+        this.plugin = ArmorStandEditorPlugin.instance();
         this.debug = new Debug(plugin);
         debug.log("Initialized Bolt Protection for ASE. Bolt Protection is " + (boltenabled ? "enabled." : "disabled."));
-        this.plugin = ArmorStandEditorPlugin.instance();
     }
 
     @Override
