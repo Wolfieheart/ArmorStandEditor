@@ -18,11 +18,12 @@ public class BoltProtection implements Protection {
 
     public BoltProtection() {
         boltenabled = Bukkit.getPluginManager().isPluginEnabled("Bolt");
+        this.plugin = ArmorStandEditorPlugin.instance();
         this.debug = new Debug(plugin);
         debug.log("Initialized Bolt Protection for ASE. Bolt Protection is " + (boltenabled ? "enabled." : "disabled."));
-        this.plugin = ArmorStandEditorPlugin.instance();
     }
 
+    @Override
     public boolean checkPermission(Entity entity, Player player) {
         if (!boltenabled || player.isOp() || player.hasPermission("asedit.ignoreProtection.bolt")) return true;
         debug.log("Checking Bolt Protection for player " + player.getName() + " on entity " + entity.getUniqueId());
@@ -33,6 +34,6 @@ public class BoltProtection implements Protection {
         if (!boltAPI.isProtected(entity)) return true;
 
         return boltAPI.canAccess(entity, player, "interact");
-     }
+    }
 
 }

@@ -60,7 +60,7 @@ toolLore:
 #Also please if you are using this, ensure that you also give people the ability asedit.give in
 #order to allow them to change their edit tool for the right Custom Model Data
 allowCustomModelData: false
-customModelDataInt: 0
+customModelDataInt: 0.0
 
 
 #----------- ARMOR STAND SPECIFICS
@@ -111,6 +111,14 @@ allowedToRetrieveOwnPlayerHead: false
 #Each time the command is used, the admins will be notified that this has been ran but only
 #if this setting is made true
 adminOnlyNotifications: false
+
+#----------- BLOCKED NAMES
+# Armor stands with the following names will not be able to be edited
+# Use exact name matching (case sensitive)
+enableBlockedNames: false
+blocked-names:
+  - "BlockedArmorStandName"
+  # - "ItemsAdder_furniture"
 
 #Debug Mode - For Development and Support Purposes ONLY!
 # --- Do Not Enable. Will Generate ALOT OF NOISE in your Log Files

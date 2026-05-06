@@ -30,7 +30,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import static com.sk89q.worldedit.bukkit.BukkitAdapter.*;
+import static com.sk89q.worldedit.bukkit.BukkitAdapter.adapt;
 
 public class WorldGuardProtection implements Protection {
     private final boolean wgEnabled;

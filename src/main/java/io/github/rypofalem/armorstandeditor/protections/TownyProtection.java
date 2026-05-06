@@ -18,9 +18,12 @@
  */
 package io.github.rypofalem.armorstandeditor.protections;
 
-import com.palmergames.bukkit.towny.TownyAPI;
+import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
+import io.github.rypofalem.armorstandeditor.Debug;
 
 import com.palmergames.bukkit.towny.event.executors.TownyActionEventExecutor;
+import com.palmergames.bukkit.towny.TownyAPI; 
+
 import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
 import io.github.rypofalem.armorstandeditor.Debug;
 import org.bukkit.Bukkit;
@@ -40,7 +43,7 @@ public class TownyProtection implements Protection {
 
     public TownyProtection() {
         plugin = ArmorStandEditorPlugin.instance();
-        debug = new Debug(plugin);
+        debug = plugin.debug;
         tEnabled = Bukkit.getPluginManager().isPluginEnabled("Towny");
     }
 

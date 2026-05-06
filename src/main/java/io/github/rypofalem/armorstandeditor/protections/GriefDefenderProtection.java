@@ -38,6 +38,7 @@ public class GriefDefenderProtection implements Protection {
         gdEnabled = Bukkit.getPluginManager().isPluginEnabled("GriefDefender");
     }
 
+    @Override
     public boolean checkPermission(Block block, Player player) {
         if (!gdEnabled) return true;
         if (player.isOp()) return true;
