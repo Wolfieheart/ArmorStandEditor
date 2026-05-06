@@ -18,9 +18,9 @@ sonarqube {
 
 configurations.configureEach {
     resolutionStrategy {
-        force 'com.google.guava:guava:33.3.1-jre'
-        force 'com.google.code.gson:gson:2.11.0'
-        force 'it.unimi.dsi:fastutil:8.5.18'
+        force 'com.google.guava:guava:33.6.0-jre'
+        force 'com.google.code.gson:gson:2.14.0'
+        force 'it.unimi.dsi:fastutil:8.5.15'
         force 'org.popcraft:bolt-bukkit:1.1.33'
     }
 }
@@ -109,11 +109,11 @@ dependencies {
     compileOnly "com.github.LoneDev6:api-itemsadder:3.6.1"
 
     // CoreProtect
-    compileOnly "net.coreprotect:coreprotect:23.1"
+    compileOnly "net.coreprotect:coreprotect:23.2"
 
     // Bolt
     compileOnly "org.popcraft:bolt-bukkit:1.1.33"
-    compileOnly "org.popcraft:bolt-common:1.1.33"
+    compileOnly "org.popcraft:bolt-common:1.2.86"
 
     // Lombok
     compileOnly "org.projectlombok:lombok:1.18.44"
