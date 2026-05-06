@@ -74,7 +74,7 @@ dependencies {
     compileOnly "dev.folia:folia-api:1.20.1-R0.1-SNAPSHOT"
 
     // Adventure
-    compileOnly "net.kyori:adventure-api:5.0.0"
+    compileOnly "net.kyori:adventure-api:5.0.1"
     compileOnly "net.kyori:adventure-text-minimessage:5.0.0"
 
     // WorldGuard
