@@ -21,7 +21,7 @@ configurations.configureEach {
         force 'com.google.guava:guava:33.6.0-jre'
         force 'com.google.code.gson:gson:2.14.0'
         force 'it.unimi.dsi:fastutil:8.5.15'
-        force 'org.popcraft:bolt-bukkit:1.1.33'
+        force 'org.popcraft:bolt-bukkit:1.2.86'
     }
 }
 
@@ -112,7 +112,7 @@ dependencies {
     compileOnly "net.coreprotect:coreprotect:23.2"
 
     // Bolt
-    compileOnly "org.popcraft:bolt-bukkit:1.1.33"
+    compileOnly "org.popcraft:bolt-bukkit:1.2.86"
     compileOnly "org.popcraft:bolt-common:1.2.86"
 
     // Lombok
