@@ -75,7 +75,7 @@ dependencies {
 
     // Adventure
     compileOnly "net.kyori:adventure-api:5.0.0"
-    compileOnly "net.kyori:adventure-text-minimessage:5.0.0"
+    compileOnly "net.kyori:adventure-text-minimessage:5.0.1"
 
     // WorldGuard
     compileOnly "com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT"
