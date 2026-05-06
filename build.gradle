@@ -109,7 +109,7 @@ dependencies {
     compileOnly "com.github.LoneDev6:api-itemsadder:3.6.1"
 
     // CoreProtect
-    compileOnly "net.coreprotect:coreprotect:23.1"
+    compileOnly "net.coreprotect:coreprotect:23.2"
 
     // Bolt
     compileOnly "org.popcraft:bolt-bukkit:1.1.33"
