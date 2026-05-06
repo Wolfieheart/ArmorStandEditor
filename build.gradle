@@ -92,7 +92,7 @@ dependencies {
     compileOnly "com.palmergames.bukkit.towny:towny:0.102.0.13"
 
     // SuperiorSkyblock
-    compileOnly "com.bgsoftware:SuperiorSkyblockAPI:2025.2.1"
+    compileOnly "com.bgsoftware:SuperiorSkyblockAPI:2026.1"
 
     // GriefDefender
     compileOnly("com.griefdefender:api:2.1.1-SNAPSHOT") {
