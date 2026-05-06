@@ -103,7 +103,7 @@ dependencies {
     compileOnly "com.github.angeschossen:LandsAPI:7.25.4"
 
     // Bentobox (compileOnly to avoid bundling)
-    compileOnly "world.bentobox:bentobox:2.7.0-SNAPSHOT"
+    compileOnly "world.bentobox:bentobox:2.7.0"
 
     // ItemAdder
     compileOnly "com.github.LoneDev6:api-itemsadder:3.6.1"
