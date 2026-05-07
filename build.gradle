@@ -89,7 +89,7 @@ dependencies {
     }
 
     // Towny
-    compileOnly "com.palmergames.bukkit.towny:towny:0.102.0.13"
+    compileOnly "com.palmergames.bukkit.towny:towny:0.102.0.15"
 
     // SuperiorSkyblock
     compileOnly "com.bgsoftware:SuperiorSkyblockAPI:2025.2.1"
