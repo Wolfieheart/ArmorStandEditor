@@ -26,11 +26,8 @@ import io.github.rypofalem.armorstandeditor.utils.Util;
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
 
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Rotation;
+import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -57,7 +54,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacy;
 import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText;
 
 //Manages PlayerEditors and Player Events related to editing armorstands
@@ -72,7 +68,6 @@ public class PlayerEditorManager implements Listener {
     private ASEHolder equipmentHolder = new ASEHolder(); //Inventory holder that owns the equipment menu
     private ASEHolder presetHolder = new ASEHolder(); //Inventory Holder that owns the PresetArmorStand Post Menu
     private ASEHolder sizeMenuHolder = new ASEHolder(); //Inventory Holder that owns the PresetArmorStand Post Menu
-
 
     double coarseAdj;
     double fineAdj;
@@ -118,6 +113,7 @@ public class PlayerEditorManager implements Listener {
         Player player = event.getPlayer();
         if(player == null) return;
         Location location = player.getLocation();
+        if(location == null) return;
 
         debug.log("Player " + player.getName()
             + " is placing an ArmorStand at (approx) X: " + Math.round(location.getX())
@@ -234,7 +230,7 @@ public class PlayerEditorManager implements Listener {
                 if (player.getGameMode() != GameMode.CREATIVE) {
                     if (glowSacs.getAmount() > 1) {
                         glowSacs.setAmount(glowSacs.getAmount() - 1);
-                    } else glowSacs = new ItemStack(Material.AIR);
+                    }
                 }
 
                 itemFrame.remove();
@@ -309,9 +305,10 @@ public class PlayerEditorManager implements Listener {
     }
 
     private ArrayList<ArmorStand> getTargets(Player player) {
+        ArrayList<ArmorStand> armorStands = new ArrayList<>();
         Location eyeLaser = player.getEyeLocation();
         Vector direction = player.getLocation().getDirection();
-        ArrayList<ArmorStand> armorStands = new ArrayList<>();
+        if(direction == null) return armorStands;
 
         double STEPSIZE = .5;
         Vector STEP = direction.multiply(STEPSIZE);
@@ -340,9 +337,11 @@ public class PlayerEditorManager implements Listener {
     }
 
     private ArrayList<ItemFrame> getFrameTargets(Player player) {
+        ArrayList<ItemFrame> itemFrames = new ArrayList<>();
         Location eyeLaser = player.getEyeLocation();
         Vector direction = player.getLocation().getDirection();
-        ArrayList<ItemFrame> itemFrames = new ArrayList<>();
+        if(direction == null) return itemFrames;
+
 
         double STEPSIZE = .5;
         Vector STEP = direction.multiply(STEPSIZE);
@@ -416,7 +415,6 @@ public class PlayerEditorManager implements Listener {
             || e.getAction() == Action.RIGHT_CLICK_AIR
             || e.getAction() == Action.LEFT_CLICK_BLOCK
             || e.getAction() == Action.RIGHT_CLICK_BLOCK)) return;
-
         debug.log("Ran on Right Click Tool Event.");
         Player player = e.getPlayer();
 
@@ -429,7 +427,11 @@ public class PlayerEditorManager implements Listener {
             e.setCancelled(true);
             return;
         }
-        e.setCancelled(true);
+
+        if(e.getClickedBlock() != null && isInteractable(e.getClickedBlock())) return;
+
+
+        e.setCancelled(true); // This cancels the event, preventing vanilla interaction
         debug.log("Open Menu Called for Player: " + player.getName());
         getPlayerEditor(player.getUniqueId()).openMenu();
     }
@@ -567,10 +569,16 @@ public class PlayerEditorManager implements Listener {
         return counter.ticks;
     }
 
-    private <T> boolean isEmpty(List<T> list) {
-        return list.isEmpty();
+    private boolean isInteractable(Block block) {
+        Material type = block.getType();
+        return Tag.DOORS.isTagged(type)
+                || Tag.TRAPDOORS.isTagged(type)
+                || Tag.BUTTONS.isTagged(type)
+                || Tag.FENCE_GATES.isTagged(type)
+                || Tag.BEDS.isTagged(type)
+                || Tag.ALL_SIGNS.isTagged(type)
+                || Tag.SHULKER_BOXES.isTagged(type);
     }
-
 
     class TickCounter implements Runnable {
         long ticks = 0; //I am optimistic
