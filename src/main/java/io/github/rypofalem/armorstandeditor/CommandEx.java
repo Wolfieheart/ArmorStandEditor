@@ -151,6 +151,7 @@ public class CommandEx implements CommandExecutor {
     // Implemented to fix:
     // https://github.com/Wolfieheart/ArmorStandEditor-Issues/issues/35 &
     // https://github.com/Wolfieheart/ArmorStandEditor-Issues/issues/30 - See Remarks OTHER
+    @SuppressWarnings("UnstableApiUsage")
     private void commandGive(Player player) {
         if (player.hasPermission("asedit.give")) {
             ItemStack stack = new ItemStack(plugin.getEditTool());
