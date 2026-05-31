@@ -140,6 +140,7 @@ public class CommandEx implements CommandExecutor {
                     player.sendMessage(reload);
                     player.sendMessage(givePlayerHead);
                     player.sendMessage(give);
+                    player.sendMessage(resetWithinRange);
                     player.sendMessage(getArmorStats);
                 }
             }
