@@ -365,9 +365,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         if (requireToolData && !hasMatchingDurability(itemMeta)) return false;
         if (requireToolName && !hasMatchingName(itemMeta)) return false;
         if (requireToolLore && !hasMatchingLore(itemMeta)) return false;
-        if (allowCustomModelData && !hasMatchingCustomModelData(itemMeta)) return false;
-
-        return true;
+        return !allowCustomModelData || hasMatchingCustomModelData(itemMeta);
     }
 
     private boolean hasMatchingDurability(ItemMeta itemMeta) {
@@ -384,14 +382,14 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     private boolean hasMatchingLore(ItemMeta itemMeta) {
         if (editToolLore == null) return true;
         List<Component> itemLore = itemMeta.lore();
-        return itemLore != null && itemLore.equals((List<Component>) editToolLore);
+        return itemLore != null && itemLore.equals(editToolLore);
     }
 
     private boolean hasMatchingCustomModelData(ItemMeta itemMeta) {
         if (customModelDataValue == 0) return true;
         CustomModelDataComponent component = itemMeta.getCustomModelDataComponent();
         if (component.getFloats().isEmpty()) return true;
-        // FIX: was comparing float to float with ==; now both sides are cast to int for reliable equality
+
         return component.getFloats().getFirst().intValue() == customModelDataValue;
     }
 
@@ -455,7 +453,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             editToolLore = getConfig().getList("toolLore", null);
         }
 
-        if (enablePerWorld = getConfig().getBoolean("enablePerWorldSupport", false)) {
+        enablePerWorld = getConfig().getBoolean("enablePerWorldSupport", false);
+        if (enablePerWorld) {
             allowedWorldList = getConfig().getList("allowed-worlds", null);
             if (allowedWorldList != null && !allowedWorldList.isEmpty() && allowedWorldList.getFirst().equals("*")) {
                 allowedWorldList = getServer().getWorlds().stream().map(World::getName).toList();
@@ -473,7 +472,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         debugFlag = getConfig().getBoolean("debugFlag", false);
         if (debugFlag) {
-            getServer().getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] Debug Mode ENABLED! Use for testing only.");
+            getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] Debug Mode ENABLED! Use for testing only.");
         }
     }
 

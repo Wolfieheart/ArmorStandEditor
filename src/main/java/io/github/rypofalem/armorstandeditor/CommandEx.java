@@ -30,7 +30,6 @@ import net.kyori.adventure.text.Component;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.command.*;
@@ -53,18 +52,18 @@ import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
 
 public class CommandEx implements CommandExecutor {
     ArmorStandEditorPlugin plugin;
-    final Component listMode = text("/ase mode <" + Util.getEnumList(EditMode.class) + ">", YELLOW);
-    final Component listAxis = text("/ase axis <" + Util.getEnumList(Axis.class) + ">", YELLOW);
-    final Component listAdjustment = text("/ase adj <" + Util.getEnumList(AdjustmentMode.class) + ">", YELLOW);
-    final Component resetWithinRange = text("/ase resetWithinRange <range>", YELLOW);
-    final Component give = text("/ase give", YELLOW);
-    final Component listSlot = text("/ase slot <1-9>", YELLOW);
-    final Component help = text("/ase help or /ase ?", YELLOW);
-    final Component version = text("/ase version", YELLOW);
-    final Component update = text("/ase update", YELLOW);
-    final Component reload = text("/ase reload", YELLOW);
-    final Component givePlayerHead = text("/ase playerhead", YELLOW);
-    final Component getArmorStats = text("/ase stats", YELLOW);
+    private final Component listMode = text("/ase mode <" + Util.getEnumList(EditMode.class) + ">", YELLOW);
+    private final Component listAxis = text("/ase axis <" + Util.getEnumList(Axis.class) + ">", YELLOW);
+    private final Component listAdjustment = text("/ase adj <" + Util.getEnumList(AdjustmentMode.class) + ">", YELLOW);
+    private final Component resetWithinRange = text("/ase resetWithinRange <range>", YELLOW);
+    private final Component give = text("/ase give", YELLOW);
+    private final Component listSlot = text("/ase slot <1-9>", YELLOW);
+    private final Component help = text("/ase help or /ase ?", YELLOW);
+    private final Component version = text("/ase version", YELLOW);
+    private final Component update = text("/ase update", YELLOW);
+    private final Component reload = text("/ase reload", YELLOW);
+    private final Component givePlayerHead = text("/ase playerhead", YELLOW);
+    private final Component getArmorStats = text("/ase stats", YELLOW);
     Debug debug;
 
     public CommandEx(ArmorStandEditorPlugin armorStandEditorPlugin) {
@@ -173,8 +172,15 @@ public class CommandEx implements CommandExecutor {
 
 
     private void commandResetWithinRange(Player player, String[] args) {
+
+        if(args == null || args.length <= 1) { //Add in a safety check for the argument to prevent errors
+            player.sendMessage(resetWithinRange);
+            return;
+        }
+
         if (player.hasPermission("asedit.reset.withinRange")) {
             debug.log(" Player '" + player.getName() + "' is resetting armor stands within range.");
+
             double range = Double.parseDouble(args[1]);
             debug.log(" Range Chosen: " + range);
 
@@ -194,10 +200,9 @@ public class CommandEx implements CommandExecutor {
     private void commandGivePlayerHead(Player player) {
         if (player.hasPermission("asedit.head") || plugin.getAllowedToRetrieveOwnPlayerHead()) {
             debug.log("Creating a player head for the OfflinePlayer '" + player.getName() + "'");
-            OfflinePlayer offlinePlayer = player.getPlayer();
             ItemStack item = new ItemStack(Material.PLAYER_HEAD, 1);
             SkullMeta meta = (SkullMeta) item.getItemMeta();
-            meta.setOwningPlayer(offlinePlayer);
+            meta.setOwningPlayer(player);
             item.setItemMeta(meta);
             player.getInventory().addItem(item);
             player.sendMessage(plugin.getLang().getMessage("playerhead", "info"));
@@ -381,16 +386,8 @@ public class CommandEx implements CommandExecutor {
         return checkPermission(player, "reload", false);
     }
 
-    private boolean getPermissionPlayerHead(Player player) {
-        return checkPermission(player, "head", false);
-    }
-
     private boolean getPermissionStats(Player player) {
         return checkPermission(player, "stats", false);
-    }
-
-    private boolean getPermissionResetWithinRange(Player player) {
-        return checkPermission(player, "reset.withinRange", false);
     }
 
 
@@ -514,12 +511,12 @@ public class CommandEx implements CommandExecutor {
     }
 
     private record PoseData(
-    EulerAngle head,
-    EulerAngle body,
-    EulerAngle rightArm,
-    EulerAngle leftArm,
-    EulerAngle rightLeg,
-    EulerAngle leftLeg
+        EulerAngle head,
+        EulerAngle body,
+        EulerAngle rightArm,
+        EulerAngle leftArm,
+        EulerAngle rightLeg,
+        EulerAngle leftLeg
     ) {
         static PoseData from(ArmorStand as) {
             return new PoseData(
@@ -552,7 +549,7 @@ public class CommandEx implements CommandExecutor {
      */
     private boolean isVisibilityAllowed(Player player, String arg) {
         if (arg.equals("invisible"))
-            return checkPermission(player, "togglearmorstandvisibility", true) || plugin.getArmorStandVisibility();
+            return checkPermission(player, "togglearmorstandvisibility", true)|| plugin.getArmorStandVisibility();
         if (arg.equals("itemframe"))
             return checkPermission(player, "toggleitemframevisibility", true) || plugin.getItemFrameVisibility();
         return true;

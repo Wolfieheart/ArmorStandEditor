@@ -116,6 +116,7 @@ public class PlayerEditorManager implements Listener {
         debug.log("Entity being spawned is an ArmorStand");
 
         Player player = event.getPlayer();
+        if(player == null) return;
         Location location = player.getLocation();
 
         debug.log("Player " + player.getName()
@@ -176,8 +177,7 @@ public class PlayerEditorManager implements Listener {
                 ItemMeta meta = nameTag.getItemMeta();
                 if (meta != null && meta.hasDisplayName()) {
                     // The display name is stored as a raw MiniMessage string, so parse it into a Component
-                    Component displayName = MiniMessage.miniMessage().deserialize(
-                            plainText().serialize(meta.displayName()));
+                    Component displayName = meta.customName();
                     if (!player.hasPermission("asedit.rename.color")) {
                         getName = Component.text(plainText().serialize(displayName));
                     } else {
@@ -189,7 +189,7 @@ public class PlayerEditorManager implements Listener {
 
 
                 if (getName == null) {
-                    as.setCustomName(null);
+                    as.customName(null);
                     as.setCustomNameVisible(false);
                     event.setCancelled(true);
                 } else {
@@ -289,26 +289,23 @@ public class PlayerEditorManager implements Listener {
 
         PlayerEditor editor = getPlayerEditor(player.getUniqueId());
 
-        // Handle double target
-        if (!isEmpty(asTargets) && !isEmpty(frameTargets)) {
-            editor.sendMessage("doubletarget", "warn");
+        if(!asTargets.isEmpty() && !frameTargets.isEmpty()) {
+            editor.sendMessage("nodoubletarget", "warn");
             return;
         }
-
-        // Handle single target: ArmorStand
-        if (!isEmpty(asTargets)) {
+        if(!asTargets.isEmpty()) {
             editor.setTarget(asTargets);
             return;
         }
 
-        // Handle single target: ItemFrame
-        if (!isEmpty(frameTargets)) {
+        if (!frameTargets.isEmpty()) {
             editor.setFrameTarget(frameTargets);
             return;
         }
 
         // No target found
         editor.sendMessage("nodoubletarget", "warn");
+
     }
 
     private ArrayList<ArmorStand> getTargets(Player player) {
@@ -321,7 +318,7 @@ public class PlayerEditorManager implements Listener {
         double RANGE = 10;
         double LASERRADIUS = .3;
         List<Entity> nearbyEntities = player.getNearbyEntities(RANGE, RANGE, RANGE);
-        if (nearbyEntities.isEmpty()) return null;
+        if (nearbyEntities.isEmpty()) return armorStands;
 
         for (double i = 0; i < RANGE; i += STEPSIZE) {
             List<Entity> nearby = (List<Entity>) player.getWorld().getNearbyEntities(eyeLaser, LASERRADIUS, LASERRADIUS, LASERRADIUS);
@@ -353,7 +350,7 @@ public class PlayerEditorManager implements Listener {
         double LASERRADIUS = .3;
 
         List<Entity> nearbyEntities = player.getNearbyEntities(RANGE, RANGE, RANGE);
-        if (nearbyEntities.isEmpty()) return null;
+        if (nearbyEntities.isEmpty()) return itemFrames;
 
         for (double i = 0; i < RANGE; i += STEPSIZE) {
             List<Entity> nearby = (List<Entity>) player.getWorld().getNearbyEntities(eyeLaser, LASERRADIUS, LASERRADIUS, LASERRADIUS);

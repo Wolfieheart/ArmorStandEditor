@@ -48,9 +48,9 @@ public class PresetArmorPosesMenu {
     private ArmorStand armorStand;
     Component name;
 
-    Sound soundToUse = Sound.BLOCK_COMPARATOR_CLICK;
-    Location playerLocation;
-    Integer volumePitch = 1;
+    private final Sound soundToUse = Sound.BLOCK_COMPARATOR_CLICK;
+    private Location playerLocation;
+    final int volumePitch = 1;
 
     public PresetArmorPosesMenu(PlayerEditor pe, ArmorStand as) {
         this.pe = pe;
