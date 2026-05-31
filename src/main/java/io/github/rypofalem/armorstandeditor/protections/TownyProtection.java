@@ -67,7 +67,7 @@ public class TownyProtection implements Protection {
         // --- wilderness checks ---
         if (towny.isWilderness(playerLoc)) {
             if (player.hasPermission("asedit.townyProtection.canEditInWild")) {
-                debug.log("User '" + player.getDisplayName() + "' is in the Wilderness and has the permission asedit.townyProtection.canEditInWild set to TRUE. Edits are allowed!");
+                debug.log("User '" + player.displayName() + "' is in the Wilderness and has the permission asedit.townyProtection.canEditInWild set to TRUE. Edits are allowed!");
                 return true;
             } else {
                 player.sendMessage(plugin.getLang().getMessage("townyNoWildEdit", "warn"));
