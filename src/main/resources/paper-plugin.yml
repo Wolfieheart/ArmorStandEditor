@@ -1,13 +1,36 @@
 name: ArmorStandEditor
 main: io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin
 version: 26.1.2-51.1
-api-version: "1.17"
+api-version: "1.19"
 folia-supported: true
 website: https://hangar.papermc.io/Wolfieheart/ArmorStandEditor-Reborn
 author: Wolfstorm
 authors: [Wolfstorm, DreiFxn, Pinnkk, Kugge, Marfjeh, miknes123, rypofalem, sekwah41, Sikatsu1997, Cool_boy, sumdream, Amaury Carrade, nicuch, kotarobo, prettydude, Jumpy91, Niasio, Patbox, Puremin0rez, Prof-Bloodstone, PlanetTeamSpeak]
 description: Allows players to edit data of armorstands without any commands.
-softdepend: [Towny, WorldGuard, GriefPrevention, PlotSquared, Lands, bentobox, ItemAdder]
+
+dependencies:
+  server:
+    Towny:
+      required: false
+      load: BEFORE
+    WorldGuard:
+      required: false
+      load: BEFORE
+    GriefPrevention:
+      required: false
+      load: BEFORE
+    PlotSquared:
+      required: false
+      load: BEFORE
+    Lands:
+      required: false
+      load: BEFORE
+    bentobox:
+      required: false
+      load: BEFORE
+    ItemAdder:
+      required: false
+      load: BEFORE
 
 commands:
   ase:

@@ -31,7 +31,7 @@ group = 'io.github.rypofalem.armorstandeditor'
 version = getPluginVersion()
 
 String getPluginVersion() {
-    File pluginYml = file('src/main/resources/plugin.yml')
+    File pluginYml = file('src/main/resources/paper-plugin.yml')
     if (!pluginYml.exists()) {
         return '0.0.0'
     }
