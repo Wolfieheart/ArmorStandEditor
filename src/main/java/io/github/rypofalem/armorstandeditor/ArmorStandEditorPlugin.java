@@ -67,8 +67,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String nmsVersion;
     String languageFolderLocation = "lang/";
     String warningMCVer = "Minecraft Version: ";
-    public boolean hasPaper = false;
-    public boolean hasFolia = false;
+    boolean hasPaper = false;
+    boolean hasFolia = false;
     String nmsVersionNotLatest = null;
     String versionLogPrefix;
 
@@ -206,8 +206,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         //English is the default language and needs to be unaltered to so that there is always a backup message string
         saveResource("lang/en_US.yml", true);
-
         loadConfigValues();
+
+        //Needed to handle the persistent storage of the PlayerHead Counters
+        headDataMananger = new HeadDataMananger(this);
 
         //Get Metrics from bStats
         getMetrics();
@@ -231,7 +233,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         //Register Events
         editorManager = new PlayerEditorManager(this);
         getServer().getPluginManager().registerEvents(editorManager, this);
-        headDataMananger = new HeadDataMananger(this);
     }
 
     private void doVersionCheck() {
@@ -422,7 +423,13 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         requireToolData = getConfig().getBoolean("requireToolData", false);
         requireToolLore = getConfig().getBoolean("requireToolLore", false);
         requireToolName = getConfig().getBoolean("requireToolName", false);
+
+        //Conditional Config Items
         allowCustomModelData = getConfig().getBoolean("allowCustomModelData", false);
+        enablePerWorld = getConfig().getBoolean("enablePerWorldSupport", false);
+        allowedToRetrieveOwnPlayerHead = getConfig().getBoolean("allowedToRetrieveOwnPlayerHead", true);
+        enableBlockedNames = getConfig().getBoolean("enableBlockedNames", true);
+        debugFlag = getConfig().getBoolean("debugFlag", false);
 
         loadTool();
         loadConditionalConfig();
@@ -460,7 +467,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             editToolLore = getConfig().getList("toolLore", null);
         }
 
-        enablePerWorld = getConfig().getBoolean("enablePerWorldSupport", false);
         if (enablePerWorld) {
             allowedWorldList = getConfig().getList("allowed-worlds", null);
             if (allowedWorldList != null && !allowedWorldList.isEmpty() && allowedWorldList.getFirst().equals("*")) {
@@ -468,13 +474,11 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             }
         }
 
-        allowedToRetrieveOwnPlayerHead = getConfig().getBoolean("allowedToRetrieveOwnPlayerHead", true);
         if(allowedToRetrieveOwnPlayerHead){
             maxNumberOfHeadRetrievals = getConfig().getDouble("maxNumberOfHeadRetrievals", 5);
         }
 
 
-        enableBlockedNames = getConfig().getBoolean("enableBlockedNames", true);
         if (enableBlockedNames) {
             blockedNames = getConfig().getStringList("blocked-names");
             if (!blockedNames.isEmpty()) {
@@ -483,7 +487,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             }
         }
 
-        debugFlag = getConfig().getBoolean("debugFlag", false);
         if (debugFlag) {
             getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] Debug Mode ENABLED! Use for testing only.");
         }
