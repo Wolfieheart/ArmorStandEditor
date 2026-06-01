@@ -26,6 +26,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.*;
@@ -70,18 +71,22 @@ public class Language {
     public Component getMessage(String path, String format, String option) {
         if (langConfig == null) reloadLang(langFile.getName());
         if (path == null) return Component.empty();
-        if (option == null) option = "";
 
         String raw = getString(path + ".msg");
         if (raw == null) return Component.empty();
 
-        // Replace option placeholder
-        raw = raw.replace("<x>", option);
+        String resolvedOption = "";
+        if(option != null && !option.isEmpty()){
+            String translated = getString(path + "." + option);
+            resolvedOption = (translated != null) ? translated : option; // fallback to raw key
+        }
 
         // Resolve format color (info/warn/etc)
         String formatValue = getFormat(format);
 
-        Component base = MINI.deserialize(raw);
+        // Use resolvedOption, not option
+        Component base = MINI.deserialize(raw, Placeholder.unparsed("x", resolvedOption));
+
 
         // Apply format color LAST
         if (formatValue != null && !formatValue.isEmpty()) {
