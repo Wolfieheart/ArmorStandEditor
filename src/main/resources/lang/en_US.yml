@@ -164,6 +164,7 @@ blackGlassClick:
   msg: Clicking this item will have no effect. Please choose another item.
 playerheadlimiterror:
   msg: You have already claimed the maximum number of player heads!
+
 #menutitle
 mainmenutitle:
   msg: Armor Stand Editor Menu
