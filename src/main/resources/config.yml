@@ -108,6 +108,9 @@ glowingItemFrame: true
 #asedit.head.
 allowedToRetrieveOwnPlayerHead: false
 
+#Limit the number of times that players can get their head on the server
+maxNumberOfHeadRetrievals: 5
+
 #Each time the command is used, the admins will be notified that this has been ran but only
 #if this setting is made true
 adminOnlyNotifications: false

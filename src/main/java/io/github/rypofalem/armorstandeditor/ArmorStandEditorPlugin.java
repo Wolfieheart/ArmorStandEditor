@@ -21,6 +21,7 @@ package io.github.rypofalem.armorstandeditor;
 
 import io.github.rypofalem.armorstandeditor.coreprotect.CoreProtectExtension;
 import io.github.rypofalem.armorstandeditor.language.Language;
+import io.github.rypofalem.armorstandeditor.utils.HeadDataMananger;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
@@ -97,6 +98,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     double maxScaleValue;
     double minScaleValue;
     double maxResetRange;
+    double maxNumberOfHeadRetrievals;
 
     //Custom Data Model Support - Readded
     boolean allowCustomModelData = false;
@@ -134,6 +136,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     boolean debugFlag;
 
     private Scheduler scheduler;
+
+    private HeadDataMananger headDataMananger;
 
     public ArmorStandEditorPlugin() {
         instance = this;
@@ -227,6 +231,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         //Register Events
         editorManager = new PlayerEditorManager(this);
         getServer().getPluginManager().registerEvents(editorManager, this);
+        headDataMananger = new HeadDataMananger(this);
     }
 
     private void doVersionCheck() {
@@ -347,6 +352,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     // FIX: renamed from getallowedToRetrieveOwnPlayerHead (lowercase 'a' violated naming convention)
     public boolean getAllowedToRetrieveOwnPlayerHead() { return allowedToRetrieveOwnPlayerHead; }
 
+    public double getMaxNumberOfHeadRetrievals() { return maxNumberOfHeadRetrievals; }
+
     public boolean getAdminOnlyNotifications() { return adminOnlyNotifications; }
 
     public double getMinScaleValue() { return minScaleValue; }
@@ -385,6 +392,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return itemLore != null && itemLore.equals(editToolLore);
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     private boolean hasMatchingCustomModelData(ItemMeta itemMeta) {
         if (customModelDataValue == 0) return true;
         CustomModelDataComponent component = itemMeta.getCustomModelDataComponent();
@@ -409,7 +417,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         runTheUpdateChecker = getConfig().getBoolean("runTheUpdateChecker", true);
         opUpdateNotification = getConfig().getBoolean("opUpdateNotification", true);
         updateCheckerInterval = getConfig().getDouble("updateCheckerInterval", 24);
-        allowedToRetrieveOwnPlayerHead = getConfig().getBoolean("allowedToRetrieveOwnPlayerHead", true);
         adminOnlyNotifications = getConfig().getBoolean("adminOnlyNotifications", true);
         armorStandVisibility = getConfig().getBoolean("armorStandVisibility", true);
         requireToolData = getConfig().getBoolean("requireToolData", false);
@@ -460,6 +467,12 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
                 allowedWorldList = getServer().getWorlds().stream().map(World::getName).toList();
             }
         }
+
+        allowedToRetrieveOwnPlayerHead = getConfig().getBoolean("allowedToRetrieveOwnPlayerHead", true);
+        if(allowedToRetrieveOwnPlayerHead){
+            maxNumberOfHeadRetrievals = getConfig().getDouble("maxNumberOfHeadRetrievals", 5);
+        }
+
 
         enableBlockedNames = getConfig().getBoolean("enableBlockedNames", true);
         if (enableBlockedNames) {
@@ -570,6 +583,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     public CoreProtectExtension getCoreProtectExtension() {
         return coreProtectExtension;
+    }
+
+    public HeadDataMananger getHeadDataMananger() {
+        return headDataMananger;
     }
 
 }

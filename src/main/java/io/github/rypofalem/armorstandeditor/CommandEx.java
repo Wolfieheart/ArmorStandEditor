@@ -25,6 +25,7 @@ import io.github.rypofalem.armorstandeditor.modes.EditMode;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.Util;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
+import io.github.rypofalem.armorstandeditor.utils.HeadDataMananger;
 
 import net.kyori.adventure.text.Component;
 
@@ -44,13 +45,16 @@ import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.util.EulerAngle;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.AQUA;
 import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
 
 public class CommandEx implements CommandExecutor {
+
     ArmorStandEditorPlugin plugin;
     private final Component listMode = text("/ase mode <" + Util.getEnumList(EditMode.class) + ">", YELLOW);
     private final Component listAxis = text("/ase axis <" + Util.getEnumList(Axis.class) + ">", YELLOW);
@@ -65,6 +69,8 @@ public class CommandEx implements CommandExecutor {
     private final Component givePlayerHead = text("/ase playerhead", YELLOW);
     private final Component getArmorStats = text("/ase stats", YELLOW);
     Debug debug;
+    Map<UUID, Integer> headRetrievalCount  = new java.util.HashMap<>();
+
 
     public CommandEx(ArmorStandEditorPlugin armorStandEditorPlugin) {
         this.plugin = armorStandEditorPlugin;
@@ -199,17 +205,28 @@ public class CommandEx implements CommandExecutor {
     }
 
     private void commandGivePlayerHead(Player player) {
-        if (player.hasPermission("asedit.head") || plugin.getAllowedToRetrieveOwnPlayerHead()) {
-            debug.log("Creating a player head for the OfflinePlayer '" + player.getName() + "'");
-            ItemStack item = new ItemStack(Material.PLAYER_HEAD, 1);
-            SkullMeta meta = (SkullMeta) item.getItemMeta();
-            meta.setOwningPlayer(player);
-            item.setItemMeta(meta);
-            player.getInventory().addItem(item);
-            player.sendMessage(plugin.getLang().getMessage("playerhead", "info"));
-        } else {
+        if (!(player.hasPermission("asedit.head") || plugin.getAllowedToRetrieveOwnPlayerHead())) {
             player.sendMessage(plugin.getLang().getMessage("playerheaderror", "warn"));
+            return;
         }
+
+        double maxRetrievals = plugin.getMaxNumberOfHeadRetrievals();
+        HeadDataMananger headData = plugin.getHeadDataMananger();
+        int count = headData.getCount(player.getUniqueId());
+
+        if (count >= maxRetrievals) {
+            player.sendMessage(plugin.getLang().getMessage("playerheadlimiterror", "warn"));
+            return;
+        }
+
+        debug.log("Creating a player head for the OfflinePlayer '" + player.getName() + "'");
+        ItemStack item = new ItemStack(Material.PLAYER_HEAD, 1);
+        SkullMeta meta = (SkullMeta) item.getItemMeta();
+        meta.setOwningPlayer(player);
+        item.setItemMeta(meta);
+        player.getInventory().addItem(item);
+        headData.increment(player.getUniqueId());
+        player.sendMessage(plugin.getLang().getMessage("playerhead", "info"));
     }
 
     private void commandSlot(Player player, String[] args) {
