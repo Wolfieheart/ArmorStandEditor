@@ -577,7 +577,8 @@ public class PlayerEditorManager implements Listener {
                 || Tag.FENCE_GATES.isTagged(type)
                 || Tag.BEDS.isTagged(type)
                 || Tag.ALL_SIGNS.isTagged(type)
-                || Tag.SHULKER_BOXES.isTagged(type);
+                || Tag.SHULKER_BOXES.isTagged(type)
+                || Tag.WOODEN_SHELVES.isTagged(type);
     }
 
     class TickCounter implements Runnable {
