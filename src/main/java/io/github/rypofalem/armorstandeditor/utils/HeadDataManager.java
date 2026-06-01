@@ -9,14 +9,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
-public class HeadDataMananger {
+public class HeadDataManager {
 
 
     private final Plugin plugin;
     private final File dataFile;
     private FileConfiguration data;
 
-    public HeadDataMananger(Plugin plugin) {
+    public HeadDataManager(Plugin plugin) {
         this.plugin = plugin;
         this.dataFile = new File(plugin.getDataFolder(), "playerheads.yml");
         load();
@@ -42,11 +42,6 @@ public class HeadDataMananger {
 
     public void increment(UUID uuid) {
         data.set(uuid.toString(), getCount(uuid) + 1);
-        save();
-    }
-
-    public void resetCount(UUID uuid) {
-        data.set(uuid.toString(), 0);
         save();
     }
 

@@ -25,7 +25,7 @@ import io.github.rypofalem.armorstandeditor.modes.EditMode;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.Util;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
-import io.github.rypofalem.armorstandeditor.utils.HeadDataMananger;
+import io.github.rypofalem.armorstandeditor.utils.HeadDataManager;
 
 import net.kyori.adventure.text.Component;
 
@@ -43,6 +43,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.util.EulerAngle;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -69,7 +70,6 @@ public class CommandEx implements CommandExecutor {
     private final Component givePlayerHead = text("/ase playerhead", YELLOW);
     private final Component getArmorStats = text("/ase stats", YELLOW);
     Debug debug;
-    Map<UUID, Integer> headRetrievalCount  = new java.util.HashMap<>();
 
 
     public CommandEx(ArmorStandEditorPlugin armorStandEditorPlugin) {
@@ -78,7 +78,7 @@ public class CommandEx implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
         if (sender instanceof ConsoleCommandSender) { //Fix to Support #267
             debug.log("Sender is CONSOLE!");
@@ -126,7 +126,7 @@ public class CommandEx implements CommandExecutor {
                 case "axis" -> commandAxis(player, args);
                 case "adj" -> commandAdj(player, args);
                 case "slot" -> commandSlot(player, args);
-                case "help", "?" -> commandHelp(player);
+                case "help", "?" -> commandHelp( player);
                 case "version" -> commandVersion(player);
                 case "update" -> commandUpdate(player);
                 case "playerhead" -> commandGivePlayerHead(player);
@@ -211,7 +211,7 @@ public class CommandEx implements CommandExecutor {
         }
 
         double maxRetrievals = plugin.getMaxNumberOfHeadRetrievals();
-        HeadDataMananger headData = plugin.getHeadDataMananger();
+        HeadDataManager headData = plugin.getHeadDataMananger();
         int count = headData.getCount(player.getUniqueId());
 
         if (count >= maxRetrievals) {

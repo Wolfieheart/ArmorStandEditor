@@ -21,7 +21,7 @@ package io.github.rypofalem.armorstandeditor;
 
 import io.github.rypofalem.armorstandeditor.coreprotect.CoreProtectExtension;
 import io.github.rypofalem.armorstandeditor.language.Language;
-import io.github.rypofalem.armorstandeditor.utils.HeadDataMananger;
+import io.github.rypofalem.armorstandeditor.utils.HeadDataManager;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
@@ -137,7 +137,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     private Scheduler scheduler;
 
-    private HeadDataMananger headDataMananger;
+    private HeadDataManager headDataManager;
 
     public ArmorStandEditorPlugin() {
         instance = this;
@@ -209,7 +209,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         loadConfigValues();
 
         //Needed to handle the persistent storage of the PlayerHead Counters
-        headDataMananger = new HeadDataMananger(this);
+        headDataManager = new HeadDataManager(this);
 
         //Get Metrics from bStats
         getMetrics();
@@ -584,8 +584,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return coreProtectExtension;
     }
 
-    public HeadDataMananger getHeadDataMananger() {
-        return headDataMananger;
+    public HeadDataManager getHeadDataMananger() {
+        return headDataManager;
     }
 
 }

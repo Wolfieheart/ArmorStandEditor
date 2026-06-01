@@ -162,7 +162,8 @@ townyNoWildEdit:
   msg: Unable to change this ArmorStand as you are not allowed to edit in the wild.
 blackGlassClick:
   msg: Clicking this item will have no effect. Please choose another item.
-
+playerheadlimiterror:
+  msg: You have already claimed the maximum number of player heads!
 #menutitle
 mainmenutitle:
   msg: Armor Stand Editor Menu
@@ -446,4 +447,5 @@ scalemaxwarn:
   msg: Please choose a different size, as this against the server maximum scale limits
 scaleminwarn:
   msg: Please choose a different size, as this against the server minimum scale limits
-
+scaleError:
+  msg: That is not a valid scale option!

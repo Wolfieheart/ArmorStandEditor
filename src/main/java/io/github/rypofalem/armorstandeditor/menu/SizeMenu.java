@@ -203,6 +203,10 @@ public class SizeMenu extends ASEHolder {
                 newScaleValue = 1.0;
                 as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
             }
+            default -> {
+                debug.log("Unknown itemName received in scale switch: " + itemName);
+                pe.getPlayer().sendMessage(plugin.getLang().getMessage("scaleError", "warn"));
+            }
         }
     }
 

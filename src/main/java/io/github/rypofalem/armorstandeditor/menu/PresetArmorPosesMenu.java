@@ -48,9 +48,9 @@ public class PresetArmorPosesMenu {
     private ArmorStand armorStand;
     Component name;
 
-    private final Sound soundToUse = Sound.BLOCK_COMPARATOR_CLICK;
+    private static final Sound soundToUse = Sound.BLOCK_COMPARATOR_CLICK;
     private Location playerLocation;
-    final int volumePitch = 1;
+    static final int VOLUME_PITCH = 1;
 
     public PresetArmorPosesMenu(PlayerEditor pe, ArmorStand as) {
         this.pe = pe;
@@ -139,56 +139,56 @@ public class PresetArmorPosesMenu {
         switch (itemName) {
             case "sitting" -> {
                 setPresetPose(player, 345, 0, 10, 350, 0, 350, 280, 20, 0, 280, 340, 0, 0, 0, 0, 0, 0, 0);
-                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
+                player.playSound(playerLocation, soundToUse, VOLUME_PITCH, VOLUME_PITCH);
                 player.closeInventory();
             }
             case "waving" -> {
                 setPresetPose(player, 220, 20, 0, 350, 0, 350, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
+                player.playSound(playerLocation, soundToUse, VOLUME_PITCH, VOLUME_PITCH);
                 player.closeInventory();
             }
             case "greeting 1" -> {
                 setPresetPose(player, 260, 20, 0, 260, 340, 0, 340, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0);
-                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
+                player.playSound(playerLocation, soundToUse, VOLUME_PITCH, VOLUME_PITCH);
                 player.closeInventory();
             }
             case "greeting 2" -> {
                 setPresetPose(player, 260, 10, 0, 260, 350, 0, 320, 0, 0, 10, 0, 0, 340, 0, 350, 0, 0, 0);
-                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
+                player.playSound(playerLocation, soundToUse, VOLUME_PITCH, VOLUME_PITCH);
                 player.closeInventory();
             }
             case "archer" -> {
                 setPresetPose(player, 270, 350, 0, 280, 50, 0, 340, 0, 10, 20, 0, 350, 0, 0, 0, 0, 0, 0);
-                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
+                player.playSound(playerLocation, soundToUse, VOLUME_PITCH, VOLUME_PITCH);
                 player.closeInventory();
             }
             case "dancing" -> {
                 setPresetPose(player, 14, 0, 110, 20, 0, 250, 250, 330, 0, 15, 330, 0, 350, 350, 0, 0, 0, 0);
-                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
+                player.playSound(playerLocation, soundToUse, VOLUME_PITCH, VOLUME_PITCH);
                 player.closeInventory();
             }
             case "cheers" -> {
                 setPresetPose(player, 250, 60, 0, 20, 10, 0, 10, 0, 0, 350, 0, 0, 340, 0, 0, 0, 0, 0);
-                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
+                player.playSound(playerLocation, soundToUse, VOLUME_PITCH, VOLUME_PITCH);
                 player.closeInventory();
             }
             case "hanging" -> {
                 setPresetPose(player, 1, 33, 67, -145, -33, -4, -42, 21, 1, -100, 0, -1, -29, -38, -18, 0, -4, 0);
-                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
+                player.playSound(playerLocation, soundToUse, VOLUME_PITCH, VOLUME_PITCH);
                 player.closeInventory();
             }
             case "present" -> {
                 setPresetPose(player, 280, 330, 0, 10, 0, 350, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
+                player.playSound(playerLocation, soundToUse, VOLUME_PITCH, VOLUME_PITCH);
                 player.closeInventory();
             }
             case "fishing" -> {
                 setPresetPose(player, 300, 320, 0, 300, 40, 0, 280, 20, 0, 280, 340, 0, 0, 0, 0, 0, 0, 0);
-                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
+                player.playSound(playerLocation, soundToUse, VOLUME_PITCH, VOLUME_PITCH);
                 player.closeInventory();
             }
             case "backtomenu" -> {
-                player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
+                player.playSound(playerLocation, soundToUse, VOLUME_PITCH, VOLUME_PITCH);
                 player.closeInventory();
                 pe.openMenu();
             }
@@ -205,7 +205,7 @@ public class PresetArmorPosesMenu {
         player.sendMessage(pe.plugin.getLang().getMessage("howtopresetmsg"));
         player.sendMessage(pe.plugin.getLang().getMessage("helpurl"));
         player.sendMessage(pe.plugin.getLang().getMessage("helpdiscord"));
-        player.playSound(playerLocation, soundToUse, volumePitch, volumePitch);
+        player.playSound(playerLocation, soundToUse, VOLUME_PITCH, VOLUME_PITCH);
         player.closeInventory();
     }
 
