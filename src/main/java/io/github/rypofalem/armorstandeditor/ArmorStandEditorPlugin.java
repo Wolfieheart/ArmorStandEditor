@@ -67,8 +67,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String nmsVersion;
     String languageFolderLocation = "lang/";
     String warningMCVer = "Minecraft Version: ";
-    boolean hasPaper = false;
-    boolean hasFolia = false;
+    public boolean hasPaper = false;
+    public boolean hasFolia = false;
     String nmsVersionNotLatest = null;
     String versionLogPrefix;
 
