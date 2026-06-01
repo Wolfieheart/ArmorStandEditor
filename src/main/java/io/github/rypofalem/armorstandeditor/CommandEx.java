@@ -44,6 +44,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -76,81 +77,85 @@ public class CommandEx implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-
-        if (sender instanceof ConsoleCommandSender) { //Fix to Support #267
-            debug.log("Sender is CONSOLE!");
-            if (args.length == 0) {
-                sender.sendMessage(version);
-                sender.sendMessage(help);
-                sender.sendMessage(reload);
-                return true;
-            } else {
-                switch (args[0].toLowerCase()) {
-                    case "reload" -> commandReloadConsole(sender);
-                    case "help", "?" -> commandHelpConsole(sender);
-                    case "version" -> commandVersionConsole(sender);
-                    default -> sender.sendMessage(plugin.getLang().getMessage("noconsolecom", "warn"));
-                }
-                return true;
-            }
-
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
+                             @NotNull String label, String[] args) {
+        if (sender instanceof ConsoleCommandSender) {
+            return handleConsoleCommand(sender, args);
         }
 
-        if (sender instanceof Player player && !getPermissionBasic(player)) {
-            debug.log("Sender is Player but asedit.basic is" + getPermissionBasic(player));
-            sender.sendMessage(plugin.getLang().getMessage("nopermoption", "warn", "basic"));
-            return true;
-        } else {
-            Player player = (Player) sender;
-
-            debug.log("Sender is Player and asedit.basic is " + getPermissionBasic(player));
-            if (args.length == 0) {
-                player.sendMessage(listMode);
-                player.sendMessage(listAxis);
-                player.sendMessage(listSlot);
-                player.sendMessage(listAdjustment);
-                player.sendMessage(version);
-                player.sendMessage(update);
-                player.sendMessage(help);
-                player.sendMessage(reload);
-                player.sendMessage(givePlayerHead);
-                player.sendMessage(give);
-                player.sendMessage(getArmorStats);
-                return true;
-            }
-            switch (args[0].toLowerCase()) {
-                case "mode" -> commandMode(player, args);
-                case "axis" -> commandAxis(player, args);
-                case "adj" -> commandAdj(player, args);
-                case "slot" -> commandSlot(player, args);
-                case "help", "?" -> commandHelp( player);
-                case "version" -> commandVersion(player);
-                case "update" -> commandUpdate(player);
-                case "playerhead" -> commandGivePlayerHead(player);
-                case "give" -> commandGive(player);
-                case "reload" -> commandReload(player);
-                case "stats" -> commandStats(player);
-                case "resetwithinrange" -> commandResetWithinRange(player, args);
-                default -> {
-                    player.sendMessage(listMode);
-                    player.sendMessage(listAxis);
-                    player.sendMessage(listSlot);
-                    player.sendMessage(listAdjustment);
-                    player.sendMessage(version);
-                    player.sendMessage(update);
-                    player.sendMessage(help);
-                    player.sendMessage(reload);
-                    player.sendMessage(givePlayerHead);
-                    player.sendMessage(give);
-                    player.sendMessage(resetWithinRange);
-                    player.sendMessage(getArmorStats);
-                }
-            }
-            return true;
+        if (!(sender instanceof Player player)) {
+            // Command blocks, command minecarts, etc. — not supported
+            return false;
         }
+
+        if (!getPermissionBasic(player)) {
+            player.sendMessage(plugin.getLang().getMessage("nopermoption", "warn", "basic"));
+            return true; // Handled — just denied
+        }
+
+        return handlePlayerCommand(player, args);
     }
 
+    private boolean handlePlayerCommand(Player player, String[] args) {
+        if (args.length == 0) {
+            sendCommandList(player, false);
+            return true;
+        }
+
+        return switch (args[0].toLowerCase()) {
+            case "mode"              -> { commandMode(player, args);              yield true; }
+            case "axis"              -> { commandAxis(player, args);              yield true; }
+            case "adj"               -> { commandAdj(player, args);               yield true; }
+            case "slot"              -> { commandSlot(player, args);              yield true; }
+            case "help", "?"         -> { commandHelp(player);                   yield true; }
+            case "version"           -> { commandVersion(player);                yield true; }
+            case "update"            -> { commandUpdate(player);                 yield true; }
+            case "playerhead"        -> { commandGivePlayerHead(player);         yield true; }
+            case "give"              -> { commandGive(player);                   yield true; }
+            case "reload"            -> { commandReload(player);                 yield true; }
+            case "stats"             -> { commandStats(player);                  yield true; }
+            case "resetwithinrange"  -> { commandResetWithinRange(player, args); yield true; }
+            default                  -> {
+                sendCommandList(player, true); // true = include resetWithinRange
+                yield false; // Unknown subcommand → let Bukkit show usage
+            }
+        };
+    }
+
+    /** Extracted to avoid duplicating the long message list in two places. */
+    private void sendCommandList(Player player, boolean includeReset) {
+        player.sendMessage(listMode);
+        player.sendMessage(listAxis);
+        player.sendMessage(listSlot);
+        player.sendMessage(listAdjustment);
+        player.sendMessage(version);
+        player.sendMessage(update);
+        player.sendMessage(help);
+        player.sendMessage(reload);
+        player.sendMessage(givePlayerHead);
+        player.sendMessage(give);
+        if (includeReset) player.sendMessage(resetWithinRange);
+        player.sendMessage(getArmorStats);
+    }
+
+    private boolean handleConsoleCommand(CommandSender sender, String[] args) {
+        if (args.length == 0) {
+            sender.sendMessage(version);
+            sender.sendMessage(help);
+            sender.sendMessage(reload);
+            return true;
+        }
+
+        return switch (args[0].toLowerCase()) {
+            case "reload"     -> { commandReloadConsole(sender);  yield true; }
+            case "help", "?"  -> { commandHelpConsole(sender);    yield true; }
+            case "version"    -> { commandVersionConsole(sender); yield true; }
+            default           -> {
+                sender.sendMessage(plugin.getLang().getMessage("noconsolecom", "warn"));
+                yield false; // Triggers plugin.yml usage message
+            }
+        };
+    }
 
     // Implemented to fix:
     // https://github.com/Wolfieheart/ArmorStandEditor-Issues/issues/35 &
@@ -301,6 +306,7 @@ public class CommandEx implements CommandExecutor {
         debug.log("Player '" + player.getName() + "' chose the mode: " + matched);
     }
 
+    @Nullable
     private void commandHelp(Player player) {
         player.closeInventory();
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);

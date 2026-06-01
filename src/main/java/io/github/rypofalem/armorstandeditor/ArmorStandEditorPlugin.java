@@ -27,7 +27,11 @@ import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
 import io.github.rypofalem.armorstandeditor.Metrics.SimplePie;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import io.papermc.lib.PaperLib;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
@@ -35,6 +39,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
@@ -98,7 +103,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     double maxScaleValue;
     double minScaleValue;
     double maxResetRange;
-    double maxNumberOfHeadRetrievals;
+    double maxNumberOfHeadRetrievals = 5;
 
     //Custom Data Model Support - Readded
     boolean allowCustomModelData = false;
@@ -221,14 +226,48 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         CommandEx execute = new CommandEx(this);
         TabCompleter tabCompleter = new TabCompleter();
 
-        //Register the same Command Executor and Tab Completer for all 3 commands - /ase, /armorstandeditor, and /asedit
-        Objects.requireNonNull(getCommand("ase")).setExecutor(execute);
-        Objects.requireNonNull(getCommand("armorstandeditor")).setExecutor(execute);
-        Objects.requireNonNull(getCommand("asedit")).setExecutor(execute);
-
-        Objects.requireNonNull(getCommand("ase")).setTabCompleter(tabCompleter);
-        Objects.requireNonNull(getCommand("armorstandeditor")).setTabCompleter(tabCompleter);
-        Objects.requireNonNull(getCommand("asedit")).setTabCompleter(tabCompleter);
+        // Register commands using the Paper Lifecycle API (replaces getCommand() which is
+        // unsupported for Paper plugins). Wraps the existing CommandEx and TabCompleter so
+        // no other code needs to change.
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            Commands commands = event.registrar();
+            for (String alias : List.of("ase", "armorstandeditor", "asedit")) {
+                // Stub Command so TabCompleter.onTabComplete() can call command.getName()
+                // without a NullPointerException — Brigadier has no equivalent object to pass.
+                org.bukkit.command.Command stubCommand = new org.bukkit.command.Command(alias) {
+                    @Override
+                    public boolean execute(CommandSender sender, String label, String[] args) {
+                        return false;
+                    }
+                };
+                commands.register(
+                        Commands.literal(alias)
+                                .executes(ctx -> {
+                                    CommandSender sender = ctx.getSource().getSender();
+                                    execute.onCommand(sender, stubCommand, alias, new String[0]);
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                                .then(
+                                        Commands.argument("args", StringArgumentType.greedyString())
+                                                .suggests((ctx, builder) -> {
+                                                    CommandSender sender = ctx.getSource().getSender();
+                                                    String[] args = builder.getRemaining().split(" ", -1);
+                                                    List<String> completions = tabCompleter.onTabComplete(sender, stubCommand, alias, args);
+                                                    if (completions != null) completions.forEach(builder::suggest);
+                                                    return builder.buildFuture();
+                                                })
+                                                .executes(ctx -> {
+                                                    CommandSender sender = ctx.getSource().getSender();
+                                                    String[] args = ctx.getArgument("args", String.class).split(" ", -1);
+                                                    execute.onCommand(sender, stubCommand, alias, args);
+                                                    return Command.SINGLE_SUCCESS;
+                                                })
+                                )
+                                .build(),
+                        "ArmorStandEditor command"
+                );
+            }
+        });
 
         //Register Events
         editorManager = new PlayerEditorManager(this);
@@ -470,9 +509,9 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             }
         }
 
-        if(allowedToRetrieveOwnPlayerHead){
-            maxNumberOfHeadRetrievals = getConfig().getDouble("maxNumberOfHeadRetrievals", 5);
-        }
+        // Always load regardless of allowedToRetrieveOwnPlayerHead — CommandEx reads this
+        // unconditionally, so leaving it unset causes a NPE when the flag is false.
+        maxNumberOfHeadRetrievals = getConfig().getDouble("maxNumberOfHeadRetrievals", 5);
 
 
         if (enableBlockedNames) {
