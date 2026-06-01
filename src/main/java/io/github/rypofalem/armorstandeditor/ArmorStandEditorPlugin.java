@@ -331,10 +331,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         }
     }
 
-    public String getMinecraftVersion() {
-        return this.nmsVersion;
-    }
-
     // FIX: all getters now return cached fields instead of re-reading config on every call
     public boolean getArmorStandVisibility() { return armorStandVisibility; }
 
