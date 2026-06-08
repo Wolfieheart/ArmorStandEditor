@@ -35,6 +35,7 @@ import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 
 import net.kyori.adventure.text.Component;
 
+import org.bukkit.Chunk;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -740,9 +741,27 @@ public class PlayerEditor {
     }
 
     private void highlight(ArmorStand armorStand) {
-        if(armorStand.isGlowing()) return;
-        armorStand.setGlowing(true);
-        armorStand.getScheduler().runDelayed(plugin, _ -> armorStand.setGlowing(false), null, 50);
+        armorStand.removePotionEffect(PotionEffectType.GLOWING);
+        final Chunk chunk = armorStand.getChunk();
+        chunk.addPluginChunkTicket(plugin);
+        try {
+            final AtomicBoolean cleaned = new AtomicBoolean(false);
+            final Runnable cleanup = () -> {
+                if (cleaned.compareAndSet(false, true)) {
+                    armorStand.setGlowing(false);
+                    chunk.removePluginChunkTicket(plugin);
+                }
+            };
+            armorStand.setGlowing(true);
+            boolean scheduled = armorStand.getScheduler().runDelayed(plugin, _ -> cleanup.run(), cleanup, 50) != null;
+            if (!scheduled) {
+                cleanup.run();
+            }
+        } catch (Throwable throwable) {
+            // not taking any chances
+            armorStand.setGlowing(false);
+            chunk.removePluginChunkTicket(plugin);
+        }
     }
 
     public PlayerEditorManager getManager() {
