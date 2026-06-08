@@ -103,18 +103,54 @@ public class CommandEx implements CommandExecutor {
         }
 
         return switch (args[0].toLowerCase()) {
-            case "mode"              -> { commandMode(player, args);              yield true; }
-            case "axis"              -> { commandAxis(player, args);              yield true; }
-            case "adj"               -> { commandAdj(player, args);               yield true; }
-            case "slot"              -> { commandSlot(player, args);              yield true; }
-            case "help", "?"         -> { commandHelp(player);                   yield true; }
-            case "version"           -> { commandVersion(player);                yield true; }
-            case "update"            -> { commandUpdate(player);                 yield true; }
-            case "playerhead"        -> { commandGivePlayerHead(player);         yield true; }
-            case "give"              -> { commandGive(player);                   yield true; }
-            case "reload"            -> { commandReload(player);                 yield true; }
-            case "stats"             -> { commandStats(player);                  yield true; }
-            case "resetwithinrange"  -> { commandResetWithinRange(player, args); yield true; }
+            case "mode"             -> {
+                commandMode(player, args);
+                yield true;
+            }
+            case "axis"             -> {
+                commandAxis(player, args);
+                yield true;
+            }
+            case "adj"              -> {
+                commandAdj(player, args);
+                yield true;
+            }
+            case "slot"             -> {
+                commandSlot(player, args);
+                yield true;
+            }
+            case "help", "?"        -> {
+                commandHelp(player);
+                yield true;
+            }
+            case "version"          -> {
+                commandVersion(player);
+                yield true;
+            }
+            case "update"           -> {
+                commandUpdate(player);
+                yield true;
+            }
+            case "playerhead"       -> {
+                commandGivePlayerHead(player);
+                yield true;
+            }
+            case "give"             -> {
+                commandGive(player);
+                yield true;
+            }
+            case "reload"           -> {
+                commandReload(player);
+                yield true;
+            }
+            case "stats"            -> {
+                commandStats(player);
+                yield true;
+            }
+            case "resetwithinrange" -> {
+                commandResetWithinRange(player, args);
+                yield true;
+            }
             default                  -> {
                 sendCommandList(player, true); // true = include resetWithinRange
                 yield false; // Unknown subcommand → let Bukkit show usage
