@@ -183,9 +183,18 @@ public class CommandEx implements CommandExecutor {
         }
 
         return switch (args[0].toLowerCase()) {
-            case "reload"     -> { commandReloadConsole(sender);  yield true; }
-            case "help", "?"  -> { commandHelpConsole(sender);    yield true; }
-            case "version"    -> { commandVersionConsole(sender); yield true; }
+            case "reload"     -> { 
+                commandReloadConsole(sender);  
+                yield true; 
+            }
+            case "help", "?"  -> { 
+                commandHelpConsole(sender);    
+                yield true; 
+            }
+            case "version"    -> { 
+                commandVersionConsole(sender); 
+                yield true; 
+            }
             default           -> {
                 sender.sendMessage(plugin.getLang().getMessage("noconsolecom", "warn"));
                 yield false; // Triggers plugin.yml usage message
