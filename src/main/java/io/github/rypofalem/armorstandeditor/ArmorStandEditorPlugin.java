@@ -44,7 +44,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -110,7 +109,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     //Custom Data Model Support - Readded
     boolean allowCustomModelData = false;
     // FIX: renamed from customModelDataInt and retyped to int — it was float but used as an integer throughout
-    int customModelDataValue;
+    float  customModelDataValue;
 
     //GUI Settings
     boolean requireSneaking = false;
@@ -413,7 +412,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public double getMaxScaleValue() { return maxScaleValue; }
 
     // FIX: renamed to match field rename from customModelDataInt -> customModelDataValue
-    public int getCustomModelDataValue() { return customModelDataValue; }
+    public float getCustomModelDataValue() { return customModelDataValue; }
 
     public boolean isEditTool(ItemStack itemStk) {
         if (itemStk == null || editTool != itemStk.getType()) return false;
@@ -424,12 +423,13 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         if (requireToolData && !hasMatchingDurability(itemMeta)) return false;
         if (requireToolName && !hasMatchingName(itemMeta)) return false;
         if (requireToolLore && !hasMatchingLore(itemMeta)) return false;
-        return !allowCustomModelData || hasMatchingCustomModelData(itemMeta);
+        if (allowCustomModelData && !hasMatchingCustomModelData(itemMeta)) return false;
+        return true;
     }
 
     private boolean hasMatchingDurability(ItemMeta itemMeta) {
-        Damageable damageable = (Damageable) itemMeta;
-        return damageable.getDamage() == (short) editToolData;
+        if (!(itemMeta instanceof Damageable damageable))  return false;
+        return damageable.hasDamage() && damageable.getDamage() == editToolData;
     }
 
     private boolean hasMatchingName(ItemMeta itemMeta) {
@@ -446,11 +446,9 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     @SuppressWarnings("UnstableApiUsage")
     private boolean hasMatchingCustomModelData(ItemMeta itemMeta) {
-        if (customModelDataValue == 0) return true;
-        CustomModelDataComponent component = itemMeta.getCustomModelDataComponent();
-        if (component.getFloats().isEmpty()) return true;
-
-        return component.getFloats().getFirst().intValue() == customModelDataValue;
+        if (customModelDataValue == 0.0) return true;
+        if (!itemMeta.hasCustomModelDataComponent()) return false;
+        return itemMeta.getCustomModelDataComponent().getFloats().get(0) == customModelDataValue;
     }
 
     public void loadConfigValues() {
@@ -497,7 +495,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         editTool = Material.getMaterial(toolType);
     }
 
-    private void loadConditionalConfig() {
+    public void loadConditionalConfig() {
         if (allowCustomModelData) {
             // FIX: field renamed to customModelDataValue and typed as int
             customModelDataValue = getConfig().getInt("customModelDataInt", Integer.MIN_VALUE);
@@ -519,9 +517,13 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         }
 
         if (enablePerWorld) {
-            allowedWorldList = getConfig().getList("allowed-worlds", null);
-            if (allowedWorldList != null && !allowedWorldList.isEmpty() && allowedWorldList.getFirst().equals("*")) {
-                allowedWorldList = getServer().getWorlds().stream().map(World::getName).toList();
+            allowedWorldList = new ArrayList<>(getConfig().getStringList("allowed-worlds"));
+            if (!allowedWorldList.isEmpty() && allowedWorldList.get(0).equals("*")) {
+                allowedWorldList = getServer()
+                        .getWorlds()
+                        .stream()
+                        .map(World::getName)
+                        .toList();
             }
         }
 
@@ -531,9 +533,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
 
         if (enableBlockedNames) {
-            blockedNames = getConfig().getStringList("blocked-names");
+            blockedNames = List.copyOf(getConfig().getStringList("blocked-names"));
+
             if (!blockedNames.isEmpty()) {
-                getLogger().info("Blocked Names Enabled. The following names are blocked from being used on Armor Stands:");
+                getLogger().info("Blocked Names Enabled. The following names are blocked:");
                 blockedNames.forEach(name -> getLogger().info("- " + name));
             }
         }
@@ -649,4 +652,25 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public boolean didLogUnitTestMode() {
         return unitTestModeLogged;
     }
+
+    public List<String> getAllowedWorldList() {
+        return (List<String>) allowedWorldList;
+    }
+
+    public boolean getEnableBlockedNames(){
+        return getConfig().getBoolean("enableBlockedNames", true);
+    }
+
+    public List<String> getListOfBlockedNames() {
+        return getConfig().getStringList("blocked-names");
+    }
+
+    public boolean getAllowCustomModelData() {
+        return getConfig().getBoolean("allowCustomModelData", true);
+    }
+
+    public boolean getEnablePerWorldSupport() {
+        return getConfig().getBoolean("enablePerWorldSupport", false);
+    }
+
 }
