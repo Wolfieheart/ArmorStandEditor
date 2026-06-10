@@ -21,7 +21,6 @@ package io.github.rypofalem.armorstandeditor;
 
 import io.github.rypofalem.armorstandeditor.coreprotect.CoreProtectExtension;
 import io.github.rypofalem.armorstandeditor.language.Language;
-import io.github.rypofalem.armorstandeditor.utils.HeadDataManager;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
@@ -62,6 +61,9 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     //!!! DO NOT REMOVE THESE UNDER ANY CIRCUMSTANCES - Required for BStats and UpdateChecker !!!
     private static final int PLUGIN_ID = 12668;             //Used for BStats Metrics
     public final Debug debug = new Debug(this);
+
+    private final boolean unitTestMode;
+    private boolean unitTestModeLogged;
 
     private NamespacedKey iconKey;
     private static ArmorStandEditorPlugin instance;
@@ -146,6 +148,12 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     public ArmorStandEditorPlugin() {
         instance = this;
+        unitTestMode = false;
+    }
+
+    public ArmorStandEditorPlugin(Boolean utFlag){
+        instance = this;
+        unitTestMode = utFlag != null && utFlag;
     }
 
     @Override
@@ -159,6 +167,11 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         getLogger().info("======= ArmorStandEditor =======");
         getLogger().info("Plugin Version: v" + ASE_VERSION);
 
+        if(unitTestMode){
+            getLogger().info("Unit Test Mode Enabled - Some features may be disabled or behave differently for testing purposes.");
+            unitTestModeLogged = true;
+        }
+
         hasPaper = getHasPaper();
         hasFolia = getHasFolia();
 
@@ -168,12 +181,15 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         doVersionCheck();
 
         //If Paper and Folia are both FALSE - Disable the plugin
-        if (!hasPaper && !hasFolia) {
+        //Also we shouldn't run this if we are UnitTesting since we don't care.
+        if(unitTestMode){
+            getLogger().info("Skipping Paper and Folia check due to Unit Test Mode.");
+        } else if (!hasPaper && !hasFolia) {
             getLogger().severe("This plugin requires either Paper or one of its forks to run. This is not an error, please do not report this!");
             getLogger().info(SEPARATOR_FIELD);
             getServer().getPluginManager().disablePlugin(this);
             return;
-        } else {
+        }  else {
             getLogger().log(Level.INFO, "Paper/Folia Present? {0}", hasPaper);
         }
 
@@ -627,4 +643,10 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return headDataManager;
     }
 
+    /*
+    * HELPERS FOR UNIT TESTING
+     */
+    public boolean didLogUnitTestMode() {
+        return unitTestModeLogged;
+    }
 }

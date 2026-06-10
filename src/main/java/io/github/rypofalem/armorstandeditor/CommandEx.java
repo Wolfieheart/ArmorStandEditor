@@ -25,7 +25,6 @@ import io.github.rypofalem.armorstandeditor.modes.EditMode;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.Util;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
-import io.github.rypofalem.armorstandeditor.utils.HeadDataManager;
 
 import net.kyori.adventure.text.Component;
 
