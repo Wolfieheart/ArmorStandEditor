@@ -291,7 +291,6 @@ public class Menu {
 
 
     private Component getIconName(String path, String option) {
-
         return pe.plugin.getLang().getMessage(path, "iconname", option);
     }
 

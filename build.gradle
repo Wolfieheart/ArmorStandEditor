@@ -123,7 +123,11 @@ dependencies {
     implementation "io.papermc:paperlib:1.0.8"
     
     // Testing
-    testImplementation "junit:junit:4.13.2"
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3'
+    testImplementation 'org.mockbukkit.mockbukkit:mockbukkit-v26.1.2:4.+'
+    testImplementation 'io.papermc.paper:paper-api:26.1.2.build.+'
+    testRuntimeOnly    'org.junit.platform:junit-platform-launcher'
+    testRuntimeOnly    'org.slf4j:slf4j-simple:2.0.17'
 }
 
 // Compile UTF-8
@@ -165,4 +169,8 @@ tasks.jar {
 }*/
 tasks.build{
     dependsOn shadowJar
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
 }

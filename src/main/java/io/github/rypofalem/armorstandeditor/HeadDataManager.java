@@ -1,5 +1,4 @@
-package io.github.rypofalem.armorstandeditor.utils;
-
+package io.github.rypofalem.armorstandeditor;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -10,7 +9,6 @@ import java.io.IOException;
 import java.util.UUID;
 
 public class HeadDataManager {
-
 
     private final Plugin plugin;
     private final File dataFile;
@@ -52,4 +50,5 @@ public class HeadDataManager {
             plugin.getLogger().severe("Could not save playerheads.yml: " + e.getMessage());
         }
     }
+
 }

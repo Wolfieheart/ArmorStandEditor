@@ -31,6 +31,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Language {
     static final String DEFAULT_LANG = "en_US.yml";
@@ -39,6 +43,31 @@ public class Language {
     private File langFile = null;
     ArmorStandEditorPlugin plugin;
     private static final MiniMessage MINI = MiniMessage.miniMessage();
+    private static final Logger LOGGER = Logger.getLogger(Language.class.getName());
+
+    // Legacy Minecraft color codes mapped to hex values
+    private static final Map<String, String> LEGACY_COLORS = createLegacyColorMap();
+
+    private static Map<String, String> createLegacyColorMap() {
+        Map<String, String> colors = new HashMap<>();
+        colors.put("0", "#000000");
+        colors.put("1", "#0000aa");
+        colors.put("2", "#00aa00");
+        colors.put("3", "#00aaaa");
+        colors.put("4", "#aa0000");
+        colors.put("5", "#aa00aa");
+        colors.put("6", "#ffaa00");
+        colors.put("7", "#aaaaaa");
+        colors.put("8", "#555555");
+        colors.put("9", "#5555ff");
+        colors.put("a", "#55ff55");
+        colors.put("b", "#55ffff");
+        colors.put("c", "#ff5555");
+        colors.put("d", "#ff55ff");
+        colors.put("e", "#ffff55");
+        colors.put("f", "#ffffff");
+        return colors;
+    }
 
     public Language(String langFileName, ArmorStandEditorPlugin plugin) {
         this.plugin = plugin;
@@ -50,26 +79,51 @@ public class Language {
         File langFolder = new File(plugin.getDataFolder().getPath() + File.separator + "lang");
         langFile = new File(langFolder, langFileName);
 
-        InputStream input = plugin.getResource("lang" + "/" + DEFAULT_LANG); //getResource doesn't accept File.seperator on windows, need to hardcode unix seperator "/" instead
-        assert input != null;
-        Reader defaultLangStream = new InputStreamReader(input, StandardCharsets.UTF_8);
-        defConfig = YamlConfiguration.loadConfiguration(defaultLangStream);
-
+        // Load default language config
         try {
-            input = new FileInputStream(langFile);
-        } catch (FileNotFoundException _) {
+            InputStream defaultInput = plugin.getResource("lang" + "/" + DEFAULT_LANG);
+            if (defaultInput == null) {
+                LOGGER.log(Level.WARNING, "Default language file not found: {0}", DEFAULT_LANG);
+                return;
+            }
+            try (Reader defaultLangStream = new InputStreamReader(defaultInput, StandardCharsets.UTF_8)) {
+                defConfig = YamlConfiguration.loadConfiguration(defaultLangStream);
+            } // defaultInput is closed implicitly by try-with-resources
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Failed to load default language file", e);
             return;
         }
 
-        Reader langStream = new InputStreamReader(input, StandardCharsets.UTF_8);
-        langConfig = YamlConfiguration.loadConfiguration(langStream);
+        // Load custom language config
+        try {
+            try (InputStream customInput = new FileInputStream(langFile);
+                 Reader langStream = new InputStreamReader(customInput, StandardCharsets.UTF_8)) {
+                langConfig = YamlConfiguration.loadConfiguration(langStream);
+            }
+        } catch (FileNotFoundException _) {
+            LOGGER.log(Level.INFO, "Custom language file not found: {0}. Using default.", langFile.getName());
+            langConfig = defConfig; // Fallback to default if custom not found
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Failed to load language file: {0}", langFile.getName());
+            LOGGER.log(Level.WARNING, "Exception details", e);
+            langConfig = defConfig; // Fallback to default on error
+        }
     }
 
     // path: yml path to message in language file
     // format: yml path to format in language file (info, warn, etc)
     // option: path-specific variable
     public Component getMessage(String path, String format, String option) {
-        if (langConfig == null) reloadLang(langFile.getName());
+        if (langConfig == null) {
+            reloadLang(langFile != null ? langFile.getName() : DEFAULT_LANG);
+        }
+
+        // If still null after reload attempt, log error and return empty
+        if (langConfig == null) {
+            LOGGER.log(Level.WARNING, "Language config is null, cannot get message: {0}", path);
+            return Component.empty();
+        }
+
         if (path == null) return Component.empty();
 
         String raw = getString(path + ".msg");
@@ -101,31 +155,29 @@ public class Language {
 
 
     private TextColor resolveFormatColor(String value) {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+
         // Hex format
         if (value.startsWith("#")) {
-            return TextColor.fromHexString(value);
+            try {
+                return TextColor.fromHexString(value);
+            } catch (IllegalArgumentException _) {
+                LOGGER.log(Level.WARNING, "Invalid hex color: {0}", value);
+                return null;
+            }
         }
 
         // Legacy single-character colors
-        return switch (value.toLowerCase()) {
-            case "0" -> TextColor.fromHexString("#000000");
-            case "1" -> TextColor.fromHexString("#0000aa");
-            case "2" -> TextColor.fromHexString("#00aa00");
-            case "3" -> TextColor.fromHexString("#00aaaa");
-            case "4" -> TextColor.fromHexString("#aa0000");
-            case "5" -> TextColor.fromHexString("#aa00aa");
-            case "6" -> TextColor.fromHexString("#ffaa00");
-            case "7" -> TextColor.fromHexString("#aaaaaa");
-            case "8" -> TextColor.fromHexString("#555555");
-            case "9" -> TextColor.fromHexString("#5555ff");
-            case "a" -> TextColor.fromHexString("#55ff55");
-            case "b" -> TextColor.fromHexString("#55ffff");
-            case "c" -> TextColor.fromHexString("#ff5555");
-            case "d" -> TextColor.fromHexString("#ff55ff");
-            case "e" -> TextColor.fromHexString("#ffff55");
-            case "f" -> TextColor.fromHexString("#ffffff");
-            default -> null;
-        };
+        String lowerValue = value.toLowerCase();
+        String hexColor = LEGACY_COLORS.get(lowerValue);
+        if (hexColor != null) {
+            return TextColor.fromHexString(hexColor);
+        }
+
+        LOGGER.log(Level.FINE, "Unknown color code: {0}", value);
+        return null;
     }
 
 
@@ -144,9 +196,9 @@ public class Language {
 
     public String getString(String path) {
         String message = null;
-        if (langConfig.contains(path)) {
+        if (langConfig != null && langConfig.contains(path)) {
             message = langConfig.getString(path);
-        } else if (defConfig.contains(path)) {
+        } else if (defConfig != null && defConfig.contains(path)) {
             message = defConfig.getString(path);
         }
         return message;

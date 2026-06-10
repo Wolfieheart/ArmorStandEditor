@@ -38,28 +38,44 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 
 @SuppressWarnings("UnstableApiUsage")
 
 public class EquipmentMenu {
+    // Equipment slot indices in the inventory
+    private static final int EQUIP_SLOT_HELMET = 9;
+    private static final int EQUIP_SLOT_CHEST = 10;
+    private static final int EQUIP_SLOT_PANTS = 11;
+    private static final int EQUIP_SLOT_BOOTS = 12;
+    private static final int EQUIP_SLOT_RIGHT_HAND = 13;
+    private static final int EQUIP_SLOT_LEFT_HAND = 14;
+
     Inventory menuInv;
     private final Debug debug;
     private final PlayerEditor pe;
     private final ArmorStand armorstand;
-    ItemStack helmet;
-    ItemStack chest;
-    ItemStack pants;
-    ItemStack boots;
-    ItemStack rightHand;
-    ItemStack leftHand = ItemStack.of(Material.AIR);
-    ItemStack oldHelmet;
-    ItemStack oldChest;
-    ItemStack oldPants;
-    ItemStack oldBoots;
-    ItemStack oldRightHand;
-    ItemStack oldLeftHand = ItemStack.of(Material.AIR);
+    private ItemStack currentHelmet;
+    private ItemStack currentChest;
+    private ItemStack currentPants;
+    private ItemStack currentBoots;
+    private ItemStack currentRightHand;
+    private ItemStack currentLeftHand = ItemStack.of(Material.AIR);
+    private ItemStack oldHelmet;
+    private ItemStack oldChest;
+    private ItemStack oldPants;
+    private ItemStack oldBoots;
+    private ItemStack oldRightHand;
+    private ItemStack oldLeftHand = ItemStack.of(Material.AIR);
     private final CoreProtectExtension coreProtectExtension;
 
+    /**
+     * Constructs an EquipmentMenu for editing armor stand equipment.
+     *
+     * @param pe the PlayerEditor managing this menu
+     * @param as the ArmorStand to edit
+     */
     public EquipmentMenu(PlayerEditor pe, ArmorStand as) {
         this.pe = pe;
         this.armorstand = as;
@@ -74,19 +90,21 @@ public class EquipmentMenu {
 
     private void fillInventory() {
         menuInv.clear();
-        EntityEquipment equipment       = armorstand.getEquipment();
-        ItemStack currentHelmet         = equipment.getHelmet();
-        ItemStack currentChestplate     = equipment.getChestplate();
-        ItemStack currentLeggings       = equipment.getLeggings();
-        ItemStack currentBoots          = equipment.getBoots();
-        ItemStack currentMainHandItem   = equipment.getItemInMainHand();
-        ItemStack currentOffHandItem    = equipment.getItemInOffHand();
-        oldHelmet = currentHelmet;
-        oldChest = currentChestplate;
-        oldPants = currentLeggings;
-        oldBoots = currentBoots;
-        oldRightHand = currentMainHandItem;
-        oldLeftHand = currentOffHandItem;
+        EntityEquipment equipment = armorstand.getEquipment();
+
+        ItemStack itemHelmet = equipment.getHelmet();
+        ItemStack itemChestplate = equipment.getChestplate();
+        ItemStack itemLeggings = equipment.getLeggings();
+        ItemStack itemBoots = equipment.getBoots();
+        ItemStack itemMainHandItem = equipment.getItemInMainHand();
+        ItemStack itemOffHandItem = equipment.getItemInOffHand();
+
+        oldHelmet = itemHelmet;
+        oldChest = itemChestplate;
+        oldPants = itemLeggings;
+        oldBoots = itemBoots;
+        oldRightHand = itemMainHandItem;
+        oldLeftHand = itemOffHandItem;
         equipment.clear();
 
         ItemStack disabledIcon = ItemStack.of(Material.BARRIER);
@@ -105,7 +123,7 @@ public class EquipmentMenu {
         ItemStack[] items =
             {
                 helmetIcon, chestIcon, pantsIcon, bootsIcon, rightHandIcon, leftHandIcon, disabledIcon, disabledIcon, disabledIcon,
-                    currentHelmet, currentChestplate, currentLeggings, currentBoots, currentMainHandItem, currentOffHandItem, disabledIcon, disabledIcon, disabledIcon
+                    itemHelmet, itemChestplate, itemLeggings, itemBoots, itemMainHandItem, itemOffHandItem, disabledIcon, disabledIcon, disabledIcon
             };
         menuInv.setContents(items);
     }
@@ -138,83 +156,99 @@ public class EquipmentMenu {
         return icon;
     }
 
+    /**
+     * Opens the equipment menu for the player if they have permission.
+     */
     public void openMenu() {
         pe.getPlayer().closeInventory();
         if (pe.getPlayer().hasPermission("asedit.equipment")) {
             fillInventory();
-            debug.log("Player '" + pe.getPlayer().getName() + "' has opened the Equipment Menu.");
+            debug.log(String.format("Player '%s' has opened the Equipment Menu.", pe.getPlayer().getName()));
             pe.getPlayer().openInventory(menuInv);
         }
     }
 
+    /**
+     * Equips the armor stand with items from the menu and checks for changes.
+     */
     public void equipArmorstand() {
-        helmet = notNull(menuInv.getItem(9));
-        chest = notNull(menuInv.getItem(10));
-        pants = notNull(menuInv.getItem(11));
-        boots = notNull(menuInv.getItem(12));
-        rightHand = notNull(menuInv.getItem(13));
-        leftHand = notNull(menuInv.getItem(14));
+        currentHelmet = notNull(menuInv.getItem(EQUIP_SLOT_HELMET));
+        currentChest = notNull(menuInv.getItem(EQUIP_SLOT_CHEST));
+        currentPants = notNull(menuInv.getItem(EQUIP_SLOT_PANTS));
+        currentBoots = notNull(menuInv.getItem(EQUIP_SLOT_BOOTS));
+        currentRightHand = notNull(menuInv.getItem(EQUIP_SLOT_RIGHT_HAND));
+        currentLeftHand = notNull(menuInv.getItem(EQUIP_SLOT_LEFT_HAND));
 
         EntityEquipment equipment = armorstand.getEquipment();
-        equipment.setHelmet(helmet);
-        equipment.setChestplate(chest);
-        equipment.setLeggings(pants);
-        equipment.setBoots(boots);
-        equipment.setItemInMainHand(rightHand);
-        equipment.setItemInOffHand(leftHand);
+        equipment.setHelmet(currentHelmet);
+        equipment.setChestplate(currentChest);
+        equipment.setLeggings(currentPants);
+        equipment.setBoots(currentBoots);
+        equipment.setItemInMainHand(currentRightHand);
+        equipment.setItemInOffHand(currentLeftHand);
 
         checkForChanges();
     }
 
+    /**
+     * Checks if equipment has changed and logs the change.
+     */
     @SuppressWarnings("java:S2209")
     private void checkForChanges() {
         debug.log("Equipping ArmorStand and checking changes.");
         Player player = pe.getPlayer();
         ItemStack[] oldArray = new ItemStack[]{oldHelmet, oldChest, oldPants, oldBoots, oldRightHand, oldLeftHand};
-        ItemStack[] newArray = new ItemStack[]{helmet, chest, pants, boots, rightHand, leftHand};
+        ItemStack[] newArray = new ItemStack[]{currentHelmet, currentChest, currentPants, currentBoots, currentRightHand, currentLeftHand};
 
-        boolean change = false;
-        if (hasChanged(oldHelmet, helmet)) {
-            debug.log("Helmet changed from " + oldHelmet + " to " + helmet);
-            oldHelmet = helmet;
-            change = true;
+        if (hasChanged(oldHelmet, currentHelmet)) {
+            debug.log(String.format("Helmet changed from %s to %s", oldHelmet, currentHelmet));
+            oldHelmet = currentHelmet;
         }
-        if (hasChanged(oldChest, chest)) {
-            debug.log("Chest changed from " + oldChest + " to " + chest);
-            oldChest = chest;
-            change = true;
+        if (hasChanged(oldChest, currentChest)) {
+            debug.log(String.format("Chest changed from %s to %s", oldChest, currentChest));
+            oldChest = currentChest;
         }
-        if (hasChanged(oldPants, pants)) {
-            debug.log("Pants changed from " + oldPants + " to " + pants);
-            oldPants = pants;
-            change = true;
+        if (hasChanged(oldPants, currentPants)) {
+            debug.log(String.format("Pants changed from %s to %s", oldPants, currentPants));
+            oldPants = currentPants;
         }
-        if (hasChanged(oldBoots, boots)) {
-            debug.log("Boots changed from " + oldBoots + " to " + boots);
-            oldBoots = boots;
-            change = true;
+        if (hasChanged(oldBoots, currentBoots)) {
+            debug.log(String.format("Boots changed from %s to %s", oldBoots, currentBoots));
+            oldBoots = currentBoots;
         }
-        if (hasChanged(oldRightHand, rightHand)) {
-            debug.log("R-Hand changed from " + oldRightHand + " to " + rightHand);
-            oldRightHand = rightHand;
-            change = true;
+        if (hasChanged(oldRightHand, currentRightHand)) {
+            debug.log(String.format("R-Hand changed from %s to %s", oldRightHand, currentRightHand));
+            oldRightHand = currentRightHand;
         }
-        if (hasChanged(oldLeftHand, leftHand)) {
-            debug.log("L-Hand changed from " + oldLeftHand + " to " + leftHand);
-            oldLeftHand = leftHand;
-            change = true;
+        if (hasChanged(oldLeftHand, currentLeftHand)) {
+            debug.log(String.format("L-Hand changed from %s to %s", oldLeftHand, currentLeftHand));
+            oldLeftHand = currentLeftHand;
         }
 
-        if (change) {
-            coreProtectExtension.logChange(player, armorstand, oldArray, newArray);
-        }
+        coreProtectExtension.logChange(player, armorstand, oldArray, newArray);
     }
 
+    /**
+     * Checks if an item has changed between two states.
+     * Considers items equal if both are null or if their item stacks are equal.
+     *
+     * @param before the item before the change
+     * @param after  the item after the change
+     * @return true if the items are different, false otherwise
+     */
     private boolean hasChanged(@Nullable ItemStack before, @Nullable ItemStack after) {
-        if (before == null && after == null) return false;
-        return before == null || !before.equals(after);
+        if (before == null && after == null) {
+            return false;
+        }
+        return !Objects.equals(before, after);
     }
 
+    /**
+     * Returns the provided item stack, or an empty air stack if it is null.
+     *
+     * @param item the item stack to check
+     * @return the item stack, or an empty air stack if null
+     */
     private ItemStack notNull(@Nullable ItemStack item) {
         return item != null ? item : ItemStack.of(Material.AIR);
     }
