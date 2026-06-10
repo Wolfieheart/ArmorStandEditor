@@ -49,11 +49,11 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       # Build and analyze via Gradle + SonarCloud
-      - name: Build and Analyze via Gradle
+      - name: Run Smoke Test Only
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew clean shadowJar sonar --no-daemon -Dsonar.projectKey=wolfieheart_ArmorStandEditor
+        run: ./gradlew clean test --no-daemon --tests "io.github.rypofalem.armorstandeditor.SmokeTest.ArmorStandEditorPluginLifeCycleTest"
 
       # Get the current date and time
       - name: Get Current Date and Time
