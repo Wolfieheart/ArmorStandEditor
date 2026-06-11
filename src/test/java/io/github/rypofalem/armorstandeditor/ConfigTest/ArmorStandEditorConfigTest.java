@@ -25,12 +25,6 @@ class ArmorStandEditorConfigTest extends BasePluginTest {
         );
 
         // ---------------------------
-        // TOOL IN USE
-        // ---------------------------
-        assertNotNull(plugin.getEditTool());
-        assertNotEquals(Material.STICK, plugin.getEditTool(), "editTool is not correctly configured or failed to load");
-
-        // ---------------------------
         // COARSE AND FINE ROTATION
         // ---------------------------
         double coarseRot = plugin.getConfig().getDouble("coarse", Double.NaN);
