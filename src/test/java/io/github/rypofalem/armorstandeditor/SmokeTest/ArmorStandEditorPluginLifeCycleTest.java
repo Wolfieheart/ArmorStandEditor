@@ -1,7 +1,6 @@
 package io.github.rypofalem.armorstandeditor.SmokeTest;
 
 import io.github.rypofalem.armorstandeditor.BasePluginTest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

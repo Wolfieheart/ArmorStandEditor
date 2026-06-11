@@ -1,9 +1,12 @@
 package io.github.rypofalem.armorstandeditor.ScoreboardTest;
 
 import io.github.rypofalem.armorstandeditor.BasePluginTest;
+
 import net.kyori.adventure.text.format.NamedTextColor;
+
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

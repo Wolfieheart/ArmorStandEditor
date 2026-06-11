@@ -3,11 +3,10 @@ package io.github.rypofalem.armorstandeditor.ConfigTest;
 import io.github.rypofalem.armorstandeditor.BasePluginTest;
 import io.github.rypofalem.armorstandeditor.TestHelperFunctions;
 
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Material;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

@@ -522,8 +522,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         if (requireToolLore) {
             editToolLore = getConfig().getList("toolLore", null).stream()
-                    .map(line -> LegacyComponentSerializer.legacyAmpersand().deserialize(String.valueOf(line)))
-                    .collect(Collectors.toList());
+                    .map(line -> LegacyComponentSerializer.legacyAmpersand().deserialize(String.valueOf(line))).toList();
         }
 
         if (enablePerWorld) {

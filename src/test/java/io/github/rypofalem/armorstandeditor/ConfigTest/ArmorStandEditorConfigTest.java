@@ -1,7 +1,7 @@
 package io.github.rypofalem.armorstandeditor.ConfigTest;
 
 import io.github.rypofalem.armorstandeditor.BasePluginTest;
-import org.bukkit.Material;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
