@@ -51,6 +51,7 @@ import org.bukkit.scoreboard.Team;
 import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 
@@ -411,19 +412,18 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     public double getMaxScaleValue() { return maxScaleValue; }
 
-    // FIX: renamed to match field rename from customModelDataInt -> customModelDataValue
-    public double getCustomModelDataValue() { return customModelDataValue; }
-
     public boolean isEditTool(ItemStack itemStk) {
         if (itemStk == null || editTool != itemStk.getType()) return false;
 
-        ItemMeta itemMeta = itemStk.getItemMeta();
-        if (itemMeta == null) return false;
+        if (requireToolData || requireToolName || requireToolLore || allowCustomModelData) {
+            ItemMeta itemMeta = itemStk.getItemMeta();
+            if (itemMeta == null) return false;
+            if (requireToolData && !hasMatchingDurability(itemMeta)) return false;
+            if (requireToolName && !hasMatchingName(itemMeta)) return false;
+            if (requireToolLore && !hasMatchingLore(itemMeta)) return false;
+            if (allowCustomModelData && !hasMatchingCustomModelData(itemMeta)) return false;
+        }
 
-        if (requireToolData && !hasMatchingDurability(itemMeta)) return false;
-        if (requireToolName && !hasMatchingName(itemMeta)) return false;
-        if (requireToolLore && !hasMatchingLore(itemMeta)) return false;
-        if (allowCustomModelData && !hasMatchingCustomModelData(itemMeta)) return false;
         return true;
     }
 
@@ -496,8 +496,16 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     public void loadConditionalConfig() {
+        // Reset all conditional fields first
+        customModelDataValue = 0;
+        editToolNameRaw = null;
+        editToolName = null;
+        editToolData = Integer.MIN_VALUE;
+        editToolLore = null;
+        allowedWorldList = null;
+        blockedNames = List.of();
+
         if (allowCustomModelData) {
-            // FIX: field renamed to customModelDataValue and typed as int
             customModelDataValue = getConfig().getDouble("customModelDataInt", 10.0f);
         }
 
@@ -513,28 +521,24 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         }
 
         if (requireToolLore) {
-            editToolLore = getConfig().getList("toolLore", null);
+            editToolLore = getConfig().getList("toolLore", null).stream()
+                    .map(line -> LegacyComponentSerializer.legacyAmpersand().deserialize(String.valueOf(line)))
+                    .collect(Collectors.toList());
         }
 
         if (enablePerWorld) {
             allowedWorldList = new ArrayList<>(getConfig().getStringList("allowed-worlds"));
             if (!allowedWorldList.isEmpty() && allowedWorldList.get(0).equals("*")) {
-                allowedWorldList = getServer()
-                        .getWorlds()
-                        .stream()
+                allowedWorldList = getServer().getWorlds().stream()
                         .map(World::getName)
                         .toList();
             }
         }
 
-        // Always load regardless of allowedToRetrieveOwnPlayerHead — CommandEx reads this
-        // unconditionally, so leaving it unset causes a NPE when the flag is false.
         maxNumberOfHeadRetrievals = getConfig().getDouble("maxNumberOfHeadRetrievals", 5);
-
 
         if (enableBlockedNames) {
             blockedNames = List.copyOf(getConfig().getStringList("blocked-names"));
-
             if (!blockedNames.isEmpty()) {
                 getLogger().info("Blocked Names Enabled. The following names are blocked:");
                 blockedNames.forEach(name -> getLogger().info("- " + name));
@@ -672,5 +676,19 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public boolean getEnablePerWorldSupport() {
         return getConfig().getBoolean("enablePerWorldSupport", false);
     }
+
+    public boolean getRequiredToolName() { return getConfig().getBoolean("requireToolName", false); }
+
+    public boolean getRequiredToolLore(){ return getConfig().getBoolean("requireToolLore", false); }
+
+    public boolean getRequiredToolData(){ return getConfig().getBoolean("requireToolData", false); }
+
+    public double getCustomModelDataValue() {
+        if (!getConfig().getBoolean("allowCustomModelData", false)) {
+            return 0.0;
+        }
+        return getConfig().getDouble("customModelDataInt", 0.0);
+    }
+
 
 }
