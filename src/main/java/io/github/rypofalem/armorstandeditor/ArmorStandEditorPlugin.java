@@ -684,7 +684,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public boolean getRequiredToolData(){ return getConfig().getBoolean("requireToolData", false); }
 
     public double getCustomModelDataValue() {
-        if (!getConfig().getBoolean("allowCustomModelData", false)) {
+        if (!getAllowCustomModelData()) {
             return 0.0;
         }
         return getConfig().getDouble("customModelDataInt", 0.0);
