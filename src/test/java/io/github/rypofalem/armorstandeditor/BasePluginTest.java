@@ -1,24 +1,23 @@
 package io.github.rypofalem.armorstandeditor;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class BasePluginTest {
 
     protected ServerMock server;
     protected ArmorStandEditorPlugin plugin;
 
-    @BeforeAll
+    @BeforeEach
     void setupServer() {
         server = MockBukkit.mock();
         plugin = MockBukkit.load(ArmorStandEditorPlugin.class, true);
     }
 
-    @AfterAll
+    @AfterEach
     void tearDownServer() {
         MockBukkit.unmock();
     }

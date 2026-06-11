@@ -26,6 +26,11 @@ configurations.configureEach {
     }
 }
 
+configurations {
+    mockitoAgent
+}
+
+
 group = 'io.github.rypofalem.armorstandeditor'
 
 // Read version from plugin.yml at configuration time
@@ -127,6 +132,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3'
     testImplementation 'org.mockbukkit.mockbukkit:mockbukkit-v26.1.2:4.+'
     testImplementation 'io.papermc.paper:paper-api:26.1.2.build.+'
+    testImplementation 'org.mockito:mockito-core:5.+'
+    mockitoAgent("org.mockito:mockito-core:5.+") { transitive = false }
     testRuntimeOnly    'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly    'org.slf4j:slf4j-simple:2.0.17'
 }
@@ -175,6 +182,8 @@ tasks.build{
 tasks.named('test') {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
+    jvmArgs "-javaagent:${configurations.mockitoAgent.asPath}"
+    jvmArgs "-XX:+EnableDynamicAgentLoading" // silences the remaining JDK warning
 }
 
 jacocoTestReport {
