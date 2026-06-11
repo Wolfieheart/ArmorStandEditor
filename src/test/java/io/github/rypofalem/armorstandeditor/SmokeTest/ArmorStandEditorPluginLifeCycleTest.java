@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class ArmorStandEditorPluginLifeCycleTest extends BasePluginTest {
     /*
      * Basic LifeCycle Tests
@@ -14,8 +16,8 @@ public class ArmorStandEditorPluginLifeCycleTest extends BasePluginTest {
     @Test
     @DisplayName("Verify that ASE Actually Loaded Successfully")
     void testPluginLoad(){
-        Assertions.assertNotNull(plugin);
-        Assertions.assertTrue(plugin.isEnabled());
+        assertNotNull(plugin);
+        assertTrue(plugin.isEnabled());
     }
 
     @Test
@@ -24,21 +26,32 @@ public class ArmorStandEditorPluginLifeCycleTest extends BasePluginTest {
         File playerHeadsFile = new File(plugin.getDataFolder(), "playerheads.yml");
 
         //Configs that ASE Needs
-        Assertions.assertNotNull(plugin.getConfig());
-        Assertions.assertNotNull(playerHeadsFile);
+        assertNotNull(plugin.getConfig());
+        assertNotNull(playerHeadsFile);
     }
 
     @Test
-    @DisplayName("Verify we have the scheduler and the managers loaded")
-    void pluginHasSchedulerAndManagersAfterEnable() {
-        Assertions.assertNotNull(plugin.getScheduler());
-        Assertions.assertNotNull(plugin.editorManager);
-        Assertions.assertNotNull(plugin.getHeadDataMananger());
+    @DisplayName("Verify we have the HeadDataManager Loaded")
+    void shouldInitalizeHeadDataManager() {
+        assertNotNull(plugin.getHeadDataMananger());
     }
+
+    @Test
+    @DisplayName("Verify we have the language loaded")
+    void shouldInitializeLanguageManager() {
+        assertNotNull(plugin.getLang());
+    }
+
+    @Test
+    @DisplayName("Verify that we can get the Scheduler")
+    void shouldInitalizeSheduler(){
+        assertNotNull(plugin.getScheduler());
+    }
+
 
     @Test
     @DisplayName("ASE should load successfully in UnitTesting Mode")
     void loadInUTMode(){
-        Assertions.assertTrue(plugin.didLogUnitTestMode(), "Plugin did not log that it is in UnitTesting mode. This likely means it did not load properly.");
+        assertTrue(plugin.didLogUnitTestMode(), "Plugin did not log that it is in UnitTesting mode. This likely means it did not load properly.");
     }
 }

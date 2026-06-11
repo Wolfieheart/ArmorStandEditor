@@ -8,7 +8,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ArmorStandEditorConditionalConfigTest extends BasePluginTest {
+class ArmorStandEditorConditionalConfigTest extends BasePluginTest {
 
     // -------------------------
     // HELPERS
