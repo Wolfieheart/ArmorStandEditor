@@ -109,7 +109,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     //Custom Data Model Support - Readded
     boolean allowCustomModelData = false;
     // FIX: renamed from customModelDataInt and retyped to int — it was float but used as an integer throughout
-    float  customModelDataValue;
+    double  customModelDataValue;
 
     //GUI Settings
     boolean requireSneaking = false;
@@ -412,7 +412,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public double getMaxScaleValue() { return maxScaleValue; }
 
     // FIX: renamed to match field rename from customModelDataInt -> customModelDataValue
-    public float getCustomModelDataValue() { return customModelDataValue; }
+    public double getCustomModelDataValue() { return customModelDataValue; }
 
     public boolean isEditTool(ItemStack itemStk) {
         if (itemStk == null || editTool != itemStk.getType()) return false;
@@ -498,7 +498,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public void loadConditionalConfig() {
         if (allowCustomModelData) {
             // FIX: field renamed to customModelDataValue and typed as int
-            customModelDataValue = getConfig().getInt("customModelDataInt", Integer.MIN_VALUE);
+            customModelDataValue = getConfig().getDouble("customModelDataInt", 10.0f);
         }
 
         if (requireToolName) {
