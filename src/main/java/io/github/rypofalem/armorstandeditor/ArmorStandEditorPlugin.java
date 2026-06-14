@@ -60,7 +60,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     //!!! DO NOT REMOVE THESE UNDER ANY CIRCUMSTANCES - Required for BStats and UpdateChecker !!!
     private static final int PLUGIN_ID = 12668;             //Used for BStats Metrics
-    public final Debug debug = new Debug(this);
+    public Debug debug = new Debug(this);
 
     private final boolean unitTestMode;
     private boolean unitTestModeLogged;
