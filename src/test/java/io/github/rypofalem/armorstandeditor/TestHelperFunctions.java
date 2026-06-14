@@ -1,12 +1,17 @@
 package io.github.rypofalem.armorstandeditor;
 
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.GlowItemFrame;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.*;
@@ -61,6 +66,27 @@ public class TestHelperFunctions {
         meta.setCustomModelData(modelData);
         item.setItemMeta(meta);
         return item;
+    }
+
+    public static ArmorStand mockArmorStand(Location location){
+        ArmorStand stand = mock(ArmorStand.class);
+        when(stand.getUniqueId()).thenReturn(UUID.randomUUID());
+        when(stand.getLocation()).thenReturn(location);
+        return stand;
+    }
+
+    public static ItemFrame mockItemFrame(Location location) {
+        ItemFrame frame = mock(ItemFrame.class);
+        when(frame.getUniqueId()).thenReturn(UUID.randomUUID());
+        when(frame.getLocation()).thenReturn(location);
+        return frame;
+    }
+
+    public static GlowItemFrame mockGlowItemFrame(Location location) {
+        GlowItemFrame frame = mock(GlowItemFrame.class);
+        when(frame.getUniqueId()).thenReturn(UUID.randomUUID());
+        when(frame.getLocation()).thenReturn(location);
+        return frame;
     }
 
 }

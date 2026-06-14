@@ -132,6 +132,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3'
     testImplementation 'org.mockbukkit.mockbukkit:mockbukkit-v26.1.2:4.+'
     testImplementation 'io.papermc.paper:paper-api:26.1.2.build.+'
+    testImplementation 'com.palmergames.bukkit.towny:towny:0.102.0.13'
     testImplementation 'org.mockito:mockito-core:5.+'
     mockitoAgent("org.mockito:mockito-core:5.+") { transitive = false }
     testRuntimeOnly    'org.junit.platform:junit-platform-launcher'
