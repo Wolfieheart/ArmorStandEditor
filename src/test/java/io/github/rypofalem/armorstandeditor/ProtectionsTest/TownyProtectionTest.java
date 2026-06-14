@@ -30,7 +30,7 @@ class TownyProtectionTest extends BaseProtectionTest {
     private TownyAPI towny;
 
     @BeforeEach
-    void townySetUp() {
+    void beforeSetup() {
         towny = mock(TownyAPI.class);
         townyApiMock = mockStatic(TownyAPI.class);
         townyApiMock.when(TownyAPI::getInstance).thenReturn(towny);
@@ -39,7 +39,7 @@ class TownyProtectionTest extends BaseProtectionTest {
     }
 
     @AfterEach
-    void townyTearDown() {
+    void baseTearDown() {
         townyApiMock.close();
         townyExecutorMock.close();
     }
