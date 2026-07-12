@@ -40,8 +40,8 @@ class TownyProtectionTest extends BaseProtectionTest {
 
     @AfterEach
     void baseTearDown() {
-        townyApiMock.close();
-        townyExecutorMock.close();
+        if (townyApiMock != null) townyApiMock.close();
+        if (townyExecutorMock != null) townyExecutorMock.close();
     }
 
     @Test

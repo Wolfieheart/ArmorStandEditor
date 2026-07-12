@@ -80,7 +80,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String versionLogPrefix;
 
     //Hardcode the ASE Version
-    public static final String ASE_VERSION = "26.1.2-51.1";
+    public static final String ASE_VERSION = "26.1.2-51.1.Beta1";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;
@@ -296,7 +296,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             getLogger().severe("ArmorStandEditor is not compatible with this version of Minecraft. Please update to at least version 1.17. Loading failed.");
             getLogger().info(SEPARATOR_FIELD);
             getServer().getPluginManager().disablePlugin(this);
-        } else if (VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(MinecraftVersion.MINECRAFT_26_1_1)) {
+        } else if (VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(MinecraftVersion.MINECRAFT_26_2)) {
             getLogger().warning(versionLogPrefix);
             getLogger().warning("ArmorStandEditor is compatible with this version of Minecraft, but it is not the latest supported version.");
             getLogger().warning("Loading continuing, but please consider updating to the latest version.");

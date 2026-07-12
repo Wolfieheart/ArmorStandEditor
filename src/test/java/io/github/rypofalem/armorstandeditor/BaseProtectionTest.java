@@ -12,6 +12,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+
+import org.mockbukkit.mockbukkit.MockBukkit;
+
 import org.mockito.MockedStatic;
 
 import java.util.UUID;
