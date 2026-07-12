@@ -76,7 +76,7 @@ repositories {
 
 dependencies {
     // Paper API only (compile-time)
-    compileOnly "io.papermc.paper:paper-api:26.1.2.build.+"
+    compileOnly "io.papermc.paper:paper-api:26.2.build.+"
     compileOnly "dev.folia:folia-api:1.20.1-R0.1-SNAPSHOT"
 
     // Adventure
@@ -131,8 +131,11 @@ dependencies {
     // Testing
     testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3'
     testImplementation 'org.mockbukkit.mockbukkit:mockbukkit-v26.1.2:4.+'
-    testImplementation 'io.papermc.paper:paper-api:26.1.2.build.+'
+    testImplementation 'io.papermc.paper:paper-api:26.2.build.+'
     testImplementation 'com.palmergames.bukkit.towny:towny:0.102.0.13'
+    testImplementation 'com.intellectualsites.plotsquared:plotsquared-core:7.5.12'
+    testImplementation 'com.intellectualsites.plotsquared:plotsquared-bukkit:7.5.12'
+    testImplementation 'com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT'
     testImplementation 'org.mockito:mockito-core:5.+'
     mockitoAgent("org.mockito:mockito-core:5.+") { transitive = false }
     testRuntimeOnly    'org.junit.platform:junit-platform-launcher'

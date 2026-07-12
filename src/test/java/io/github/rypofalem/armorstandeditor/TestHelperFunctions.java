@@ -12,7 +12,6 @@ import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.*;
 
@@ -37,7 +36,7 @@ public class TestHelperFunctions {
         ItemMeta meta = item.getItemMeta();
         meta.lore(lore.stream()
                 .map(line -> LegacyComponentSerializer.legacyAmpersand().deserialize(line))
-                .collect(Collectors.toList()));
+                .toList());
         item.setItemMeta(meta);
         return item;
     }
@@ -62,7 +61,7 @@ public class TestHelperFunctions {
         meta.displayName(LegacyComponentSerializer.legacyAmpersand().deserialize(legacyName));
         meta.lore(legacyLore.stream()
                 .map(line -> LegacyComponentSerializer.legacyAmpersand().deserialize(line))
-                .collect(Collectors.toList()));
+                .toList());
         meta.setCustomModelData(modelData);
         item.setItemMeta(meta);
         return item;
