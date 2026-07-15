@@ -414,17 +414,17 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     public boolean isEditTool(ItemStack itemStk) {
         if (itemStk == null || editTool != itemStk.getType()) return false;
-
-        if (requireToolData || requireToolName || requireToolLore || allowCustomModelData) {
-            ItemMeta itemMeta = itemStk.getItemMeta();
-            if (itemMeta == null) return false;
-            if (requireToolData && !hasMatchingDurability(itemMeta)) return false;
-            if (requireToolName && !hasMatchingName(itemMeta)) return false;
-            if (requireToolLore && !hasMatchingLore(itemMeta)) return false;
-            if (allowCustomModelData && !hasMatchingCustomModelData(itemMeta)) return false;
-        }
-
-        return true;
+        if (!requireToolData && !requireToolName && !requireToolLore && !allowCustomModelData) return true;
+    
+        ItemMeta itemMeta = itemStk.getItemMeta();
+        return itemMeta != null && meetsToolRequirements(itemMeta);
+    }
+    
+    private boolean meetsToolRequirements(ItemMeta itemMeta) {
+        if (requireToolData && !hasMatchingDurability(itemMeta)) return false;
+        if (requireToolName && !hasMatchingName(itemMeta)) return false;
+        if (requireToolLore && !hasMatchingLore(itemMeta)) return false;
+        return !allowCustomModelData || hasMatchingCustomModelData(itemMeta);
     }
 
     private boolean hasMatchingDurability(ItemMeta itemMeta) {
