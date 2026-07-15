@@ -188,8 +188,14 @@ tasks.named('test') {
     finalizedBy jacocoTestReport
     jvmArgs "-javaagent:${configurations.mockitoAgent.asPath}"
     jvmArgs "-XX:+EnableDynamicAgentLoading" // silences the remaining JDK warning
-}
 
+    testLogging {
+        exceptionFormat = "full"
+        showCauses = true
+        showStackTraces = true
+        events "failed"
+    }
+}
 jacocoTestReport {
     dependsOn test
     reports {
