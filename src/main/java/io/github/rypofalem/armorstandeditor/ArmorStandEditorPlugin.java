@@ -157,6 +157,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        scheduler = new Scheduler(this);
+        
         if (!getHasFolia())
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
     
