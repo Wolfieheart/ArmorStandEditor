@@ -131,7 +131,7 @@ dependencies {
     // Testing
     testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3'
     testImplementation 'org.mockbukkit.mockbukkit:mockbukkit-v26.1.2:4.+'
-    testImplementation 'io.papermc.paper:paper-api:26.2.build.+'
+    testImplementation 'io.papermc.paper:paper-api:26.1.2.build.+'
     testImplementation 'com.palmergames.bukkit.towny:towny:0.102.0.13'
     testImplementation 'com.intellectualsites.plotsquared:plotsquared-core:7.5.12'
     testImplementation 'com.intellectualsites.plotsquared:plotsquared-bukkit:7.5.12'
