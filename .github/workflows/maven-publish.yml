@@ -53,12 +53,21 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      # Build and analyze via Gradle + SonarCloud
+      # Build and analyze via Gradle + SonarCloud + Upload the report
       - name: Build, Test and Analyze via Gradle
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew clean test shadowJar sonar --no-daemon -Dsonar.projectKey=wolfieheart_ArmorStandEditor
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            build/reports/tests/test/
+            build/test-results/test/
 
       # 6. Get Version from JAR name
       - name: Get Version
