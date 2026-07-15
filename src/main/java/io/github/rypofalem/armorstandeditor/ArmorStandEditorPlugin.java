@@ -157,41 +157,39 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        scheduler = new Scheduler(this);
-
         if (!getHasFolia())
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
-
+    
         //START ---  Load Messages in Console
         getLogger().info("======= ArmorStandEditor =======");
         getLogger().info("Plugin Version: v" + ASE_VERSION);
-
-        if(unitTestMode){
+    
+        if (unitTestMode) {
             getLogger().info("Unit Test Mode Enabled - Some features may be disabled or behave differently for testing purposes.");
             unitTestModeLogged = true;
         }
-
+    
         hasPaper = getHasPaper();
         hasFolia = getHasFolia();
-
+    
         //Get NMS Version
         nmsVersion = getServer().getMinecraftVersion();
         versionLogPrefix = warningMCVer + nmsVersion;
         doVersionCheck();
-
+    
         //If Paper and Folia are both FALSE - Disable the plugin
         //Also we shouldn't run this if we are UnitTesting since we don't care.
-        if(unitTestMode){
+        if (unitTestMode) {
             getLogger().info("Skipping Paper and Folia check due to Unit Test Mode.");
         } else if (!hasPaper && !hasFolia) {
             getLogger().severe("This plugin requires either Paper or one of its forks to run. This is not an error, please do not report this!");
             getLogger().info(SEPARATOR_FIELD);
             getServer().getPluginManager().disablePlugin(this);
             return;
-        }  else {
+        } else {
             getLogger().log(Level.INFO, "Paper/Folia Present? {0}", hasPaper);
         }
-
+    
         if (!hasFolia) {
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
             registerScoreboards(scoreboard);
@@ -200,15 +198,15 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         } else {
             runWarningsFolia();
         }
-
+    
         //Run the update checker if enabled in config
         if (getRunTheUpdateChecker()) {
             new UpdateChecker(this).checkForUpdates();
         }
-
+    
         getLogger().info(SEPARATOR_FIELD);
         // ----- End of Initial Console Output
-
+    
         //saveResource doesn't accept File.separator on Windows, need to hardcode unix separator "/" instead
         updateConfig("", "config.yml");
         updateConfig(languageFolderLocation, "de_DE.yml");
@@ -223,27 +221,34 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         updateConfig(languageFolderLocation, "test_NA.yml");
         updateConfig(languageFolderLocation, "uk_UA.yml");
         updateConfig(languageFolderLocation, "zh_CN.yml");
-
+    
         //English is the default language and needs to be unaltered to so that there is always a backup message string
         saveResource("lang/en_US.yml", true);
         loadConfigValues();
-
+    
         //Needed to handle the persistent storage of the PlayerHead Counters
         headDataManager = new HeadDataManager(this);
-
+    
         //Get Metrics from bStats
         getMetrics();
-
+    
         //Activate CoreProtect Extension if CoreProtect is present
         coreProtectExtension = new CoreProtectExtension(this);
-
+    
         //Register Commands and Tab Completers
         CommandEx execute = new CommandEx(this);
         TabCompleter tabCompleter = new TabCompleter();
-
-        // Register commands using the Paper Lifecycle API (replaces getCommand() which is
-        // unsupported for Paper plugins). Wraps the existing CommandEx and TabCompleter so
-        // no other code needs to change.
+        registerCommands(execute, tabCompleter);
+    
+        //Register Events
+        editorManager = new PlayerEditorManager(this);
+        getServer().getPluginManager().registerEvents(editorManager, this);
+    }
+    
+    // Register commands using the Paper Lifecycle API (replaces getCommand() which is
+    // unsupported for Paper plugins). Wraps the existing CommandEx and TabCompleter so
+    // no other code needs to change.
+    private void registerCommands(CommandEx execute, TabCompleter tabCompleter) {
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             Commands commands = event.registrar();
             for (String alias : List.of("ase", "armorstandeditor", "asedit")) {
@@ -283,10 +288,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
                 );
             }
         });
-
-        //Register Events
-        editorManager = new PlayerEditorManager(this);
-        getServer().getPluginManager().registerEvents(editorManager, this);
     }
 
     private void doVersionCheck() {
