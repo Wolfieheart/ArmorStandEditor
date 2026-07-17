@@ -82,6 +82,7 @@ public class PlayerEditorManager implements Listener {
     // Instantiate protections used to determine whether a player may edit an armor stand or item frame
     private final List<Protection> protections = List.of(
         new GriefDefenderProtection(),
+        new GriefPreventionProtection(),
         new LandsProtection(),
         new PlotSquaredProtection(),
         new SkyblockProtection(),

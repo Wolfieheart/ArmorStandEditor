@@ -105,6 +105,9 @@ dependencies {
         exclude group: "net.kyori"
     }
 
+    // GriefPrevention
+    compileOnly "com.github.GriefPrevention:GriefPrevention:16.18.2"
+
     // Lands
     compileOnly "com.github.angeschossen:LandsAPI:7.25.4"
 
@@ -136,6 +139,7 @@ dependencies {
     testImplementation 'com.intellectualsites.plotsquared:plotsquared-core:7.5.12'
     testImplementation 'com.intellectualsites.plotsquared:plotsquared-bukkit:7.5.12'
     testImplementation 'com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT'
+    testImplementation 'com.github.GriefPrevention:GriefPrevention:16.18.2'
     testImplementation 'org.mockito:mockito-core:5.+'
     mockitoAgent("org.mockito:mockito-core:5.+") { transitive = false }
     testRuntimeOnly    'org.junit.platform:junit-platform-launcher'
