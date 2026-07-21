@@ -90,7 +90,8 @@ public class PlayerEditorManager implements Listener {
         new WorldGuardProtection(),
         new itemAdderProtection(),
         new BoltProtection(),
-        new BentoBoxProtection());
+        new BentoBoxProtection(),
+        new DominionProtection());
 
     PlayerEditorManager(ArmorStandEditorPlugin plugin) {
         this.plugin = plugin;
@@ -253,14 +254,11 @@ public class PlayerEditorManager implements Listener {
 
         if (event.getEntity() instanceof ArmorStand entityAS) {
             // Check if the ArmorStand is invulnerable and if the damager is a player.
-            if (entityAS.isInvulnerable() && event.getDamager() instanceof Player p) {
-                // Check if the player is in Creative mode.
-                if (p.getGameMode() == GameMode.CREATIVE) {
-                    // If the player is in Creative mode and the ArmorStand is invulnerable,
-                    // cancel the event to prevent breaking the ArmorStand.
-                    p.sendMessage(plugin.getLang().getMessage("unabledestroycreative"));
-                    event.setCancelled(true); // Cancel the event to prevent ArmorStand destruction.
-                }
+            if (entityAS.isInvulnerable() && event.getDamager() instanceof Player p && p.getGameMode() == GameMode.CREATIVE) {
+                // If the player is in Creative mode and the ArmorStand is invulnerable,
+                // cancel the event to prevent breaking the ArmorStand.
+                p.sendMessage(plugin.getLang().getMessage("unabledestroycreative"));
+                event.setCancelled(true); // Cancel the event to prevent ArmorStand destruction.
             }
         }
 

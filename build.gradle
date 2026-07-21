@@ -124,6 +124,9 @@ dependencies {
     compileOnly "org.popcraft:bolt-bukkit:1.1.33"
     compileOnly "org.popcraft:bolt-common:1.2.86"
 
+    // Dominion
+    compileOnly 'cn.lunadeer:DominionAPI:4.7.3'
+
     // Lombok
     compileOnly "org.projectlombok:lombok:1.18.44"
     annotationProcessor "org.projectlombok:lombok:1.18.44"
@@ -140,6 +143,7 @@ dependencies {
     testImplementation 'com.intellectualsites.plotsquared:plotsquared-bukkit:7.5.12'
     testImplementation 'com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT'
     testImplementation 'com.github.GriefPrevention:GriefPrevention:16.18.2'
+    testImplementation 'cn.lunadeer:DominionAPI:4.7.3'
     testImplementation 'org.mockito:mockito-core:5.+'
     mockitoAgent("org.mockito:mockito-core:5.+") { transitive = false }
     testRuntimeOnly    'org.junit.platform:junit-platform-launcher'
