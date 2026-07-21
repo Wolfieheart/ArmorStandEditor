@@ -16,10 +16,9 @@ import org.junit.jupiter.api.Test;
 
 import org.mockito.MockedStatic;
 
-import static io.github.rypofalem.armorstandeditor.TestHelperFunctions.*;
+import static io.github.rypofalem.armorstandeditor.TestUtils.TestHelperFunctions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class DominionProtectionTest extends BaseProtectionTest {
@@ -27,8 +26,12 @@ class DominionProtectionTest extends BaseProtectionTest {
     private MockedStatic<DominionAPI> dominionApiMock;
     private DominionAPI dominion;
 
+    DominionProtection protection;
+
     @BeforeEach
     void beforeSetup() {
+        protection = new DominionProtection();
+
         dominion = mock(DominionAPI.class);
         dominionApiMock = mockStatic(DominionAPI.class);
         dominionApiMock.when(DominionAPI::getInstance).thenReturn(dominion);
@@ -44,7 +47,7 @@ class DominionProtectionTest extends BaseProtectionTest {
     void dominionNotEnabled_alwaysAllows() {
         setPluginEnabled("Dominion", false);
 
-        assertTrue(new DominionProtection().checkPermission(mockArmorStand(location), player));
+        assertTrue(protection.checkPermission(mockArmorStand(location), player));
         verifyNoInteractions(dominion);
     }
 
@@ -54,7 +57,7 @@ class DominionProtectionTest extends BaseProtectionTest {
         setPluginEnabled("Dominion", true);
         setPlayerOp(true);
 
-        assertTrue(new DominionProtection().checkPermission(mockArmorStand(location), player));
+        assertTrue(protection.checkPermission(mockArmorStand(location), player));
         verifyNoInteractions(dominion);
     }
 
@@ -64,7 +67,7 @@ class DominionProtectionTest extends BaseProtectionTest {
         setPluginEnabled("Dominion", true);
         setPlayerPermission("asedit.ignoreProtection.dominion", true);
 
-        assertTrue(new DominionProtection().checkPermission(mockArmorStand(location), player));
+        assertTrue(protection.checkPermission(mockArmorStand(location), player));
         verifyNoInteractions(dominion);
     }
 
@@ -74,10 +77,9 @@ class DominionProtectionTest extends BaseProtectionTest {
         setPluginEnabled("Dominion", true);
 
         ArmorStand stand = mockArmorStand(location);
-        when(dominion.checkPrivilegeFlagSilence(eq(location), eq(Flags.PLACE), eq(player)))
-                .thenReturn(true);
-
-        assertTrue(new DominionProtection().checkPermission(stand, player));
+        
+        when(dominion.checkPrivilegeFlagSilence(location, Flags.PLACE, player)).thenReturn(true);
+        assertTrue(protection.checkPermission(stand, player));
     }
 
     @Test
@@ -86,13 +88,12 @@ class DominionProtectionTest extends BaseProtectionTest {
         setPluginEnabled("Dominion", true);
 
         ArmorStand stand = mockArmorStand(location);
-        when(dominion.checkPrivilegeFlagSilence(eq(location), eq(Flags.PLACE), eq(player)))
-                .thenReturn(false);
+        when(dominion.checkPrivilegeFlagSilence(location, Flags.PLACE, player)).thenReturn(false);
 
         Component expectedMessage = Component.text("You cannot edit here!");
         when(lang.getMessage("dominionNoEdit", "warn")).thenReturn(expectedMessage);
 
-        assertFalse(new DominionProtection().checkPermission(stand, player));
+        assertFalse(protection.checkPermission(stand, player));
         verify(player).sendMessage(expectedMessage);
     }
 
@@ -101,10 +102,8 @@ class DominionProtectionTest extends BaseProtectionTest {
     void glowItemFrame_usesItemFrameInteractiveFlag() {
         setPluginEnabled("Dominion", true);
 
-        when(dominion.checkPrivilegeFlagSilence(eq(location), eq(Flags.ITEM_FRAME_INTERACTIVE), eq(player)))
-                .thenReturn(false);
-
-        assertFalse(new DominionProtection().checkPermission(mockGlowItemFrame(location), player));
+        when(dominion.checkPrivilegeFlagSilence(location, Flags.ITEM_FRAME_INTERACTIVE, player)).thenReturn(false);
+        assertFalse(protection.checkPermission(mockGlowItemFrame(location), player));
     }
 
     @Test
@@ -112,10 +111,8 @@ class DominionProtectionTest extends BaseProtectionTest {
     void itemFrame_flagGranted_allowed() {
         setPluginEnabled("Dominion", true);
 
-        when(dominion.checkPrivilegeFlagSilence(eq(location), eq(Flags.ITEM_FRAME_INTERACTIVE), eq(player)))
-                .thenReturn(true);
-
-        assertTrue(new DominionProtection().checkPermission(mockItemFrame(location), player));
+        when(dominion.checkPrivilegeFlagSilence(location, Flags.ITEM_FRAME_INTERACTIVE, player)).thenReturn(true);
+        assertTrue(protection.checkPermission(mockItemFrame(location), player));
     }
 
     @Test
@@ -125,7 +122,7 @@ class DominionProtectionTest extends BaseProtectionTest {
 
         org.bukkit.entity.Entity zombie = mock(org.bukkit.entity.Zombie.class);
 
-        assertTrue(new DominionProtection().checkPermission(zombie, player));
+        assertTrue(protection.checkPermission(zombie, player));
         verifyNoInteractions(dominion);
     }
 }

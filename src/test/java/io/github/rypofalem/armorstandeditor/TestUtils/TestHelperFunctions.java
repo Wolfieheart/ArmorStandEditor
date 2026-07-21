@@ -1,4 +1,4 @@
-package io.github.rypofalem.armorstandeditor;
+package io.github.rypofalem.armorstandeditor.TestUtils;
 
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Location;

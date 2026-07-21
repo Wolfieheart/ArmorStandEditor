@@ -27,6 +27,8 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.*;
@@ -35,6 +37,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Language {
     static final String DEFAULT_LANG = "en_US.yml";
@@ -42,11 +46,19 @@ public class Language {
     private YamlConfiguration defConfig = null;
     private File langFile = null;
     ArmorStandEditorPlugin plugin;
-    private static final MiniMessage MINI = MiniMessage.miniMessage();
     private static final Logger LOGGER = Logger.getLogger(Language.class.getName());
 
+    // MiniMessage Fields
+    private static final MiniMessage SAFE_MINI = MiniMessage.builder()
+            .tags(TagResolver.resolver(StandardTags.color(), StandardTags.decorations(), StandardTags.reset()))
+            .build();
+
     // Legacy Minecraft color codes mapped to hex values
+    private static final Pattern LEGACY_HEX = Pattern.compile("(?i)[&§]#([0-9a-f]{6})");
+    private static final Pattern LEGACY_FORMAT = Pattern.compile("(?i)[&§]([0-9a-fk-or])");
+
     private static final Map<String, String> LEGACY_COLORS = createLegacyColorMap();
+    private static final Map<String, String> LEGACY_DECORS = createLegacyFormatMap();
 
     private static Map<String, String> createLegacyColorMap() {
         Map<String, String> colors = new HashMap<>();
@@ -69,10 +81,22 @@ public class Language {
         return colors;
     }
 
+    private static Map<String, String> createLegacyFormatMap(){
+        Map<String, String> formats = new HashMap<>();
+        formats.put("k", "obfuscated");
+        formats.put("l", "bold");
+        formats.put("m", "strikethrough");
+        formats.put("n", "underlined");
+        formats.put("o", "italic");
+        formats.put("r", "reset");
+        return formats;
+    }
+
     public Language(String langFileName, ArmorStandEditorPlugin plugin) {
         this.plugin = plugin;
         reloadLang(langFileName);
     }
+
 
     public void reloadLang(String langFileName) {
         if (langFileName == null) langFileName = DEFAULT_LANG;
@@ -129,20 +153,20 @@ public class Language {
         String raw = getString(path + ".msg");
         if (raw == null) return Component.empty();
 
-        String resolvedOption = "";
-        if(option != null && !option.isEmpty()){
+        Component optionComponent = Component.empty();
+        if (option != null && !option.isEmpty()) {
             String translated = getString(path + "." + option);
-            resolvedOption = (translated != null) ? translated : option; // fallback to raw key
+            String resolvedOption = (translated != null) ? translated : option;
+            optionComponent = safeDeserialize(resolvedOption);
         }
 
-        // Resolve format color (info/warn/etc)
         String formatValue = getFormat(format);
 
-        // Use resolvedOption, not option
-        Component base = MINI.deserialize(raw, Placeholder.unparsed("x", resolvedOption));
+        Component base = SAFE_MINI.deserialize(
+                translateLegacyCodes(raw),
+                Placeholder.component("x", optionComponent)
+        );
 
-
-        // Apply format color LAST
         if (formatValue != null && !formatValue.isEmpty()) {
             TextColor color = resolveFormatColor(formatValue);
             if (color != null) {
@@ -152,7 +176,6 @@ public class Language {
 
         return base;
     }
-
 
     private TextColor resolveFormatColor(String value) {
         if (value == null || value.isEmpty()) {
@@ -203,4 +226,47 @@ public class Language {
         }
         return message;
     }
+
+    /**
+     * Converts legacy &/§ color and format codes (including &#RRGGBB hex) into
+     * their MiniMessage tag equivalents. Any existing MiniMessage tags (e.g. <#fff000>)
+     * are untouched, so mixed input like "&#fff000&lTest" or "<#fff000><bold>Test" both work.
+     */
+    public static String translateLegacyCodes(String input) {
+        if (input == null || input.isEmpty()) return input;
+
+        String result = LEGACY_HEX.matcher(input).replaceAll(m -> "<#" + m.group(1) + ">");
+
+        Matcher formatMatcher = LEGACY_FORMAT.matcher(result);
+        StringBuilder sb = new StringBuilder();
+        while (formatMatcher.find()) {
+            String code = formatMatcher.group(1).toLowerCase();
+            String replacement;
+            if (LEGACY_DECORS.containsKey(code)) {
+                replacement = "<" + LEGACY_DECORS.get(code) + ">";
+            } else {
+                String hex = LEGACY_COLORS.get(code);
+                replacement = (hex != null) ? "<" + hex + ">" : formatMatcher.group();
+            }
+            formatMatcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
+        }
+        formatMatcher.appendTail(sb);
+        return sb.toString();
+    }
+
+    /**
+     * Safely deserializes untrusted text (player-typed names, etc.) into a Component.
+     * Supports legacy &/§ codes and MiniMessage color/decoration tags, but never
+     * click/hover/other event tags, so it's safe to use on unsanitized player input.
+     */
+    public static Component safeDeserialize(String input) {
+        if (input == null || input.isEmpty()) return Component.empty();
+        try {
+            return SAFE_MINI.deserialize(translateLegacyCodes(input));
+        } catch (Exception _) {
+            LOGGER.log(Level.FINE, "Failed to parse formatting in: {0}", input);
+            return Component.text(input);
+        }
+    }
+
 }
