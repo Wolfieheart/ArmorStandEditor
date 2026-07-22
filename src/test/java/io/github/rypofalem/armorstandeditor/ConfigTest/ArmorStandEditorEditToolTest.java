@@ -1,7 +1,7 @@
 package io.github.rypofalem.armorstandeditor.ConfigTest;
 
 import io.github.rypofalem.armorstandeditor.BasePluginTest;
-import io.github.rypofalem.armorstandeditor.TestHelperFunctions;
+import io.github.rypofalem.armorstandeditor.TestUtils.TestHelperFunctions;
 
 
 import org.bukkit.Material;

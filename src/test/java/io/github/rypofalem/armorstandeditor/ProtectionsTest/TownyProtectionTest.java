@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import org.mockito.MockedStatic;
 
-import static io.github.rypofalem.armorstandeditor.TestHelperFunctions.*;
+import static io.github.rypofalem.armorstandeditor.TestUtils.TestHelperFunctions.*;
 import static org.bukkit.Material.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

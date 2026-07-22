@@ -15,7 +15,6 @@ import static org.bukkit.Material.*;
 
 public class DominionProtection implements Protection {
 
-    private final boolean domEnabled;
     private Debug debug;
     private ArmorStandEditorPlugin plugin;
 
@@ -23,11 +22,11 @@ public class DominionProtection implements Protection {
     public DominionProtection() {
         plugin = ArmorStandEditorPlugin.instance();
         debug = plugin.debug;
-        domEnabled = Bukkit.getPluginManager().isPluginEnabled("Dominion");
     }
 
     @Override
     public boolean checkPermission(Entity entity, Player player) {
+        boolean domEnabled = Bukkit.getPluginManager().isPluginEnabled("Dominion");
         if (!domEnabled || player.isOp() || player.hasPermission("asedit.ignoreProtection.dominion")) return true;
         debug.log("Checking Dominion Protection for player " + player.getName() + " on entity " + entity.getUniqueId());
 
