@@ -25,6 +25,7 @@ import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.ParsingException;
 
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -33,18 +34,33 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Reads are safe from any thread: {@link #reloadLang} publishes a new,
+ * immutable {@link LoadedLang} snapshot via a single atomic swap, so readers
+ * always see either the old pair of configs or the new one, never a mix of
+ * the two (unlike separate volatile fields, which only guarantee visibility
+ * of each field individually - see Sonar rule S3077). Concurrent calls to
+ * reloadLang itself are not mutually synchronized; callers should keep
+ * reloads on a single thread (e.g. the main server thread).
+ */
 public class Language {
     static final String DEFAULT_LANG = "en_US.yml";
-    private YamlConfiguration langConfig = null;
-    private YamlConfiguration defConfig = null;
-    private File langFile = null;
+
+    /** Immutable snapshot of the two loaded configs plus the file they came from. */
+    private record LoadedLang(YamlConfiguration langConfig, YamlConfiguration defConfig, File langFile) {
+        static final LoadedLang EMPTY = new LoadedLang(null, null, null);
+    }
+
+    private final AtomicReference<LoadedLang> state = new AtomicReference<>(LoadedLang.EMPTY);
     ArmorStandEditorPlugin plugin;
     private static final Logger LOGGER = Logger.getLogger(Language.class.getName());
 
@@ -78,7 +94,7 @@ public class Language {
         colors.put("d", "#ff55ff");
         colors.put("e", "#ffff55");
         colors.put("f", "#ffffff");
-        return colors;
+        return Collections.unmodifiableMap(colors);
     }
 
     private static Map<String, String> createLegacyFormatMap(){
@@ -89,7 +105,7 @@ public class Language {
         formats.put("n", "underlined");
         formats.put("o", "italic");
         formats.put("r", "reset");
-        return formats;
+        return Collections.unmodifiableMap(formats);
     }
 
     public Language(String langFileName, ArmorStandEditorPlugin plugin) {
@@ -101,50 +117,58 @@ public class Language {
     public void reloadLang(String langFileName) {
         if (langFileName == null) langFileName = DEFAULT_LANG;
         File langFolder = new File(plugin.getDataFolder().getPath() + File.separator + "lang");
-        langFile = new File(langFolder, langFileName);
+        File newLangFile = new File(langFolder, langFileName);
 
         // Load default language config
+        YamlConfiguration newDefConfig;
         try {
             InputStream defaultInput = plugin.getResource("lang" + "/" + DEFAULT_LANG);
             if (defaultInput == null) {
                 LOGGER.log(Level.WARNING, "Default language file not found: {0}", DEFAULT_LANG);
+                state.set(new LoadedLang(null, null, newLangFile));
                 return;
             }
             try (Reader defaultLangStream = new InputStreamReader(defaultInput, StandardCharsets.UTF_8)) {
-                defConfig = YamlConfiguration.loadConfiguration(defaultLangStream);
+                newDefConfig = YamlConfiguration.loadConfiguration(defaultLangStream);
             } // defaultInput is closed implicitly by try-with-resources
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Failed to load default language file", e);
+            state.set(new LoadedLang(null, null, newLangFile));
             return;
         }
 
         // Load custom language config
+        YamlConfiguration newLangConfig;
         try {
-            try (InputStream customInput = new FileInputStream(langFile);
+            try (InputStream customInput = new FileInputStream(newLangFile);
                  Reader langStream = new InputStreamReader(customInput, StandardCharsets.UTF_8)) {
-                langConfig = YamlConfiguration.loadConfiguration(langStream);
+                newLangConfig = YamlConfiguration.loadConfiguration(langStream);
             }
         } catch (FileNotFoundException _) {
-            LOGGER.log(Level.INFO, "Custom language file not found: {0}. Using default.", langFile.getName());
-            langConfig = defConfig; // Fallback to default if custom not found
+            LOGGER.log(Level.INFO, "Custom language file not found: {0}. Using default.", newLangFile.getName());
+            newLangConfig = newDefConfig; // Fallback to default if custom not found
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Failed to load language file: {0}", langFile.getName());
+            LOGGER.log(Level.WARNING, "Failed to load language file: {0}", newLangFile.getName());
             LOGGER.log(Level.WARNING, "Exception details", e);
-            langConfig = defConfig; // Fallback to default on error
+            newLangConfig = newDefConfig; // Fallback to default on error
         }
+
+        // Publish both configs together in one atomic swap so readers never see
+        // a lang/def pair from two different reloads.
+        state.set(new LoadedLang(newLangConfig, newDefConfig, newLangFile));
     }
 
     // path: yml path to message in language file
     // format: yml path to format in language file (info, warn, etc)
     // option: path-specific variable
     public Component getMessage(String path, String format, String option) {
-        if (langConfig == null) {
-            reloadLang(langFile != null ? langFile.getName() : DEFAULT_LANG);
-        }
-
-        // If still null after reload attempt, log error and return empty
-        if (langConfig == null) {
-            LOGGER.log(Level.WARNING, "Language config is null, cannot get message: {0}", path);
+        // NOTE: previously this retried reloadLang() with the same arguments when
+        // langConfig was null, but that just re-runs the identical failing load
+        // and can never succeed on its own. If the config isn't loaded, callers
+        // need to fix/re-supply the underlying files and call reloadLang()
+        // themselves; we just fail safe here.
+        if (state.get().langConfig() == null) {
+            LOGGER.log(Level.WARNING, "Language config is not loaded, cannot get message: {0}", path);
             return Component.empty();
         }
 
@@ -160,7 +184,7 @@ public class Language {
             optionComponent = safeDeserialize(resolvedOption);
         }
 
-        String formatValue = getFormat(format);
+        String formatValue = resolveFormatValue(format);
 
         Component base = SAFE_MINI.deserialize(
                 translateLegacyCodes(raw),
@@ -212,17 +236,37 @@ public class Language {
         return getMessage(path, "info");
     }
 
+    /**
+     * Resolves a yml path (e.g. "info", "warn") to its configured format
+     * string (typically a color code or hex value). Returns "" if unset.
+     */
+    public String resolveFormatValue(String formatPath) {
+        if (formatPath == null) return "";
+        String value = getString(formatPath);
+        return value == null ? "" : value;
+    }
+
+    /**
+     * @deprecated use {@link #resolveFormatValue(String)}; kept for backward
+     * compatibility with existing callers.
+     */
+    @Deprecated
     public String getFormat(String format) {
-        format = getString(format);
-        return format == null ? "" : format;
+        return resolveFormatValue(format);
     }
 
     public String getString(String path) {
+        if (path == null) return null;
+        // Single snapshot read: lang and def always come from the same reload,
+        // never a lang from one reload paired with a def from another.
+        LoadedLang snapshot = state.get();
+        YamlConfiguration lang = snapshot.langConfig();
+        YamlConfiguration def = snapshot.defConfig();
         String message = null;
-        if (langConfig != null && langConfig.contains(path)) {
-            message = langConfig.getString(path);
-        } else if (defConfig != null && defConfig.contains(path)) {
-            message = defConfig.getString(path);
+        if (lang != null && lang.contains(path)) {
+            message = lang.getString(path);
+        } else if (def != null && def.contains(path)) {
+            message = def.getString(path);
         }
         return message;
     }
@@ -231,6 +275,11 @@ public class Language {
      * Converts legacy &/§ color and format codes (including &#RRGGBB hex) into
      * their MiniMessage tag equivalents. Any existing MiniMessage tags (e.g. <#fff000>)
      * are untouched, so mixed input like "&#fff000&lTest" or "<#fff000><bold>Test" both work.
+     * Note: &# hex sequences require exactly 6 valid hex digits. A malformed
+     * sequence (e.g. too short, or containing non-hex characters) is left for
+     * LEGACY_FORMAT to reinterpret one code at a time (so "&1" inside a broken
+     * hex run may still get translated), with any remaining characters passed
+     * through as literal text. This is intentional fallback behavior, not a bug.
      */
     public static String translateLegacyCodes(String input) {
         if (input == null || input.isEmpty()) return input;
@@ -263,8 +312,8 @@ public class Language {
         if (input == null || input.isEmpty()) return Component.empty();
         try {
             return SAFE_MINI.deserialize(translateLegacyCodes(input));
-        } catch (Exception _) {
-            LOGGER.log(Level.FINE, "Failed to parse formatting in: {0}", input);
+        } catch (ParsingException e) {
+            LOGGER.log(Level.FINE, e, () -> "Failed to parse formatting in: " + input);
             return Component.text(input);
         }
     }
