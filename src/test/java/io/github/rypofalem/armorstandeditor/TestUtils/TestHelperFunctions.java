@@ -1,5 +1,6 @@
 package io.github.rypofalem.armorstandeditor.TestUtils;
 
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -86,6 +87,19 @@ public class TestHelperFunctions {
         when(frame.getUniqueId()).thenReturn(UUID.randomUUID());
         when(frame.getLocation()).thenReturn(location);
         return frame;
+    }
+
+    public static boolean containsClickEvent(Component component) {
+        if (component == null) {
+            return false;
+        }
+
+        if (component.clickEvent() != null || component.hoverEvent() != null) {
+            return true;
+        }
+
+        return component.children().stream()
+                .anyMatch(TestHelperFunctions::containsClickEvent);
     }
 
 }

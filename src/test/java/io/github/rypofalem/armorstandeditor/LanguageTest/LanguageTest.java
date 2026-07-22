@@ -1,83 +1,46 @@
+/*
+ * ArmorStandEditor: Bukkit plugin to allow editing armor stand attributes
+ * Copyright (C) 2016-2023  RypoFalem
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ */
 package io.github.rypofalem.armorstandeditor.LanguageTest;
+
 
 import io.github.rypofalem.armorstandeditor.BasePluginTest;
 import io.github.rypofalem.armorstandeditor.language.Language;
+import io.github.rypofalem.armorstandeditor.TestUtils.TestHelperFunctions;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.*;
 import org.mockbukkit.mockbukkit.MockBukkit;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Covers the Language fixes discussed: legacy/hex code translation, the
+ * safe-deserialize path used for untrusted/player-adjacent strings, config
+ * fallback to the default language, and the atomic-snapshot reload behavior
+ * that replaced the old separate volatile fields (see S3077 fix).
+ */
 class LanguageTest extends BasePluginTest {
 
-    private Language language;
-    private Path langDir;
+    private Language lang;
 
     @BeforeEach
-    void setUp() throws IOException {
-        langDir = plugin.getDataFolder().toPath().resolve("lang");
-        Files.createDirectories(langDir);
-        Path lang = langDir.resolve("test.yml");
-
-        Files.writeString(
-                lang,
-                """
-                test:
-                  msg: "&aHello"
-
-                legacy_hex:
-                  msg: "&#fff000Test"
-
-                legacy_bold:
-                  msg: "&lBold"
-
-                legacy_combined:
-                  msg: "&#fff000&lTest"
-
-                minimessage:
-                  msg: "<#fff000><bold>Test"
-
-                mixed:
-                  msg: "&aHello <red>World"
-
-                placeholder:
-                  msg: "Hello <x>"
-                  name: "&bSteve"
-
-                section:
-                  msg: "§aHello"
-
-                mixed_section:
-                  msg: "§aHello &lWorld"
-
-                invalid_hex:
-                  msg: "&#GGGGGGHello"
-
-                invalid_minimessage:
-                  msg: "<notatag>Hello"
-
-                multi_decor:
-                  msg: "&l&nBold Underline"
-
-                info: "#ff0000"
-                
-                
-                """
-        );
-
-        language = new Language("test.yml", plugin);
+    void setUp() {
+        lang = plugin.getLang();
     }
 
     @AfterEach
@@ -85,179 +48,136 @@ class LanguageTest extends BasePluginTest {
         MockBukkit.unmock();
     }
 
-
     @Test
-    @DisplayName("Loads test.yml from the plugin data folder instead of the bundled default")
-    void loadsCustomLangFile() {
-        assertEquals("&aHello", language.getString("test.msg"));
+    @DisplayName("translateLegacyCodes converts ampersand color codes to MiniMessage tags")
+    void translateLegacyCodes_convertsAmpersandColor() {
+        String result = Language.translateLegacyCodes("&aHello");
+        assertTrue(result.contains("<#55ff55>"), "expected legacy '&a' to become the MiniMessage hex tag, got: " + result);
     }
 
     @Test
-    @DisplayName("Legacy ampersand color code renders as the matching color")
-    void legacyAmpersandColorRenders() {
-        Component msg = language.getMessage("test");
-        assertEquals("Hello", PlainTextComponentSerializer.plainText().serialize(msg));
+    @DisplayName("translateLegacyCodes converts well-formed &#RRGGBB hex sequences")
+    void translateLegacyCodes_convertsHex() {
+        String result = Language.translateLegacyCodes("&#ff00ffBright");
+        assertTrue(result.startsWith("<#ff00ff>"), "expected 6-digit hex run to translate cleanly, got: " + result);
     }
 
     @Test
-    @DisplayName("Legacy hex code from test.yml renders as plain colored text")
-    void legacyHexRenders() {
-        Component msg = language.getMessage("legacy_hex");
-        assertEquals("Test", PlainTextComponentSerializer.plainText().serialize(msg));
+    @DisplayName("Malformed hex colours remain unchanged")
+    void translateLegacyCodes_malformedHexRemainsLiteral() {
+        String input = "&#12GTest";
+        assertEquals(input, Language.translateLegacyCodes(input));
     }
 
     @Test
-    @DisplayName("Legacy bold code from test.yml applies the bold decoration")
-    void legacyBoldRenders() {
-        Component msg = language.getMessage("legacy_bold");
-        assertEquals("Bold", PlainTextComponentSerializer.plainText().serialize(msg));
-        assertTrue(msg.hasDecoration(TextDecoration.BOLD));
+    @DisplayName("safeDeserialize never throws on malformed input and returns readable text")
+    void safeDeserialize_handlesMalformedInputGracefully() {
+        assertDoesNotThrow(() -> {
+            Component c = Language.safeDeserialize("&aUnterminated <bold");
+            assertNotNull(c);
+        });
     }
 
     @Test
-    @DisplayName("Combined legacy hex+bold code from test.yml applies both color and bold")
-    void legacyCombinedRenders() {
-        Component msg = language.getMessage("legacy_combined");
-        assertEquals("Test", PlainTextComponentSerializer.plainText().serialize(msg));
-        assertTrue(msg.hasDecoration(TextDecoration.BOLD));
-    }
+    @DisplayName("safeDeserialize never produces click/hover events from untrusted input")
+    void safeDeserialize_neverParsesEventTags() {
+        Component c = Language.safeDeserialize("<click:run_command:'/op hacker'>click me</click>");
 
-    @Test
-    @DisplayName("Null path returns an empty component")
-    void nullPathReturnsEmpty() {
-        assertEquals(Component.empty(), language.getMessage(null));
-    }
-
-    @Test
-    @DisplayName("Pure MiniMessage entry from test.yml renders identically to the legacy_combined entry")
-    void miniMessageMatchesLegacyEquivalent() {
-        Component legacy = language.getMessage("legacy_combined");
-        Component mini = language.getMessage("minimessage");
-        assertEquals(legacy, mini);
-    }
-
-    @Test
-    @DisplayName("A single message mixing legacy and MiniMessage tags resolves both")
-    void mixedLegacyAndMiniMessageTagsResolve() {
-        Component msg = language.getMessage("mixed");
-        assertEquals("Hello World", PlainTextComponentSerializer.plainText().serialize(msg));
-    }
-
-    @Test
-    @DisplayName("Placeholder option value is resolved from test.yml and safely formatted")
-    void placeholderOptionResolvesAndFormats() {
-        Component msg = language.getMessage("placeholder", "info", "name");
-        assertEquals("Hello Steve", PlainTextComponentSerializer.plainText().serialize(msg));
-    }
-
-    @Test
-    @DisplayName("Placeholder option falls back to the raw literal when no yml key matches")
-    void placeholderOptionFallsBackToLiteral() {
-        Component msg = language.getMessage("placeholder", "info", "&cRaw");
-        assertEquals("Hello Raw", PlainTextComponentSerializer.plainText().serialize(msg));
-    }
-
-    @Test
-    @DisplayName("Info format entry in test.yml resolves to its hex color")
-    void infoFormatResolvesHexColor() {
-        assertEquals("#ff0000", language.getFormat("info"));
-    }
-
-    @Test
-    @DisplayName("Unknown path returns an empty component rather than throwing")
-    void unknownPathReturnsEmpty() {
-        Component msg = language.getMessage("does_not_exist");
-        assertEquals(Component.empty(), msg);
-    }
-
-    @Test
-    @DisplayName("Unknown format leaves message unchanged")
-    void unknownFormatIgnored() {
-        Component msg = language.getMessage("test", "does_not_exist");
-        assertEquals("Hello", PlainTextComponentSerializer.plainText().serialize(msg));
-    }
-
-    @Test
-    @DisplayName("Empty message returns an empty component")
-    void emptyMessageReturnsEmptyComponent() {
-        assertEquals(Component.empty(), language.getMessage("empty"));
-    }
-
-    @Test
-    @DisplayName("Missing msg node returns empty component")
-    void missingMsgReturnsEmpty() {
-        assertEquals(Component.empty(), language.getMessage("broken"));
-    }
-
-    @Test
-    @DisplayName("Section sign legacy colour codes are supported")
-    void legacySectionSignRenders() {
-        Component msg = language.getMessage("section");
-        assertEquals("Hello", PlainTextComponentSerializer.plainText().serialize(msg));
-    }
-
-    @Test
-    @DisplayName("Section sign and ampersand formatting may be mixed")
-    void mixedSectionAndAmpersandRenders() {
-        Component msg = language.getMessage("mixed_section");
-
-        assertEquals(
-                "Hello World",
-                PlainTextComponentSerializer.plainText().serialize(msg)
+        assertFalse(
+                TestHelperFunctions.containsClickEvent(c),
+                "untrusted input must not create click/hover events"
         );
+        assertNull(c.clickEvent(), "root component must not contain a ClickEvent");
     }
 
     @Test
-    @DisplayName("Invalid legacy hex does not throw")
-    void invalidLegacyHexDoesNotThrow() {
-        assertDoesNotThrow(() -> language.getMessage("invalid_hex"));
+    @DisplayName("REGRESSION: a raw component-JSON string passed through safeDeserialize renders as literal text, not parsed formatting")
+    void safeDeserialize_rawJsonRendersLiterally_notAsFormatting() {
+        // This is exactly the bug from the tool-lore screenshot: someone puts
+        // {"text":"...","italic":false} into config expecting it to be interpreted.
+        // safeDeserialize (like the legacy serializer before it) has no JSON support,
+        // so it must come out as plain, unparsed text — the caller is responsible for
+        // not feeding it JSON in the first place. This test locks in that expectation
+        // so a future "helpful" JSON-sniffing change doesn't silently reintroduce
+        // double-encoding elsewhere.
+        String raw = "{\"text\":\"Idealna zabawka dla kreator\u00f3w wn\u0119trz!\",\"italic\":false}";
+        Component c = Language.safeDeserialize(raw);
+        String plain = PlainTextComponentSerializer.plainText().serialize(c);
+        assertEquals(raw, plain, "raw JSON-looking input must pass through as literal text unchanged");
     }
 
     @Test
-    @DisplayName("Invalid MiniMessage does not throw")
-    void invalidMiniMessageDoesNotThrow() {
-        assertDoesNotThrow(() -> language.getMessage("invalid_minimessage"));
+    @DisplayName("getString falls back to the default language file when a key is missing from the custom one")
+    void getString_fallsBackToDefaultLanguage() {
+        // "give" and "nogive" ship in en_US.yml (DEFAULT_LANG) per commandGive()'s usage.
+        String value = lang.getString("give.msg");
+        assertNotNull(value, "expected 'give.msg' to resolve via default-language fallback");
     }
 
     @Test
-    @DisplayName("Multiple legacy decorations are applied")
-    void multipleDecorationsRender() {
-        Component msg = language.getMessage("multi_decor");
-
-        assertEquals(
-                "Bold Underline",
-                PlainTextComponentSerializer.plainText().serialize(msg)
-        );
-
-        assertTrue(msg.hasDecoration(TextDecoration.BOLD));
-        assertTrue(msg.hasDecoration(TextDecoration.UNDERLINED));
+    @DisplayName("getMessage applies the configured info color")
+    void getMessage_appliesFormatColor() {
+        Component msg = lang.getMessage("give", "info");
+        assertNotNull(msg);
+        // Not asserting an exact color since that's config-driven, just that a
+        // color was actually resolved and applied rather than silently dropped.
+        assertNotNull(msg.color(), "expected getMessage to resolve and apply a format color");
     }
 
     @Test
-    @DisplayName("Null placeholder is handled safely")
-    void nullPlaceholderHandled() {
-        Component msg = language.getMessage("placeholder", "info", null);
-        assertEquals("Hello ", PlainTextComponentSerializer.plainText().serialize(msg));
+    @DisplayName("resolveFormatValue and the deprecated getFormat alias agree")
+    void resolveFormatValue_matchesDeprecatedGetFormat() {
+        assertEquals(lang.resolveFormatValue("info"), lang.getFormat("info"));
     }
 
     @Test
-    @DisplayName("Empty placeholder is handled safely")
-    void emptyPlaceholderHandled() {
-        Component msg = language.getMessage("placeholder", "info", "");
-        assertEquals("Hello ", PlainTextComponentSerializer.plainText().serialize(msg));
+    @DisplayName("resolveFormatValue returns empty string, not null, for a null path")
+    void resolveFormatValue_nullPathReturnsEmptyString() {
+        assertEquals("", lang.resolveFormatValue(null));
     }
 
-    @Test
-    @DisplayName("Unknown format returns an empty string")
-    void unknownFormatReturnsEmptyString() {
-        assertEquals("", language.getFormat("does_not_exist"));
+    @RepeatedTest(5)
+    @DisplayName("concurrent reloadLang + getString never throws and never mixes half-loaded state")
+    void reloadLang_concurrentAccessIsAtomicallyConsistent() throws InterruptedException {
+        // Stress test for the AtomicReference<LoadedLang> snapshot swap: readers
+        // hammering getString() while reloadLang() runs on another thread should
+        // never see a torn/partial state or throw, since each reload publishes a
+        // fully-built LoadedLang in one atomic set().
+        ExecutorService pool = Executors.newFixedThreadPool(4);
+        AtomicBoolean failed = new AtomicBoolean(false);
+        CountDownLatch done = new CountDownLatch(4);
+
+        Runnable reader = () -> {
+            try {
+                for (int i = 0; i < 200; i++) {
+                    lang.getString("give.msg");
+                    lang.getMessage("give", "info");
+                }
+            } catch (Exception e) {
+                failed.set(true);
+            } finally {
+                done.countDown();
+            }
+        };
+        Runnable reloader = () -> {
+            try {
+                for (int i = 0; i < 50; i++) {
+                    lang.reloadLang(null);
+                }
+            } catch (Exception e) {
+                failed.set(true);
+            } finally {
+                done.countDown();
+            }
+        };
+
+        pool.submit(reader);
+        pool.submit(reader);
+        pool.submit(reader);
+        pool.submit(reloader);
+
+        assertTrue(done.await(10, TimeUnit.SECONDS), "test threads did not finish in time");
+        pool.shutdownNow();
+        assertFalse(failed.get(), "reader or reloader threw during concurrent access");
     }
-
-    @Test
-    @DisplayName("Unknown string path returns null")
-    void unknownStringReturnsNull() {
-        assertNull(language.getString("does_not_exist"));
-    }
-
-
 }

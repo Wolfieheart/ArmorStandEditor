@@ -274,12 +274,15 @@ public class Language {
     /**
      * Converts legacy &/§ color and format codes (including &#RRGGBB hex) into
      * their MiniMessage tag equivalents. Any existing MiniMessage tags (e.g. <#fff000>)
-     * are untouched, so mixed input like "&#fff000&lTest" or "<#fff000><bold>Test" both work.
-     * Note: &# hex sequences require exactly 6 valid hex digits. A malformed
-     * sequence (e.g. too short, or containing non-hex characters) is left for
-     * LEGACY_FORMAT to reinterpret one code at a time (so "&1" inside a broken
-     * hex run may still get translated), with any remaining characters passed
-     * through as literal text. This is intentional fallback behavior, not a bug.
+     * are untouched, so mixed input like "&#fff000&lTest" or "<#fff000><bold>Test"
+     * both work.
+     *
+     * <p>Hex color sequences must use the exact form {@code &#RRGGBB}, where
+     * {@code RRGGBB} consists of exactly six hexadecimal digits. Malformed or
+     * incomplete hex sequences (for example {@code &#12GTest} or {@code &#12345})
+     * are not interpreted as either hex colors or legacy color codes and are left
+     * unchanged. Legacy color and formatting codes (such as {@code &1} or
+     * {@code &l}) are only translated when they appear as standalone legacy codes.
      */
     public static String translateLegacyCodes(String input) {
         if (input == null || input.isEmpty()) return input;
