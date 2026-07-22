@@ -214,6 +214,13 @@ public class CommandEx implements CommandExecutor {
             dC.setFloats(List.of((float) plugin.getCustomModelDataValue()));
             meta.setCustomModelDataComponent(dC);
 
+            if (plugin.getRequiredToolName() && plugin.editToolName != null) {
+                meta.displayName(plugin.editToolName);
+            }
+            if (plugin.getRequiredToolLore() && plugin.editToolLore != null) {
+                meta.lore((List<Component>) plugin.editToolLore);
+            }
+
             meta.setUnbreakable(true);
             meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
             stack.setItemMeta(meta);

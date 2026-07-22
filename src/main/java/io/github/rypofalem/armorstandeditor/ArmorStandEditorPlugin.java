@@ -98,9 +98,9 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String editToolNameRaw = null;
     Component editToolName = null;
     boolean requireToolLore = false;
-    List<?> editToolLore = null;
+    List<Component> editToolLore = null;
     boolean enablePerWorld = false;
-    List<?> allowedWorldList = null;
+    List<String> allowedWorldList = null;
     double maxScaleValue;
     double minScaleValue;
     double maxResetRange;
@@ -498,15 +498,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     public void loadConditionalConfig() {
-        // Reset all conditional fields first
-        customModelDataValue = 0;
-        editToolNameRaw = null;
-        editToolName = null;
-        editToolData = Integer.MIN_VALUE;
-        editToolLore = null;
-        allowedWorldList = null;
-        blockedNames = List.of();
-
         if (allowCustomModelData) {
             customModelDataValue = getConfig().getDouble("customModelDataInt", 10.0f);
         }
@@ -524,7 +515,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         if (requireToolLore) {
             editToolLore = getConfig().getList("toolLore", null).stream()
-                    .map(line -> LegacyComponentSerializer.legacyAmpersand().deserialize(String.valueOf(line))).toList();
+                    .map(line -> Language.safeDeserialize(String.valueOf(line)))
+                    .toList();
         }
 
         if (enablePerWorld) {
