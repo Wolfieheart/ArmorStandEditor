@@ -651,7 +651,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
     public List<String> getAllowedWorldList() {
-        return (List<String>) allowedWorldList;
+        return allowedWorldList;
     }
 
     public boolean getEnableBlockedNames(){
@@ -683,5 +683,19 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return getConfig().getDouble("customModelDataInt", 0.0);
     }
 
+    public Component getEditToolName() {
+        editToolNameRaw = getConfig().getString("toolName", null);
+        if (editToolNameRaw != null) {
+            editToolName = LegacyComponentSerializer.legacyAmpersand().deserialize(editToolNameRaw);
+        }
+        return editToolName;
+    }
 
+
+    public List<Component> getEditToolLore() {
+        editToolLore = getConfig().getList("toolLore", null).stream()
+                .map(line -> Language.safeDeserialize(String.valueOf(line)))
+                .toList();
+        return editToolLore;
+    }
 }
