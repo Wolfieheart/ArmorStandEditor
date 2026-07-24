@@ -153,7 +153,7 @@ class LanguageTest extends BasePluginTest {
                     lang.getString("give.msg");
                     lang.getMessage("give", "info");
                 }
-            } catch (Exception e) {
+            } catch (Exception _) {
                 failed.set(true);
             } finally {
                 done.countDown();
@@ -164,7 +164,7 @@ class LanguageTest extends BasePluginTest {
                 for (int i = 0; i < 50; i++) {
                     lang.reloadLang(null);
                 }
-            } catch (Exception e) {
+            } catch (Exception _) {
                 failed.set(true);
             } finally {
                 done.countDown();
