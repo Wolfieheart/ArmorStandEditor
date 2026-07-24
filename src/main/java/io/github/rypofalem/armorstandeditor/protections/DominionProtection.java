@@ -52,6 +52,7 @@ public class DominionProtection implements Protection {
         // to world-wide default permissions if there is no dominion there), so no wilderness
         // branch is needed the way Towny required one.
         boolean allowed = DominionAPI.getInstance().checkPrivilegeFlagSilence(loc, flagToCheck, player);
+        debug.log("Is the edit going to be allowed?: " + allowed);
         if (!allowed) {
             player.sendMessage(plugin.getLang().getMessage("dominionNoEdit", "warn"));
         }
