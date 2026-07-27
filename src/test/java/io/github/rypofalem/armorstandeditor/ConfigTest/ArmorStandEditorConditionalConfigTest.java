@@ -14,16 +14,24 @@ class ArmorStandEditorConditionalConfigTest extends BasePluginTest {
     // HELPERS
     // -------------------------
 
+    @BeforeEach
+    void setUp(){
+        plugin.setDebugFlag(true);
+    }
+
     private void load() {
+        plugin.debug.log("[ConditionalConfigTest] action: loadConfigValues() + loadConditionalConfig()");
         plugin.loadConfigValues();
         plugin.loadConditionalConfig();
     }
 
     private void setBoolean(String path, boolean value) {
+        plugin.debug.log("[ConditionalConfigTest] setup: config.set(" + path + ", " + value + ")");
         plugin.getConfig().set(path, value);
     }
 
     private void setList(String path, List<?> value) {
+        plugin.debug.log("[ConditionalConfigTest] setup: config.set(" + path + ", " + value + ")");
         plugin.getConfig().set(path, value);
     }
 
@@ -43,6 +51,7 @@ class ArmorStandEditorConditionalConfigTest extends BasePluginTest {
 
         load();
 
+        plugin.debug.log("[conditionalFlagsAreLoadedCorrectly] assertion: verifying all conditional flags loaded as configured");
         assertTrue(plugin.getAllowCustomModelData());
         assertTrue(plugin.getEnablePerWorldSupport());
         assertFalse(plugin.getAllowedToRetrieveOwnPlayerHead());
@@ -63,6 +72,7 @@ class ArmorStandEditorConditionalConfigTest extends BasePluginTest {
 
         load();
 
+        plugin.debug.log("[customModelDataLoadsWhenEnabled] assertion: customModelDataValue=" + plugin.getCustomModelDataValue());
         assertEquals(42, plugin.getCustomModelDataValue());
     }
 
@@ -75,6 +85,7 @@ class ArmorStandEditorConditionalConfigTest extends BasePluginTest {
 
         load();
 
+        plugin.debug.log("[customModelDataIgnoredWhenDisabled] assertion: customModelDataValue=" + plugin.getCustomModelDataValue() + " (expected default)");
         assertEquals(0, plugin.getCustomModelDataValue(),
                 "Value should remain default when disabled");
     }
@@ -94,6 +105,7 @@ class ArmorStandEditorConditionalConfigTest extends BasePluginTest {
 
         List<String> worlds = plugin.getAllowedWorldList();
 
+        plugin.debug.log("[allowedWorldsAreLoadedCorrectly] assertion: worlds=" + worlds);
         assertNotNull(worlds);
         assertEquals(3, worlds.size());
         assertTrue(worlds.contains("world"));
@@ -111,6 +123,7 @@ class ArmorStandEditorConditionalConfigTest extends BasePluginTest {
         List<String> worlds = plugin.getAllowedWorldList();
         List<World> serverWorlds = plugin.getServer().getWorlds();
 
+        plugin.debug.log("[wildcardExpandsToAllWorlds] assertion: worlds=" + worlds + ", serverWorlds=" + serverWorlds.size());
         assertEquals(serverWorlds.size(), worlds.size());
 
         for (World world : serverWorlds) {
@@ -130,6 +143,7 @@ class ArmorStandEditorConditionalConfigTest extends BasePluginTest {
 
         load();
 
+        plugin.debug.log("[playerHeadFlag] assertion: allowedToRetrieveOwnPlayerHead=" + plugin.getAllowedToRetrieveOwnPlayerHead());
         assertFalse(plugin.getAllowedToRetrieveOwnPlayerHead());
     }
 
@@ -139,6 +153,7 @@ class ArmorStandEditorConditionalConfigTest extends BasePluginTest {
 
         load();
 
+        plugin.debug.log("[playerHeadDefault] assertion: allowedToRetrieveOwnPlayerHead=" + plugin.getAllowedToRetrieveOwnPlayerHead() + " (expected default false)");
         assertFalse(plugin.getAllowedToRetrieveOwnPlayerHead());
     }
 
@@ -154,6 +169,7 @@ class ArmorStandEditorConditionalConfigTest extends BasePluginTest {
 
         load();
 
+        plugin.debug.log("[debugFlagLoads] assertion: isDebug=" + plugin.isDebug());
         assertTrue(plugin.isDebug());
     }
 
@@ -170,6 +186,7 @@ class ArmorStandEditorConditionalConfigTest extends BasePluginTest {
 
         load();
 
+        plugin.debug.log("[blockedNamesLoads] assertion: blockedNames=" + plugin.getListOfBlockedNames());
         assertTrue(plugin.getEnableBlockedNames());
         assertEquals(2, plugin.getListOfBlockedNames().size());
         assertTrue(plugin.getListOfBlockedNames().contains("badname1"));
@@ -184,6 +201,7 @@ class ArmorStandEditorConditionalConfigTest extends BasePluginTest {
 
         load();
 
+        plugin.debug.log("[blockedNamesEmpty] assertion: blockedNames=" + plugin.getListOfBlockedNames());
         assertTrue(plugin.getEnableBlockedNames());
         assertTrue(plugin.getListOfBlockedNames().isEmpty());
     }

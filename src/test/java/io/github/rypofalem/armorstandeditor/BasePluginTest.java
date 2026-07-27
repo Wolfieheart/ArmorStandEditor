@@ -18,19 +18,20 @@ public abstract class BasePluginTest {
     void setupServer() {
         server = MockBukkit.mock();
         plugin = MockBukkit.load(ArmorStandEditorPlugin.class, true);
-        plugin.getConfig().set("debugFlag", true);
     }
 
     @AfterEach
     void tearDownServer() {
-        // ArmorStandEditorPlugin#onDisable walks Bukkit.getOnlinePlayers() and calls
-        // PaperLib.getHolder(player.getOpenInventory().getTopInventory(), false) for each.
-        // MockBukkit's default (nothing-open) InventoryView has a null top inventory - real
-        // Bukkit never hands the plugin a null top there, so onDisable has no null-check for
-        // it - and that combination NPEs on unmock for any test that leaves a player online.
-        // Kicking players first empties the online-player list so onDisable's loop never runs.
-        // (Flagged the underlying missing null-check to Wolfie separately - this is a test
-        // harness workaround, not a fix for the plugin itself.)
+        /*
+          ArmorStandEditorPlugin#onDisable walks Bukkit.getOnlinePlayers() and calls
+          PaperLib.getHolder(player.getOpenInventory().getTopInventory(), false) for each.
+          MockBukkit's default (nothing-open) InventoryView has a null top inventory - real
+           Bukkit never hands the plugin a null top there, so onDisable has no null-check for
+           it - and that combination NPEs on unmock for any test that leaves a player online.
+           Kicking players first empties the online-player list so onDisable's loop never runs.
+           (Flagged the underlying missing null-check to Wolfie separately - this is a test
+            workaround, not a fix for the plugin itself.)
+         */
         for (PlayerMock player : List.copyOf(server.getOnlinePlayers())) {
             player.kick();
         }

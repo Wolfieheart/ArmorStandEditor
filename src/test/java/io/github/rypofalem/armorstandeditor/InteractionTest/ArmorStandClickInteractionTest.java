@@ -30,6 +30,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.util.EulerAngle;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.entity.ArmorStandMock;
@@ -51,7 +52,14 @@ class ArmorStandClickInteractionTest extends BasePluginTest {
     private PlayerMock player;
     private ArmorStandMock armorStand;
 
+    @BeforeEach
+    void setUp(){
+        plugin.setDebugFlag(true);
+    }
+
+
     private void spawnPlayerAndArmorStand() {
+        plugin.debug.log("[ArmorStandClickInteractionTest] setup: spawning player + ArmorStand");
         player = server.addPlayer();
         armorStand = InteractionTestUtils.spawnArmorStand(player.getWorld(), player.getLocation());
     }
@@ -63,11 +71,15 @@ class ArmorStandClickInteractionTest extends BasePluginTest {
         InteractionTestUtils.giveEditTool(plugin, player);
         PlayerEditor editor = plugin.editorManager.getPlayerEditor(player.getUniqueId());
         editor.setMode(EditMode.HEAD);
+        plugin.debug.log("[rightClickWithEditTool_headMode_addsEulerAngleAndCancelsEvent] setup: edit tool given, mode=HEAD");
 
         double expectedX = Util.addAngle(EulerAngle.ZERO.getX(), editor.eulerAngleChange);
 
+        plugin.debug.log("[rightClickWithEditTool_headMode_addsEulerAngleAndCancelsEvent] event fire: right-clicking ArmorStand");
         PlayerInteractAtEntityEvent event = InteractionTestUtils.rightClick(player, armorStand);
 
+        plugin.debug.log("[rightClickWithEditTool_headMode_addsEulerAngleAndCancelsEvent] assertion: cancelled=" + event.isCancelled()
+                + ", headPoseX=" + armorStand.getHeadPose().getX() + " (expected=" + expectedX + ")");
         assertTrue(event.isCancelled(), "Right-click with the edit tool should cancel the vanilla interaction");
         assertEquals(expectedX, armorStand.getHeadPose().getX(), 1e-9,
                 "Right-click should apply reverseEditArmorStand (add) on the active axis");
@@ -80,11 +92,15 @@ class ArmorStandClickInteractionTest extends BasePluginTest {
         InteractionTestUtils.giveEditTool(plugin, player);
         PlayerEditor editor = plugin.editorManager.getPlayerEditor(player.getUniqueId());
         editor.setMode(EditMode.HEAD);
+        plugin.debug.log("[leftClickWithEditTool_headMode_subtractsEulerAngleAndCancelsDamage] setup: edit tool given, mode=HEAD");
 
         double expectedX = Util.subAngle(EulerAngle.ZERO.getX(), editor.eulerAngleChange);
 
+        plugin.debug.log("[leftClickWithEditTool_headMode_subtractsEulerAngleAndCancelsDamage] event fire: left-clicking (damaging) ArmorStand");
         EntityDamageEvent event = InteractionTestUtils.leftClick(player, armorStand);
 
+        plugin.debug.log("[leftClickWithEditTool_headMode_subtractsEulerAngleAndCancelsDamage] assertion: cancelled=" + event.isCancelled()
+                + ", headPoseX=" + armorStand.getHeadPose().getX() + " (expected=" + expectedX + ")");
         assertTrue(event.isCancelled(), "Left-click with the edit tool should cancel the attack/damage");
         assertEquals(expectedX, armorStand.getHeadPose().getX(), 1e-9,
                 "Left-click should apply editArmorStand (subtract) on the active axis");
@@ -97,9 +113,12 @@ class ArmorStandClickInteractionTest extends BasePluginTest {
         InteractionTestUtils.giveEditTool(plugin, player);
         PlayerEditor editor = plugin.editorManager.getPlayerEditor(player.getUniqueId());
         editor.setMode(EditMode.HEAD);
+        plugin.debug.log("[rightClickWithEditTool_cancelsPendingMenuOpen] setup: edit tool given, mode=HEAD");
 
+        plugin.debug.log("[rightClickWithEditTool_cancelsPendingMenuOpen] event fire: right-clicking ArmorStand");
         InteractionTestUtils.rightClick(player, armorStand);
 
+        plugin.debug.log("[rightClickWithEditTool_cancelsPendingMenuOpen] assertion: isMenuCancelled=" + editor.isMenuCancelled());
         assertTrue(editor.isMenuCancelled(),
                 "Editing via right-click should suppress any pending 'open menu' task for the same interaction");
     }
@@ -110,9 +129,13 @@ class ArmorStandClickInteractionTest extends BasePluginTest {
         spawnPlayerAndArmorStand();
         InteractionTestUtils.giveItem(player, Material.DIRT);
         plugin.editorManager.getPlayerEditor(player.getUniqueId()).setMode(EditMode.HEAD);
+        plugin.debug.log("[rightClickWithoutEditTool_isNoOp] setup: player holding DIRT instead of the edit tool, mode=HEAD");
 
+        plugin.debug.log("[rightClickWithoutEditTool_isNoOp] event fire: right-clicking ArmorStand");
         PlayerInteractAtEntityEvent event = InteractionTestUtils.rightClick(player, armorStand);
 
+        plugin.debug.log("[rightClickWithoutEditTool_isNoOp] assertion: cancelled=" + event.isCancelled()
+                + ", headPose=" + armorStand.getHeadPose());
         assertFalse(event.isCancelled(), "A non edit-tool item should leave the vanilla interaction untouched");
         assertEquals(EulerAngle.ZERO, armorStand.getHeadPose(), "Head pose should be unaffected");
     }
@@ -124,10 +147,14 @@ class ArmorStandClickInteractionTest extends BasePluginTest {
         var zombie = (org.mockbukkit.mockbukkit.entity.LivingEntityMock)
                 player.getWorld().spawnEntity(player.getLocation(), EntityType.ZOMBIE);
         InteractionTestUtils.giveEditTool(plugin, player);
+        plugin.debug.log("[leftClickOtherEntityWithEditTool_cancelsAttackForMenu] setup: spawned zombie, player holding edit tool");
 
         double healthBefore = zombie.getHealth();
+        plugin.debug.log("[leftClickOtherEntityWithEditTool_cancelsAttackForMenu] event fire: left-clicking zombie (healthBefore=" + healthBefore + ")");
         EntityDamageEvent event = InteractionTestUtils.leftClick(player, zombie);
 
+        plugin.debug.log("[leftClickOtherEntityWithEditTool_cancelsAttackForMenu] assertion: cancelled=" + event.isCancelled()
+                + ", healthAfter=" + zombie.getHealth());
         assertTrue(event.isCancelled(),
                 "Left-clicking any entity with the edit tool should cancel damage and fall through to opening the menu");
         assertEquals(healthBefore, zombie.getHealth(), 1e-9, "The entity should take no damage");
@@ -143,10 +170,14 @@ class ArmorStandClickInteractionTest extends BasePluginTest {
         // Matches the sample entry that ships (commented-in) under blocked-names in config.yml,
         // but enableBlockedNames defaults to false, so it should have no effect.
         armorStand.customName(net.kyori.adventure.text.Component.text("BlockedArmorStandName"));
+        plugin.debug.log("[rightClickWithEditTool_blockedNamesFeatureOffByDefault_stillEdits] setup: ArmorStand named 'BlockedArmorStandName', enableBlockedNames left at default (false)");
 
         double expectedX = Util.addAngle(EulerAngle.ZERO.getX(), editor.eulerAngleChange);
+        plugin.debug.log("[rightClickWithEditTool_blockedNamesFeatureOffByDefault_stillEdits] event fire: right-clicking ArmorStand");
         PlayerInteractAtEntityEvent event = InteractionTestUtils.rightClick(player, armorStand);
 
+        plugin.debug.log("[rightClickWithEditTool_blockedNamesFeatureOffByDefault_stillEdits] assertion: cancelled=" + event.isCancelled()
+                + ", headPoseX=" + armorStand.getHeadPose().getX() + " (expected=" + expectedX + ")");
         assertTrue(event.isCancelled(), "With the feature off by default, editing should proceed as normal");
         assertEquals(expectedX, armorStand.getHeadPose().getX(), 1e-9,
                 "Head pose should update normally since enableBlockedNames defaults to false");
@@ -161,13 +192,17 @@ class ArmorStandClickInteractionTest extends BasePluginTest {
 
         // Go through the real config path (matching how a server admin would enable this),
         // not the in-memory fields directly, so this proves the config wiring itself works.
+        plugin.debug.log("[rightClickWithEditTool_blockedNamesEnabledViaConfig_isNoOp] setup: enabling enableBlockedNames via real config path");
         plugin.getConfig().set("enableBlockedNames", true);
         plugin.getConfig().set("blocked-names", java.util.List.of("BlockedStandName"));
         plugin.loadConfigValues();
         armorStand.customName(net.kyori.adventure.text.Component.text("BlockedStandName"));
 
+        plugin.debug.log("[rightClickWithEditTool_blockedNamesEnabledViaConfig_isNoOp] event fire: right-clicking blocked-name ArmorStand");
         PlayerInteractAtEntityEvent event = InteractionTestUtils.rightClick(player, armorStand);
 
+        plugin.debug.log("[rightClickWithEditTool_blockedNamesEnabledViaConfig_isNoOp] assertion: cancelled=" + event.isCancelled()
+                + ", headPose=" + armorStand.getHeadPose());
         assertFalse(event.isCancelled(), "Editing a blocked-name ArmorStand should be refused before any action runs");
         assertEquals(EulerAngle.ZERO, armorStand.getHeadPose(), "Head pose should be unaffected");
     }

@@ -31,7 +31,6 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import io.papermc.lib.PaperLib;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
@@ -705,7 +704,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     }
 
 
-    public void setListOfBlockedNames(List<String> blockedStandName) {
-        blockedNames = blockedStandName;
+    public void setDebugFlag(boolean settingForTesting) {
+        debugFlag = settingForTesting;
     }
 }
