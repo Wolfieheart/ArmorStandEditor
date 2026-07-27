@@ -67,8 +67,8 @@ public class PlayerEditor {
     EditMode eMode;
     AdjustmentMode adjMode;
     CopySlots copySlots;
-    Axis axis;
-    double eulerAngleChange;
+    public Axis axis;
+    public double eulerAngleChange;
     double degreeAngleChange;
     double movChange;
     Menu chestMenu;
@@ -787,7 +787,7 @@ public class PlayerEditor {
         lastCancelled = getManager().getTime();
     }
 
-    boolean isMenuCancelled() {
+    public boolean isMenuCancelled() {
         return getManager().getTime() - lastCancelled < 2;
     }
 

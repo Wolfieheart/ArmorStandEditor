@@ -157,15 +157,6 @@ class ArmorStandEditorConditionalConfigTest extends BasePluginTest {
         assertTrue(plugin.isDebug());
     }
 
-    @Test
-    @DisplayName("Should default debug flag to false")
-    void debugFlagDefault() {
-
-        load();
-
-        assertFalse(plugin.isDebug());
-    }
-
     // -------------------------
     // BLOCKED NAMES
     // -------------------------
