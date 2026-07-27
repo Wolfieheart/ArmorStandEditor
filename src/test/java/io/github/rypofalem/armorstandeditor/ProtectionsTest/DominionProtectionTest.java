@@ -72,13 +72,13 @@ class DominionProtectionTest extends BaseProtectionTest {
     }
 
     @Test
-    @DisplayName("An ArmorStand edit is checked against the PLACE privilege flag and allowed when granted")
-    void armorStand_placeFlagGranted_allowed() {
+    @DisplayName("An ArmorStand edit is checked against the BREAK_BLOCK privilege flag and allowed when granted")
+    void armorStand_breakBlockFlagGranted_allowed() {
         setPluginEnabled("Dominion", true);
 
         ArmorStand stand = mockArmorStand(location);
         
-        when(dominion.checkPrivilegeFlagSilence(location, Flags.PLACE, player)).thenReturn(true);
+        when(dominion.checkPrivilegeFlagSilence(location, Flags.BREAK_BLOCK, player)).thenReturn(true);
         assertTrue(protection.checkPermission(stand, player));
     }
 

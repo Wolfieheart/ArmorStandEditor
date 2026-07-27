@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
 
+import static cn.lunadeer.dominion.api.dtos.flag.Flags.PLACE;
 import static org.bukkit.Material.*;
 
 public class DominionProtection implements Protection {
@@ -38,7 +39,7 @@ public class DominionProtection implements Protection {
 
         if(entity instanceof ArmorStand){
             entityBeingEditedMaterial = ARMOR_STAND;
-            flagToCheck = Flags.PLACE;
+            flagToCheck = Flags.BREAK_BLOCK;
         } else if (entity instanceof ItemFrame) {
             entityBeingEditedMaterial = entity instanceof GlowItemFrame ? GLOW_ITEM_FRAME : ITEM_FRAME;
             flagToCheck = Flags.ITEM_FRAME_INTERACTIVE;
