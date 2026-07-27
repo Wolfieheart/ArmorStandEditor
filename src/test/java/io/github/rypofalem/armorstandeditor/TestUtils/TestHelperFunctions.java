@@ -56,6 +56,8 @@ public class TestHelperFunctions {
         when(item.getItemMeta()).thenReturn(meta);
         return item;
     }
+
+    @SuppressWarnings("deprecation")
     public static ItemStack fullyDecoratedItem(Material material, String legacyName, List<String> legacyLore, int modelData) {
         ItemStack item = itemOf(material);
         ItemMeta meta = item.getItemMeta();

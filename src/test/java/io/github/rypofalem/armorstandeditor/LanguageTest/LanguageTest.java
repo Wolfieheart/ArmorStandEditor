@@ -145,6 +145,7 @@ class LanguageTest extends BasePluginTest {
         assertNotNull(msg.color(), "expected getMessage to resolve and apply a format color");
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     @DisplayName("resolveFormatValue and the deprecated getFormat alias agree")
     void resolveFormatValue_matchesDeprecatedGetFormat() {
