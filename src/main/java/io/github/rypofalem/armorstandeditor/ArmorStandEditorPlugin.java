@@ -32,6 +32,7 @@ import io.papermc.lib.PaperLib;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import org.bukkit.Bukkit;
@@ -60,6 +61,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     //!!! DO NOT REMOVE THESE UNDER ANY CIRCUMSTANCES - Required for BStats and UpdateChecker !!!
     private static final int PLUGIN_ID = 12668;             //Used for BStats Metrics
     public Debug debug = new Debug(this);
+    private static final MiniMessage miniMessage = MiniMessage.miniMessage();
 
     private final boolean unitTestMode;
     private boolean unitTestModeLogged;
@@ -336,6 +338,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             getLogger().severe("Team Already Appears to be removed. Please do not do this manually!");
         }
 
+        // ASE-InUse Team Removal
         team = scoreboard.getTeam(inUseTeam);
         if (team != null) {
             team.unregister();
@@ -514,8 +517,8 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         }
 
         if (requireToolLore) {
-            editToolLore = getConfig().getList("toolLore", null).stream()
-                    .map(line -> Language.safeDeserialize(String.valueOf(line)))
+            editToolLore = getConfig().getStringList("toolLore").stream()
+                    .map(miniMessage::deserialize)
                     .toList();
         }
 
