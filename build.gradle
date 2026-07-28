@@ -127,7 +127,7 @@ dependencies {
     compileOnly "org.popcraft:bolt-common:1.2.86"
 
     // Dominion
-    compileOnly 'cn.lunadeer:DominionAPI:4.9.0'
+    compileOnly 'cn.lunadeer:DominionAPI:4.7.3'
 
     // Lombok
     compileOnly "org.projectlombok:lombok:1.18.44"
