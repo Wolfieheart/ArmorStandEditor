@@ -84,7 +84,7 @@ dependencies {
     compileOnly("com.intellectualsites.plotsquared:plotsquared-core:7.5.12") {
         exclude group: "net.kyori"
     }
-    compileOnly("com.intellectualsites.plotsquared:plotsquared-bukkit:7.5.12") {
+    compileOnly("com.intellectualsites.plotsquared:plotsquared-bukkit:7.6.0") {
         exclude group: "net.kyori"
     }
 
