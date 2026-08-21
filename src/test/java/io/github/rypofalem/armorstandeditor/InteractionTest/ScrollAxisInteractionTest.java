@@ -44,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class ScrollAxisInteractionTest extends BasePluginTest {
 
+    @SuppressWarnings("UnstableApiUsage")
     private static PlayerItemHeldEvent heldEvent(PlayerMock player, int previousSlot, int newSlot) {
         return new PlayerItemHeldEvent(player, previousSlot, newSlot);
     }

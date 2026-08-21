@@ -31,6 +31,7 @@ import org.bukkit.entity.GlowItemFrame;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
@@ -49,6 +50,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class ArmorStandRenameAndGlowInteractionTest extends BasePluginTest {
 
+    @BeforeEach
+    void setUp(){
+        plugin.setDebugFlag(true);
+    }
+
+
     @Test
     @DisplayName("Right-click with a name tag renames the ArmorStand, consumes one tag, and cancels the event")
     void rightClickWithNameTag_renamesArmorStandAndConsumesTag() {
@@ -57,10 +64,16 @@ class ArmorStandRenameAndGlowInteractionTest extends BasePluginTest {
         ArmorStand armorStand = InteractionTestUtils.spawnArmorStand(player.getWorld(), player.getLocation());
         ItemStack nameTag = InteractionTestUtils.giveNameTag(player, "TestName");
         int amountBefore = nameTag.getAmount();
+        plugin.debug.log("[rightClickWithNameTag_renamesArmorStandAndConsumesTag] setup: player given name tag 'TestName', amountBefore=" + amountBefore);
 
+        plugin.debug.log("[rightClickWithNameTag_renamesArmorStandAndConsumesTag] event fire: right-clicking ArmorStand with the name tag");
         PlayerInteractAtEntityEvent event = InteractionTestUtils.rightClick(player, armorStand);
         server.getScheduler().performOneTick(); // the rename is applied one tick later, see PlayerEditorManager
 
+        plugin.debug.log("[rightClickWithNameTag_renamesArmorStandAndConsumesTag] assertion: cancelled=" + event.isCancelled()
+                + ", customName=" + PlainTextComponentSerializer.plainText().serialize(armorStand.customName())
+                + ", nameVisible=" + armorStand.isCustomNameVisible()
+                + ", amountAfter=" + player.getInventory().getItemInMainHand().getAmount());
         assertTrue(event.isCancelled(), "Renaming should cancel the vanilla right-click interaction");
         assertEquals("TestName", PlainTextComponentSerializer.plainText().serialize(armorStand.customName()),
                 "ArmorStand should be renamed to the name tag's display name");
@@ -77,9 +90,13 @@ class ArmorStandRenameAndGlowInteractionTest extends BasePluginTest {
         armorStand.customName(net.kyori.adventure.text.Component.text("OldName"));
         armorStand.setCustomNameVisible(true);
         InteractionTestUtils.giveItem(player, Material.NAME_TAG); // no ItemMeta / display name set
+        plugin.debug.log("[rightClickWithBlankNameTag_clearsCustomName] setup: ArmorStand pre-named 'OldName', player given a blank name tag");
 
+        plugin.debug.log("[rightClickWithBlankNameTag_clearsCustomName] event fire: right-clicking ArmorStand with the blank name tag");
         PlayerInteractAtEntityEvent event = InteractionTestUtils.rightClick(player, armorStand);
 
+        plugin.debug.log("[rightClickWithBlankNameTag_clearsCustomName] assertion: cancelled=" + event.isCancelled()
+                + ", customName=" + armorStand.customName() + ", nameVisible=" + armorStand.isCustomNameVisible());
         assertTrue(event.isCancelled(), "Clearing the name should still cancel the vanilla interaction");
         assertNull(armorStand.customName(), "A name tag with no display name should clear the custom name");
         assertFalse(armorStand.isCustomNameVisible(), "Custom name visibility should be turned off when cleared");
@@ -93,11 +110,15 @@ class ArmorStandRenameAndGlowInteractionTest extends BasePluginTest {
         player.setGameMode(GameMode.SURVIVAL);
         ItemFrame itemFrame = InteractionTestUtils.spawnItemFrame(player.getWorld(), player.getLocation());
         InteractionTestUtils.giveItem(player, Material.GLOW_INK_SAC);
+        plugin.debug.log("[rightClickItemFrameWithGlowInkSac_whileSneaking_swapsToGlowItemFrame] setup: player sneaking, holding GLOW_INK_SAC, ItemFrame spawned");
 
+        plugin.debug.log("[rightClickItemFrameWithGlowInkSac_whileSneaking_swapsToGlowItemFrame] event fire: right-clicking ItemFrame");
         InteractionTestUtils.rightClick(player, itemFrame);
 
-        assertTrue(itemFrame.isDead(), "The original ItemFrame should be removed and replaced");
         List<GlowItemFrame> glowFrames = (List<GlowItemFrame>) player.getWorld().getEntitiesByClass(GlowItemFrame.class);
+        plugin.debug.log("[rightClickItemFrameWithGlowInkSac_whileSneaking_swapsToGlowItemFrame] assertion: originalDead=" + itemFrame.isDead()
+                + ", glowFrameCount=" + glowFrames.size());
+        assertTrue(itemFrame.isDead(), "The original ItemFrame should be removed and replaced");
         assertEquals(1, glowFrames.size(), "Exactly one GlowItemFrame should have been spawned in its place");
     }
 
@@ -108,9 +129,13 @@ class ArmorStandRenameAndGlowInteractionTest extends BasePluginTest {
         player.setSneaking(false);
         ItemFrame itemFrame = InteractionTestUtils.spawnItemFrame(player.getWorld(), player.getLocation());
         InteractionTestUtils.giveItem(player, Material.GLOW_INK_SAC);
+        plugin.debug.log("[rightClickItemFrameWithGlowInkSac_notSneaking_isNoOp] setup: player NOT sneaking, holding GLOW_INK_SAC, ItemFrame spawned");
 
+        plugin.debug.log("[rightClickItemFrameWithGlowInkSac_notSneaking_isNoOp] event fire: right-clicking ItemFrame");
         InteractionTestUtils.rightClick(player, itemFrame);
 
+        plugin.debug.log("[rightClickItemFrameWithGlowInkSac_notSneaking_isNoOp] assertion: originalDead=" + itemFrame.isDead()
+                + ", glowFrameCount=" + player.getWorld().getEntitiesByClass(GlowItemFrame.class).size());
         assertFalse(itemFrame.isDead(), "Without sneaking, the ItemFrame should be left as-is");
         assertTrue(player.getWorld().getEntitiesByClass(GlowItemFrame.class).isEmpty(),
                 "No GlowItemFrame should have been spawned");
