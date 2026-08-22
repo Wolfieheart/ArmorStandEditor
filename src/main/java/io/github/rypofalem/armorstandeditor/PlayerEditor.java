@@ -22,6 +22,7 @@ import io.github.rypofalem.armorstandeditor.menu.EquipmentMenu;
 import io.github.rypofalem.armorstandeditor.menu.Menu;
 import io.github.rypofalem.armorstandeditor.menu.PresetArmorPosesMenu;
 import io.github.rypofalem.armorstandeditor.menu.SizeMenu;
+
 //Do not optimize these..... This will no work properly
 import io.github.rypofalem.armorstandeditor.modes.AdjustmentMode;
 import io.github.rypofalem.armorstandeditor.modes.ArmorStandData;
@@ -32,9 +33,9 @@ import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.Util;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 
+import org.bukkit.Chunk;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -52,6 +53,7 @@ import org.bukkit.util.EulerAngle;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PlayerEditor {
     public ArmorStandEditorPlugin plugin;
@@ -65,8 +67,8 @@ public class PlayerEditor {
     EditMode eMode;
     AdjustmentMode adjMode;
     CopySlots copySlots;
-    Axis axis;
-    double eulerAngleChange;
+    public Axis axis;
+    public double eulerAngleChange;
     double degreeAngleChange;
     double movChange;
     Menu chestMenu;
@@ -456,6 +458,7 @@ public class PlayerEditor {
 
                 if (team != null) {
                     team.removeEntry(armorStandID.toString());
+                    highlight(armorStand);
                     armorStand.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 50, 1, false, false)); //300 Ticks = 15 seconds
                 }
 
@@ -646,10 +649,11 @@ public class PlayerEditor {
                 sendMessage("target", null);
             } else {
                 boolean same = targetList.size() == armorStands.size();
-                if (same) for (ArmorStand as : armorStands) {
-                    same = targetList.contains(as);
-                    if (!same) break;
-                }
+                if (same)
+                    for (ArmorStand as : armorStands) {
+                        same = targetList.contains(as);
+                        if (!same) break;
+                    }
 
                 if (same) {
                     targetIndex = ++targetIndex % targetList.size();
@@ -681,10 +685,11 @@ public class PlayerEditor {
                 sendMessage("frametarget", null);
             } else {
                 boolean same = frameTargetList.size() == itemFrames.size();
-                if (same) for (final ItemFrame itemf : itemFrames) {
-                    same = frameTargetList.contains(itemf);
-                    if (!same) break;
-                }
+                if (same)
+                    for (final ItemFrame itemf : itemFrames) {
+                        same = frameTargetList.contains(itemf);
+                        if (!same) break;
+                    }
 
                 if (same) {
                     frameTargetIndex = ++frameTargetIndex % frameTargetList.size();
@@ -710,15 +715,25 @@ public class PlayerEditor {
         return armorStand;
     }
 
+    ItemFrame attemptTarget(ItemFrame itemFrame) {
+        if (frameTarget == null
+            || !frameTarget.isValid()
+            || frameTarget.getWorld() != getPlayer().getWorld()
+            || frameTarget.getLocation().distanceSquared(getPlayer().getLocation()) > 100)
+            return itemFrame;
+        itemFrame = frameTarget;
+        return itemFrame;
+    }
+
     void sendMessage(String path, String format, String option) {
         Component message = plugin.getLang().getMessage(path, format, option);
         Player player = plugin.getServer().getPlayer(getUUID());
         if (plugin.sendToActionBar) {
-            if (ArmorStandEditorPlugin.instance().getHasPaper() || ArmorStandEditorPlugin.instance().getHasFolia()) { //Paper and Spigot having the same Interaction for sendToActionBar
-                Audience.audience(player).sendActionBar(message);
+            if (plugin.getHasPaper() || plugin.getHasFolia()) { //Paper and Spigot having the same Interaction for sendToActionBar
+                player.sendActionBar(message);
             }
         } else {
-            Audience.audience(player).sendMessage(message);
+           player.sendMessage(message);
         }
     }
 
@@ -728,7 +743,26 @@ public class PlayerEditor {
 
     private void highlight(ArmorStand armorStand) {
         armorStand.removePotionEffect(PotionEffectType.GLOWING);
-        armorStand.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 50, 1, false, false)); //300 Ticks = 15 seconds
+        final Chunk chunk = armorStand.getChunk();
+        chunk.addPluginChunkTicket(plugin);
+        try {
+            final AtomicBoolean cleaned = new AtomicBoolean(false);
+            final Runnable cleanup = () -> {
+                if (cleaned.compareAndSet(false, true)) {
+                    armorStand.setGlowing(false);
+                    chunk.removePluginChunkTicket(plugin);
+                }
+            };
+            armorStand.setGlowing(true);
+            boolean scheduled = armorStand.getScheduler().runDelayed(plugin, _ -> cleanup.run(), cleanup, 50) != null;
+            if (!scheduled) {
+                cleanup.run();
+            }
+        } catch (Throwable throwable) {
+            // not taking any chances
+            armorStand.setGlowing(false);
+            chunk.removePluginChunkTicket(plugin);
+        }
     }
 
     public PlayerEditorManager getManager() {
@@ -737,10 +771,6 @@ public class PlayerEditor {
 
     public Player getPlayer() {
         return plugin.getServer().getPlayer(getUUID());
-    }
-
-    public Scheduler getScheduler() {
-        return scheduler;
     }
 
     public UUID getUUID() {
@@ -757,7 +787,7 @@ public class PlayerEditor {
         lastCancelled = getManager().getTime();
     }
 
-    boolean isMenuCancelled() {
+    public boolean isMenuCancelled() {
         return getManager().getTime() - lastCancelled < 2;
     }
 

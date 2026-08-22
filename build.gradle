@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'com.gradleup.shadow' version '9.4.1'
     id "org.sonarqube" version "6.3.1.5724"
+    id 'jacoco'
 }
 
 jar {
@@ -25,13 +26,18 @@ configurations.configureEach {
     }
 }
 
+configurations {
+    mockitoAgent
+}
+
+
 group = 'io.github.rypofalem.armorstandeditor'
 
 // Read version from plugin.yml at configuration time
 version = getPluginVersion()
 
 String getPluginVersion() {
-    File pluginYml = file('src/main/resources/plugin.yml')
+    File pluginYml = file('src/main/resources/paper-plugin.yml')
     if (!pluginYml.exists()) {
         return '0.0.0'
     }
@@ -68,9 +74,11 @@ repositories {
     maven { url = "https://maven.playpro.com" }
 }
 
+
+
 dependencies {
     // Paper API only (compile-time)
-    compileOnly "io.papermc.paper:paper-api:26.1.2.build.+"
+    compileOnly "io.papermc.paper:paper-api:26.2.build.+"
     compileOnly "dev.folia:folia-api:1.20.1-R0.1-SNAPSHOT"
 
     // Adventure
@@ -78,7 +86,7 @@ dependencies {
     compileOnly "net.kyori:adventure-text-minimessage:5.0.0"
 
     // WorldGuard
-    compileOnly "com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT"
+    compileOnly "com.sk89q.worldguard:worldguard-bukkit:7.0.17"
 
     // PlotSquared
     compileOnly("com.intellectualsites.plotsquared:plotsquared-core:7.5.12") {
@@ -99,6 +107,9 @@ dependencies {
         exclude group: "net.kyori"
     }
 
+    // GriefPrevention
+    compileOnly "com.github.GriefPrevention:GriefPrevention:16.18.2"
+
     // Lands
     compileOnly "com.github.angeschossen:LandsAPI:7.25.4"
 
@@ -115,6 +126,9 @@ dependencies {
     compileOnly "org.popcraft:bolt-bukkit:1.1.33"
     compileOnly "org.popcraft:bolt-common:1.2.86"
 
+    // Dominion
+    compileOnly 'cn.lunadeer:DominionAPI:4.7.3'
+
     // Lombok
     compileOnly "org.projectlombok:lombok:1.18.44"
     annotationProcessor "org.projectlombok:lombok:1.18.44"
@@ -123,7 +137,19 @@ dependencies {
     implementation "io.papermc:paperlib:1.0.8"
     
     // Testing
-    testImplementation "junit:junit:4.13.2"
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3'
+    testImplementation 'org.mockbukkit.mockbukkit:mockbukkit-v26.1.2:4.+'
+    testImplementation 'io.papermc.paper:paper-api:26.1.2.build.+'
+    testImplementation 'com.palmergames.bukkit.towny:towny:0.102.0.13'
+    testImplementation 'com.intellectualsites.plotsquared:plotsquared-core:7.5.12'
+    testImplementation 'com.intellectualsites.plotsquared:plotsquared-bukkit:7.5.12'
+    testImplementation 'com.sk89q.worldguard:worldguard-bukkit:7.0.17'
+    testImplementation 'com.github.GriefPrevention:GriefPrevention:16.18.2'
+    testImplementation 'cn.lunadeer:DominionAPI:4.7.3'
+    testImplementation 'org.mockito:mockito-core:5.+'
+    mockitoAgent("org.mockito:mockito-core:5.+") { transitive = false }
+    testRuntimeOnly    'org.junit.platform:junit-platform-launcher'
+    testRuntimeOnly    'org.slf4j:slf4j-simple:2.0.17'
 }
 
 // Compile UTF-8
@@ -165,4 +191,39 @@ tasks.jar {
 }*/
 tasks.build{
     dependsOn shadowJar
+}
+
+/*tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("-Xlint:deprecation")
+}*/
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.add("-Xlint:deprecation")
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+    jvmArgs "-javaagent:${configurations.mockitoAgent.asPath}"
+    jvmArgs "-XX:+EnableDynamicAgentLoading" // silences the remaining JDK warning
+
+    testLogging {
+        exceptionFormat = "full"
+        showCauses = true
+        showStackTraces = true
+        events "failed"
+    }
+}
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true        // Sonar needs XML, not HTML
+    }
+}
+
+sonar {
+    properties {
+        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
+        property 'sonar.junit.reportPaths', 'build/test-results/test'
+    }
 }

@@ -26,20 +26,25 @@ import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
 import io.github.rypofalem.armorstandeditor.Metrics.SimplePie;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import io.papermc.lib.PaperLib;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -55,7 +60,11 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     //!!! DO NOT REMOVE THESE UNDER ANY CIRCUMSTANCES - Required for BStats and UpdateChecker !!!
     private static final int PLUGIN_ID = 12668;             //Used for BStats Metrics
-    public final Debug debug = new Debug(this);
+    public Debug debug = new Debug(this);
+    private static final MiniMessage miniMessage = MiniMessage.miniMessage();
+
+    private final boolean unitTestMode;
+    private boolean unitTestModeLogged;
 
     private NamespacedKey iconKey;
     private static ArmorStandEditorPlugin instance;
@@ -72,7 +81,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String versionLogPrefix;
 
     //Hardcode the ASE Version
-    public static final String ASE_VERSION = "26.1.2-51";
+    public static final String ASE_VERSION = "26.2-51.1.Beta2";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;
@@ -91,17 +100,18 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String editToolNameRaw = null;
     Component editToolName = null;
     boolean requireToolLore = false;
-    List<?> editToolLore = null;
+    List<Component> editToolLore = null;
     boolean enablePerWorld = false;
-    List<?> allowedWorldList = null;
+    List<String> allowedWorldList = null;
     double maxScaleValue;
     double minScaleValue;
     double maxResetRange;
+    double maxNumberOfHeadRetrievals = 5;
 
     //Custom Data Model Support - Readded
     boolean allowCustomModelData = false;
     // FIX: renamed from customModelDataInt and retyped to int — it was float but used as an integer throughout
-    int customModelDataValue;
+    double  customModelDataValue;
 
     //GUI Settings
     boolean requireSneaking = false;
@@ -135,31 +145,47 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     private Scheduler scheduler;
 
+    private HeadDataManager headDataManager;
+
     public ArmorStandEditorPlugin() {
         instance = this;
+        unitTestMode = false;
+    }
+
+    public ArmorStandEditorPlugin(Boolean utFlag){
+        instance = this;
+        unitTestMode = utFlag != null && utFlag;
     }
 
     @Override
     public void onEnable() {
         scheduler = new Scheduler(this);
-
+        
         if (!getHasFolia())
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
-
+    
         //START ---  Load Messages in Console
         getLogger().info("======= ArmorStandEditor =======");
         getLogger().info("Plugin Version: v" + ASE_VERSION);
-
+    
+        if (unitTestMode) {
+            getLogger().info("Unit Test Mode Enabled - Some features may be disabled or behave differently for testing purposes.");
+            unitTestModeLogged = true;
+        }
+    
         hasPaper = getHasPaper();
         hasFolia = getHasFolia();
-
+    
         //Get NMS Version
         nmsVersion = getServer().getMinecraftVersion();
         versionLogPrefix = warningMCVer + nmsVersion;
         doVersionCheck();
-
+    
         //If Paper and Folia are both FALSE - Disable the plugin
-        if (!hasPaper && !hasFolia) {
+        //Also we shouldn't run this if we are UnitTesting since we don't care.
+        if (unitTestMode) {
+            getLogger().info("Skipping Paper and Folia check due to Unit Test Mode.");
+        } else if (!hasPaper && !hasFolia) {
             getLogger().severe("This plugin requires either Paper or one of its forks to run. This is not an error, please do not report this!");
             getLogger().info(SEPARATOR_FIELD);
             getServer().getPluginManager().disablePlugin(this);
@@ -167,7 +193,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         } else {
             getLogger().log(Level.INFO, "Paper/Folia Present? {0}", hasPaper);
         }
-
+    
         if (!hasFolia) {
             scoreboard = Objects.requireNonNull(this.getServer().getScoreboardManager()).getMainScoreboard();
             registerScoreboards(scoreboard);
@@ -176,15 +202,15 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         } else {
             runWarningsFolia();
         }
-
+    
         //Run the update checker if enabled in config
         if (getRunTheUpdateChecker()) {
             new UpdateChecker(this).checkForUpdates();
         }
-
+    
         getLogger().info(SEPARATOR_FIELD);
         // ----- End of Initial Console Output
-
+    
         //saveResource doesn't accept File.separator on Windows, need to hardcode unix separator "/" instead
         updateConfig("", "config.yml");
         updateConfig(languageFolderLocation, "de_DE.yml");
@@ -199,34 +225,73 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         updateConfig(languageFolderLocation, "test_NA.yml");
         updateConfig(languageFolderLocation, "uk_UA.yml");
         updateConfig(languageFolderLocation, "zh_CN.yml");
-
+    
         //English is the default language and needs to be unaltered to so that there is always a backup message string
         saveResource("lang/en_US.yml", true);
-
         loadConfigValues();
-
+    
+        //Needed to handle the persistent storage of the PlayerHead Counters
+        headDataManager = new HeadDataManager(this);
+    
         //Get Metrics from bStats
         getMetrics();
-
+    
         //Activate CoreProtect Extension if CoreProtect is present
         coreProtectExtension = new CoreProtectExtension(this);
-
+    
         //Register Commands and Tab Completers
         CommandEx execute = new CommandEx(this);
         TabCompleter tabCompleter = new TabCompleter();
-
-        //Register the same Command Executor and Tab Completer for all 3 commands - /ase, /armorstandeditor, and /asedit
-        Objects.requireNonNull(getCommand("ase")).setExecutor(execute);
-        Objects.requireNonNull(getCommand("armorstandeditor")).setExecutor(execute);
-        Objects.requireNonNull(getCommand("asedit")).setExecutor(execute);
-
-        Objects.requireNonNull(getCommand("ase")).setTabCompleter(tabCompleter);
-        Objects.requireNonNull(getCommand("armorstandeditor")).setTabCompleter(tabCompleter);
-        Objects.requireNonNull(getCommand("asedit")).setTabCompleter(tabCompleter);
-
+        registerCommands(execute, tabCompleter);
+    
         //Register Events
         editorManager = new PlayerEditorManager(this);
         getServer().getPluginManager().registerEvents(editorManager, this);
+    }
+    
+    // Register commands using the Paper Lifecycle API (replaces getCommand() which is
+    // unsupported for Paper plugins). Wraps the existing CommandEx and TabCompleter so
+    // no other code needs to change.
+    private void registerCommands(CommandEx execute, TabCompleter tabCompleter) {
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            Commands commands = event.registrar();
+            for (String alias : List.of("ase", "armorstandeditor", "asedit")) {
+                // Stub Command so TabCompleter.onTabComplete() can call command.getName()
+                // without a NullPointerException — Brigadier has no equivalent object to pass.
+                org.bukkit.command.Command stubCommand = new org.bukkit.command.Command(alias) {
+                    @Override
+                    public boolean execute(CommandSender sender, String label, String[] args) {
+                        return false;
+                    }
+                };
+                commands.register(
+                        Commands.literal(alias)
+                                .executes(ctx -> {
+                                    CommandSender sender = ctx.getSource().getSender();
+                                    execute.onCommand(sender, stubCommand, alias, new String[0]);
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                                .then(
+                                        Commands.argument("args", StringArgumentType.greedyString())
+                                                .suggests((ctx, builder) -> {
+                                                    CommandSender sender = ctx.getSource().getSender();
+                                                    String[] args = builder.getRemaining().split(" ", -1);
+                                                    List<String> completions = tabCompleter.onTabComplete(sender, stubCommand, alias, args);
+                                                    if (completions != null) completions.forEach(builder::suggest);
+                                                    return builder.buildFuture();
+                                                })
+                                                .executes(ctx -> {
+                                                    CommandSender sender = ctx.getSource().getSender();
+                                                    String[] args = ctx.getArgument("args", String.class).split(" ", -1);
+                                                    execute.onCommand(sender, stubCommand, alias, args);
+                                                    return Command.SINGLE_SUCCESS;
+                                                })
+                                )
+                                .build(),
+                        "ArmorStandEditor command"
+                );
+            }
+        });
     }
 
     private void doVersionCheck() {
@@ -235,7 +300,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             getLogger().severe("ArmorStandEditor is not compatible with this version of Minecraft. Please update to at least version 1.17. Loading failed.");
             getLogger().info(SEPARATOR_FIELD);
             getServer().getPluginManager().disablePlugin(this);
-        } else if (VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(MinecraftVersion.MINECRAFT_26_1_1)) {
+        } else if (VersionUtil.fromString(nmsVersion).isOlderThanOrEquals(MinecraftVersion.MINECRAFT_26_2)) {
             getLogger().warning(versionLogPrefix);
             getLogger().warning("ArmorStandEditor is compatible with this version of Minecraft, but it is not the latest supported version.");
             getLogger().warning("Loading continuing, but please consider updating to the latest version.");
@@ -273,6 +338,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
             getLogger().severe("Team Already Appears to be removed. Please do not do this manually!");
         }
 
+        // ASE-InUse Team Removal
         team = scoreboard.getTeam(inUseTeam);
         if (team != null) {
             team.unregister();
@@ -325,10 +391,6 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         }
     }
 
-    public String getMinecraftVersion() {
-        return this.nmsVersion;
-    }
-
     // FIX: all getters now return cached fields instead of re-reading config on every call
     public boolean getArmorStandVisibility() { return armorStandVisibility; }
 
@@ -347,32 +409,32 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     // FIX: renamed from getallowedToRetrieveOwnPlayerHead (lowercase 'a' violated naming convention)
     public boolean getAllowedToRetrieveOwnPlayerHead() { return allowedToRetrieveOwnPlayerHead; }
 
+    public double getMaxNumberOfHeadRetrievals() { return maxNumberOfHeadRetrievals; }
+
     public boolean getAdminOnlyNotifications() { return adminOnlyNotifications; }
 
     public double getMinScaleValue() { return minScaleValue; }
 
     public double getMaxScaleValue() { return maxScaleValue; }
 
-    // FIX: renamed to match field rename from customModelDataInt -> customModelDataValue
-    public int getCustomModelDataValue() { return customModelDataValue; }
-
     public boolean isEditTool(ItemStack itemStk) {
         if (itemStk == null || editTool != itemStk.getType()) return false;
-
+        if (!requireToolData && !requireToolName && !requireToolLore && !allowCustomModelData) return true;
+    
         ItemMeta itemMeta = itemStk.getItemMeta();
-        if (itemMeta == null) return false;
-
+        return itemMeta != null && meetsToolRequirements(itemMeta);
+    }
+    
+    private boolean meetsToolRequirements(ItemMeta itemMeta) {
         if (requireToolData && !hasMatchingDurability(itemMeta)) return false;
         if (requireToolName && !hasMatchingName(itemMeta)) return false;
         if (requireToolLore && !hasMatchingLore(itemMeta)) return false;
-        if (allowCustomModelData && !hasMatchingCustomModelData(itemMeta)) return false;
-
-        return true;
+        return !allowCustomModelData || hasMatchingCustomModelData(itemMeta);
     }
 
     private boolean hasMatchingDurability(ItemMeta itemMeta) {
-        Damageable damageable = (Damageable) itemMeta;
-        return damageable.getDamage() == (short) editToolData;
+        if (!(itemMeta instanceof Damageable damageable))  return false;
+        return damageable.hasDamage() && damageable.getDamage() == editToolData;
     }
 
     private boolean hasMatchingName(ItemMeta itemMeta) {
@@ -384,15 +446,14 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     private boolean hasMatchingLore(ItemMeta itemMeta) {
         if (editToolLore == null) return true;
         List<Component> itemLore = itemMeta.lore();
-        return itemLore != null && itemLore.equals((List<Component>) editToolLore);
+        return itemLore != null && itemLore.equals(editToolLore);
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     private boolean hasMatchingCustomModelData(ItemMeta itemMeta) {
-        if (customModelDataValue == 0) return true;
-        CustomModelDataComponent component = itemMeta.getCustomModelDataComponent();
-        if (component.getFloats().isEmpty()) return true;
-        // FIX: was comparing float to float with ==; now both sides are cast to int for reliable equality
-        return component.getFloats().getFirst().intValue() == customModelDataValue;
+        if (customModelDataValue == 0.0) return true;
+        if (!itemMeta.hasCustomModelDataComponent()) return false;
+        return itemMeta.getCustomModelDataComponent().getFloats().get(0) == customModelDataValue;
     }
 
     public void loadConfigValues() {
@@ -411,13 +472,18 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         runTheUpdateChecker = getConfig().getBoolean("runTheUpdateChecker", true);
         opUpdateNotification = getConfig().getBoolean("opUpdateNotification", true);
         updateCheckerInterval = getConfig().getDouble("updateCheckerInterval", 24);
-        allowedToRetrieveOwnPlayerHead = getConfig().getBoolean("allowedToRetrieveOwnPlayerHead", true);
         adminOnlyNotifications = getConfig().getBoolean("adminOnlyNotifications", true);
         armorStandVisibility = getConfig().getBoolean("armorStandVisibility", true);
         requireToolData = getConfig().getBoolean("requireToolData", false);
         requireToolLore = getConfig().getBoolean("requireToolLore", false);
         requireToolName = getConfig().getBoolean("requireToolName", false);
+
+        //Conditional Config Items
         allowCustomModelData = getConfig().getBoolean("allowCustomModelData", false);
+        enablePerWorld = getConfig().getBoolean("enablePerWorldSupport", false);
+        allowedToRetrieveOwnPlayerHead = getConfig().getBoolean("allowedToRetrieveOwnPlayerHead", true);
+        enableBlockedNames = getConfig().getBoolean("enableBlockedNames", true);
+        debugFlag = getConfig().getBoolean("debugFlag", false);
 
         loadTool();
         loadConditionalConfig();
@@ -434,10 +500,9 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         editTool = Material.getMaterial(toolType);
     }
 
-    private void loadConditionalConfig() {
+    public void loadConditionalConfig() {
         if (allowCustomModelData) {
-            // FIX: field renamed to customModelDataValue and typed as int
-            customModelDataValue = getConfig().getInt("customModelDataInt", Integer.MIN_VALUE);
+            customModelDataValue = getConfig().getDouble("customModelDataInt", 10.0f);
         }
 
         if (requireToolName) {
@@ -452,28 +517,32 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         }
 
         if (requireToolLore) {
-            editToolLore = getConfig().getList("toolLore", null);
+            editToolLore = getConfig().getStringList("toolLore").stream()
+                    .map(miniMessage::deserialize)
+                    .toList();
         }
 
-        if (enablePerWorld = getConfig().getBoolean("enablePerWorldSupport", false)) {
-            allowedWorldList = getConfig().getList("allowed-worlds", null);
-            if (allowedWorldList != null && !allowedWorldList.isEmpty() && allowedWorldList.getFirst().equals("*")) {
-                allowedWorldList = getServer().getWorlds().stream().map(World::getName).toList();
+        if (enablePerWorld) {
+            allowedWorldList = new ArrayList<>(getConfig().getStringList("allowed-worlds"));
+            if (!allowedWorldList.isEmpty() && allowedWorldList.get(0).equals("*")) {
+                allowedWorldList = getServer().getWorlds().stream()
+                        .map(World::getName)
+                        .toList();
             }
         }
 
-        enableBlockedNames = getConfig().getBoolean("enableBlockedNames", true);
+        maxNumberOfHeadRetrievals = getConfig().getDouble("maxNumberOfHeadRetrievals", 5);
+
         if (enableBlockedNames) {
-            blockedNames = getConfig().getStringList("blocked-names");
+            blockedNames = List.copyOf(getConfig().getStringList("blocked-names"));
             if (!blockedNames.isEmpty()) {
-                getLogger().info("Blocked Names Enabled. The following names are blocked from being used on Armor Stands:");
+                getLogger().info("Blocked Names Enabled. The following names are blocked:");
                 blockedNames.forEach(name -> getLogger().info("- " + name));
             }
         }
 
-        debugFlag = getConfig().getBoolean("debugFlag", false);
         if (debugFlag) {
-            getServer().getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] Debug Mode ENABLED! Use for testing only.");
+            getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] Debug Mode ENABLED! Use for testing only.");
         }
     }
 
@@ -573,4 +642,72 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         return coreProtectExtension;
     }
 
+    public HeadDataManager getHeadDataMananger() {
+        return headDataManager;
+    }
+
+    /*
+    * HELPERS FOR UNIT TESTING
+     */
+    public boolean didLogUnitTestMode() {
+        return unitTestModeLogged;
+    }
+
+    public List<String> getAllowedWorldList() {
+        return allowedWorldList;
+    }
+
+    public boolean getEnableBlockedNames(){
+        return getConfig().getBoolean("enableBlockedNames", true);
+    }
+
+    public List<String> getListOfBlockedNames() {
+        return getConfig().getStringList("blocked-names");
+    }
+
+    public boolean getAllowCustomModelData() {
+        return getConfig().getBoolean("allowCustomModelData", true);
+    }
+
+    public boolean getEnablePerWorldSupport() {
+        return getConfig().getBoolean("enablePerWorldSupport", false);
+    }
+
+    public boolean getRequiredToolName() { return getConfig().getBoolean("requireToolName", false); }
+
+    public boolean getRequiredToolLore(){ return getConfig().getBoolean("requireToolLore", false); }
+
+    public boolean getRequiredToolData(){ return getConfig().getBoolean("requireToolData", false); }
+
+    public double getCustomModelDataValue() {
+        if (!getAllowCustomModelData()) {
+            return 0.0;
+        }
+        return getConfig().getDouble("customModelDataInt", 0.0);
+    }
+
+    public Component getEditToolName() {
+        editToolNameRaw = getConfig().getString("toolName", null);
+        if (editToolNameRaw != null) {
+            editToolName = LegacyComponentSerializer.legacyAmpersand().deserialize(editToolNameRaw);
+        }
+        return editToolName;
+    }
+
+
+    public List<Component> getEditToolLore() {
+        editToolLore = getConfig().getList("toolLore", null).stream()
+                .map(line -> Language.safeDeserialize(String.valueOf(line)))
+                .toList();
+        return editToolLore;
+    }
+
+    public void setEnableBlockedNames(boolean settingForTesting) {
+        enableBlockedNames = settingForTesting;
+    }
+
+
+    public void setDebugFlag(boolean settingForTesting) {
+        debugFlag = settingForTesting;
+    }
 }

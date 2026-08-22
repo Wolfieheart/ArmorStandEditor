@@ -28,7 +28,7 @@ public class SizeMenu extends ASEHolder {
     private Debug debug;
     private PlayerEditor pe;
     private ArmorStand as;
-    static Component name;
+    private Component name;
 
     public SizeMenu(PlayerEditor pe, ArmorStand as) {
         this.pe = pe;
@@ -160,45 +160,53 @@ public class SizeMenu extends ASEHolder {
 
         if (!player.hasPermission("asedit.togglesize")) return;
 
-        // Basically go from 0 directly to ItemSize
-        if (itemName.equals("scale1") || itemName.equals("scale2") || itemName.equals("scale3")
-            || itemName.equals("scale4") || itemName.equals("scale5") || itemName.equals("scale6")
-            || itemName.equals("scale7") || itemName.equals("scale8") || itemName.equals("scale9")
-            || itemName.equals("scale10")) {
-            newScaleValue = currentScaleValue + scaleValue;
-            debug.log("Result of the scale Calculation: " + newScaleValue);
-
-            if (newScaleValue > plugin.getMaxScaleValue()) {
-                pe.getPlayer().sendMessage(plugin.getLang().getMessage("scalemaxwarn", "warn"));
-            } else if (newScaleValue < plugin.getMinScaleValue()) {
-                pe.getPlayer().sendMessage(plugin.getLang().getMessage("scaleminwarn", "warn"));
-            } else {
+        //Optimization to move to a switch case for the scaling options, mostly for better readability and maintainability.
+        switch (itemName) {
+            case "scale1", "scale2", "scale3", "scale4", "scale5", "scale6", "scale7", "scale8", "scale9",
+                 "scale10" -> {
+                newScaleValue = scaleValue; // Set to the specific scale value
+                debug.log("Result of the scale Calculation: " + newScaleValue);
+                if (newScaleValue > plugin.getMaxScaleValue()) {
+                    pe.getPlayer().sendMessage(plugin.getLang().getMessage("scalemaxwarn", "warn"));
+                    return;
+                }
+                if (newScaleValue < plugin.getMinScaleValue()) {
+                    pe.getPlayer().sendMessage(plugin.getLang().getMessage("scaleminwarn", "warn"));
+                    return;
+                }
                 as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
             }
 
             // Add either 0.1 or 0.5 to the current
-        } else if (itemName.equals("scaleadd12") || itemName.equals("scaleadd110")) {
-            currentScaleValue = as.getAttribute(Attribute.SCALE).getBaseValue(); //Get the current Value
-            newScaleValue = currentScaleValue + scaleValue; // Add for increments
-            debug.log("Result of the scale Calculation: " + newScaleValue);
-            if (newScaleValue > plugin.getMaxScaleValue()) {
-                pe.getPlayer().sendMessage(plugin.getLang().getMessage("scalemaxwarn", "warn"));
-                return;
+            case "scaleadd12", "scaleadd110" -> {
+                currentScaleValue = as.getAttribute(Attribute.SCALE).getBaseValue(); //Get the current Value
+                newScaleValue = currentScaleValue + scaleValue; // Add for increments
+                debug.log("Result of the scale Calculation: " + newScaleValue);
+                if (newScaleValue > plugin.getMaxScaleValue()) {
+                    pe.getPlayer().sendMessage(plugin.getLang().getMessage("scalemaxwarn", "warn"));
+                    return;
+                }
+                as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
             }
-            as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
             //Subtract either 0.1 or 0.5 from the current
-        } else if (itemName.equals("scaleremove12") || itemName.equals("scaleremove110")) {
-            currentScaleValue = as.getAttribute(Attribute.SCALE).getBaseValue();
-            newScaleValue = currentScaleValue - scaleValue; // Subtract for decrements
-            debug.log("Result of the scale Calculation: " + newScaleValue);
-            if (newScaleValue < plugin.getMinScaleValue()) {
-                pe.getPlayer().sendMessage(plugin.getLang().getMessage("scaleminwarn", "warn"));
-                return;
+            case "scaleremove12", "scaleremove110" -> {
+                currentScaleValue = as.getAttribute(Attribute.SCALE).getBaseValue();
+                newScaleValue = currentScaleValue - scaleValue; // Subtract for decrements
+                debug.log("Result of the scale Calculation: " + newScaleValue);
+                if (newScaleValue < plugin.getMinScaleValue()) {
+                    pe.getPlayer().sendMessage(plugin.getLang().getMessage("scaleminwarn", "warn"));
+                    return;
+                }
+                as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
             }
-            as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
-        } else if (itemName.equals("reset")) { // Set it back to 1
-            newScaleValue = 1.0;
-            as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
+            case "reset" -> { // Set it back to 1
+                newScaleValue = 1.0;
+                as.getAttribute(Attribute.SCALE).setBaseValue(newScaleValue);
+            }
+            default -> {
+                debug.log("Unknown itemName received in scale switch: " + itemName);
+                pe.getPlayer().sendMessage(plugin.getLang().getMessage("scaleError", "warn"));
+            }
         }
     }
 

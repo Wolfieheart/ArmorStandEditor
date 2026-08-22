@@ -26,11 +26,8 @@ import io.github.rypofalem.armorstandeditor.utils.Util;
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
 
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Rotation;
+import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -57,7 +54,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacy;
 import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText;
 
 //Manages PlayerEditors and Player Events related to editing armorstands
@@ -73,7 +69,6 @@ public class PlayerEditorManager implements Listener {
     private ASEHolder presetHolder = new ASEHolder(); //Inventory Holder that owns the PresetArmorStand Post Menu
     private ASEHolder sizeMenuHolder = new ASEHolder(); //Inventory Holder that owns the PresetArmorStand Post Menu
 
-
     double coarseAdj;
     double fineAdj;
     double coarseMov;
@@ -87,6 +82,7 @@ public class PlayerEditorManager implements Listener {
     // Instantiate protections used to determine whether a player may edit an armor stand or item frame
     private final List<Protection> protections = List.of(
         new GriefDefenderProtection(),
+        new GriefPreventionProtection(),
         new LandsProtection(),
         new PlotSquaredProtection(),
         new SkyblockProtection(),
@@ -94,7 +90,8 @@ public class PlayerEditorManager implements Listener {
         new WorldGuardProtection(),
         new itemAdderProtection(),
         new BoltProtection(),
-        new BentoBoxProtection());
+        new BentoBoxProtection(),
+        new DominionProtection());
 
     PlayerEditorManager(ArmorStandEditorPlugin plugin) {
         this.plugin = plugin;
@@ -116,7 +113,9 @@ public class PlayerEditorManager implements Listener {
         debug.log("Entity being spawned is an ArmorStand");
 
         Player player = event.getPlayer();
+        if(player == null) return;
         Location location = player.getLocation();
+        if(location == null) return;
 
         debug.log("Player " + player.getName()
             + " is placing an ArmorStand at (approx) X: " + Math.round(location.getX())
@@ -176,8 +175,7 @@ public class PlayerEditorManager implements Listener {
                 ItemMeta meta = nameTag.getItemMeta();
                 if (meta != null && meta.hasDisplayName()) {
                     // The display name is stored as a raw MiniMessage string, so parse it into a Component
-                    Component displayName = MiniMessage.miniMessage().deserialize(
-                            plainText().serialize(meta.displayName()));
+                    Component displayName = meta.customName();
                     if (!player.hasPermission("asedit.rename.color")) {
                         getName = Component.text(plainText().serialize(displayName));
                     } else {
@@ -189,7 +187,7 @@ public class PlayerEditorManager implements Listener {
 
 
                 if (getName == null) {
-                    as.setCustomName(null);
+                    as.customName(null);
                     as.setCustomNameVisible(false);
                     event.setCancelled(true);
                 } else {
@@ -234,7 +232,7 @@ public class PlayerEditorManager implements Listener {
                 if (player.getGameMode() != GameMode.CREATIVE) {
                     if (glowSacs.getAmount() > 1) {
                         glowSacs.setAmount(glowSacs.getAmount() - 1);
-                    } else glowSacs = new ItemStack(Material.AIR);
+                    }
                 }
 
                 itemFrame.remove();
@@ -256,14 +254,11 @@ public class PlayerEditorManager implements Listener {
 
         if (event.getEntity() instanceof ArmorStand entityAS) {
             // Check if the ArmorStand is invulnerable and if the damager is a player.
-            if (entityAS.isInvulnerable() && event.getDamager() instanceof Player p) {
-                // Check if the player is in Creative mode.
-                if (p.getGameMode() == GameMode.CREATIVE) {
-                    // If the player is in Creative mode and the ArmorStand is invulnerable,
-                    // cancel the event to prevent breaking the ArmorStand.
-                    p.sendMessage(plugin.getLang().getMessage("unabledestroycreative"));
-                    event.setCancelled(true); // Cancel the event to prevent ArmorStand destruction.
-                }
+            if (entityAS.isInvulnerable() && event.getDamager() instanceof Player p && p.getGameMode() == GameMode.CREATIVE) {
+                // If the player is in Creative mode and the ArmorStand is invulnerable,
+                // cancel the event to prevent breaking the ArmorStand.
+                p.sendMessage(plugin.getLang().getMessage("unabledestroycreative"));
+                event.setCancelled(true); // Cancel the event to prevent ArmorStand destruction.
             }
         }
 
@@ -289,39 +284,37 @@ public class PlayerEditorManager implements Listener {
 
         PlayerEditor editor = getPlayerEditor(player.getUniqueId());
 
-        // Handle double target
-        if (!isEmpty(asTargets) && !isEmpty(frameTargets)) {
-            editor.sendMessage("doubletarget", "warn");
+        if(!asTargets.isEmpty() && !frameTargets.isEmpty()) {
+            editor.sendMessage("nodoubletarget", "warn");
             return;
         }
-
-        // Handle single target: ArmorStand
-        if (!isEmpty(asTargets)) {
+        if(!asTargets.isEmpty()) {
             editor.setTarget(asTargets);
             return;
         }
 
-        // Handle single target: ItemFrame
-        if (!isEmpty(frameTargets)) {
+        if (!frameTargets.isEmpty()) {
             editor.setFrameTarget(frameTargets);
             return;
         }
 
         // No target found
         editor.sendMessage("nodoubletarget", "warn");
+
     }
 
     private ArrayList<ArmorStand> getTargets(Player player) {
+        ArrayList<ArmorStand> armorStands = new ArrayList<>();
         Location eyeLaser = player.getEyeLocation();
         Vector direction = player.getLocation().getDirection();
-        ArrayList<ArmorStand> armorStands = new ArrayList<>();
+        if(direction == null) return armorStands;
 
         double STEPSIZE = .5;
         Vector STEP = direction.multiply(STEPSIZE);
         double RANGE = 10;
         double LASERRADIUS = .3;
         List<Entity> nearbyEntities = player.getNearbyEntities(RANGE, RANGE, RANGE);
-        if (nearbyEntities.isEmpty()) return null;
+        if (nearbyEntities.isEmpty()) return armorStands;
 
         for (double i = 0; i < RANGE; i += STEPSIZE) {
             List<Entity> nearby = (List<Entity>) player.getWorld().getNearbyEntities(eyeLaser, LASERRADIUS, LASERRADIUS, LASERRADIUS);
@@ -343,9 +336,11 @@ public class PlayerEditorManager implements Listener {
     }
 
     private ArrayList<ItemFrame> getFrameTargets(Player player) {
+        ArrayList<ItemFrame> itemFrames = new ArrayList<>();
         Location eyeLaser = player.getEyeLocation();
         Vector direction = player.getLocation().getDirection();
-        ArrayList<ItemFrame> itemFrames = new ArrayList<>();
+        if(direction == null) return itemFrames;
+
 
         double STEPSIZE = .5;
         Vector STEP = direction.multiply(STEPSIZE);
@@ -353,7 +348,7 @@ public class PlayerEditorManager implements Listener {
         double LASERRADIUS = .3;
 
         List<Entity> nearbyEntities = player.getNearbyEntities(RANGE, RANGE, RANGE);
-        if (nearbyEntities.isEmpty()) return null;
+        if (nearbyEntities.isEmpty()) return itemFrames;
 
         for (double i = 0; i < RANGE; i += STEPSIZE) {
             List<Entity> nearby = (List<Entity>) player.getWorld().getNearbyEntities(eyeLaser, LASERRADIUS, LASERRADIUS, LASERRADIUS);
@@ -419,7 +414,6 @@ public class PlayerEditorManager implements Listener {
             || e.getAction() == Action.RIGHT_CLICK_AIR
             || e.getAction() == Action.LEFT_CLICK_BLOCK
             || e.getAction() == Action.RIGHT_CLICK_BLOCK)) return;
-
         debug.log("Ran on Right Click Tool Event.");
         Player player = e.getPlayer();
 
@@ -432,7 +426,11 @@ public class PlayerEditorManager implements Listener {
             e.setCancelled(true);
             return;
         }
-        e.setCancelled(true);
+
+        if(e.getClickedBlock() != null && isInteractable(e.getClickedBlock())) return;
+
+
+        e.setCancelled(true); // This cancels the event, preventing vanilla interaction
         debug.log("Open Menu Called for Player: " + player.getName());
         getPlayerEditor(player.getUniqueId()).openMenu();
     }
@@ -570,10 +568,17 @@ public class PlayerEditorManager implements Listener {
         return counter.ticks;
     }
 
-    private <T> boolean isEmpty(List<T> list) {
-        return list.isEmpty();
+    private boolean isInteractable(Block block) {
+        Material type = block.getType();
+        return Tag.DOORS.isTagged(type)
+                || Tag.TRAPDOORS.isTagged(type)
+                || Tag.BUTTONS.isTagged(type)
+                || Tag.FENCE_GATES.isTagged(type)
+                || Tag.BEDS.isTagged(type)
+                || Tag.ALL_SIGNS.isTagged(type)
+                || Tag.SHULKER_BOXES.isTagged(type)
+                || Tag.WOODEN_SHELVES.isTagged(type);
     }
-
 
     class TickCounter implements Runnable {
         long ticks = 0; //I am optimistic

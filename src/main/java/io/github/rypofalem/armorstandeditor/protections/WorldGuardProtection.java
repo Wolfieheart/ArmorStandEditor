@@ -44,6 +44,7 @@ public class WorldGuardProtection implements Protection {
         regionQry = regionContainer.createQuery();
     }
 
+    @Override
     public boolean checkPermission(Block block, Player player) {
         if (!wgEnabled) return true;
         if (player.isOp()) return true;
