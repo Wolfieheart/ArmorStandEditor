@@ -19,23 +19,35 @@
 
 package io.github.rypofalem.armorstandeditor.protections;
 
+import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
+import io.github.rypofalem.armorstandeditor.Debug;
 import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+
+import java.util.function.Supplier;
+
 
 public class GriefPreventionProtection implements Protection {
 
     private boolean gpEnabled;
     private GriefPrevention griefPrevention = null;
+    private Debug debug;
+    private ArmorStandEditorPlugin plugin;
 
     public GriefPreventionProtection() {
+        plugin = ArmorStandEditorPlugin.instance();
+        debug = plugin.debug;
         gpEnabled = Bukkit.getPluginManager().isPluginEnabled("GriefPrevention");
 
         if (!gpEnabled) return;
@@ -44,27 +56,67 @@ public class GriefPreventionProtection implements Protection {
 
     @Override
     public boolean checkPermission(Block block, Player player) {
+        return checkPermission(block.getLocation(), player);
+    }
+
+    @Override
+    public boolean checkPermission(Entity entity, Player player) {
+        return checkPermission(
+                entity.getLocation().getBlock().getLocation(),
+                player
+        );
+    }
+
+    public boolean checkPermission(Location loc, Player player) {
         if (!gpEnabled) return true;
         if (player.hasPermission("asedit.ignoreProtection.griefPrevention")) return true;
+        if (player.hasPermission("griefprevention.ignoreclaims")) return true;
+        if (player.isOp()) return true;
 
-        Location blockLoc = block.getLocation();
+        //Get the Players world -
+        // If the world is null or griefprevention is not enabled for the world,
+        // allow them to edit the armor stand
+        World world = loc.getWorld();
+        if (world == null || !griefPrevention.claimsEnabledForWorld(world)) return true;
 
-        if (GriefPrevention.instance.claimsEnabledForWorld(blockLoc.getWorld())) {
+        // Get the claim at the location of the armor stand
+        Claim landClaim = griefPrevention.dataStore.getClaimAt(loc, false, null);
 
-            Claim landClaim = griefPrevention.dataStore.getClaimAt(blockLoc, false, null);
-            Material blockMat = block.getType();
+        debug.log("=== GP DEBUG ===");
+        debug.log("Location: " + loc);
+        debug.log("Claim: " + landClaim);
 
-            if (landClaim != null && landClaim.allowEdit(player) != null && landClaim.allowBuild(player, blockMat) != null) {
-                player.sendMessage(NamedTextColor.RED + landClaim.allowEdit(player));
-                player.sendMessage(NamedTextColor.RED + landClaim.allowBuild(player, blockMat));
-                return false;
-            }
+        // Assumption: User isn't in a claim but Wilderness, so allow them to edit the armor stand
+        if(landClaim == null) return true;
+
+        debug.log("Player UUID: " + player.getUniqueId());
+        debug.log("Owner UUID: " + landClaim.getOwnerID());
+        debug.log("Is owner: " +
+                player.getUniqueId().equals(landClaim.getOwnerID()));
+
+        // Check if the player has permission to build or edit in the claim
+        Supplier<String> denial = landClaim.checkPermission(
+                player.getUniqueId(),
+                ClaimPermission.Edit,
+                null
+        );
+
+        debug.log("Edit permission: " +
+                (denial == null ? "ALLOWED" : "DENIED - " + denial.get()));
+
+        if (denial != null) {
+            debug.log("Edit denial message: " + denial.get());
+            debug.log("=== GP DEBUG END ===");
+            player.sendMessage(Component.text(
+                    "You do not have permission to edit this armor stand in this claim.",
+                    NamedTextColor.RED
+            ));
+            return false;
+
         } else {
+            debug.log("EDIT ALLOWED");
+            debug.log("=== GP DEBUG END ===");
             return true;
         }
-
-        return true;
-
-
     }
 }
