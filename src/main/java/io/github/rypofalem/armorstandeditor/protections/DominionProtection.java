@@ -38,9 +38,11 @@ public class DominionProtection implements Protection {
         PriFlag flagToCheck;
 
         if(entity instanceof ArmorStand){
+            debug.log("Entity is an Armor Stand");
             entityBeingEditedMaterial = ARMOR_STAND;
             flagToCheck = Flags.BREAK_BLOCK;
         } else if (entity instanceof ItemFrame) {
+            debug.log("Entity is an Item Frame");
             entityBeingEditedMaterial = entity instanceof GlowItemFrame ? GLOW_ITEM_FRAME : ITEM_FRAME;
             flagToCheck = Flags.ITEM_FRAME_INTERACTIVE;
         } else {
