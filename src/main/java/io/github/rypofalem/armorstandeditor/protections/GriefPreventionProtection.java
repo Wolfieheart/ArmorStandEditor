@@ -70,7 +70,6 @@ public class GriefPreventionProtection implements Protection {
     public boolean checkPermission(Location loc, Player player) {
         if (!gpEnabled) return true;
         if (player.hasPermission("asedit.ignoreProtection.griefPrevention")) return true;
-        if (player.hasPermission("griefprevention.ignoreclaims")) return true;
         if (player.isOp()) return true;
 
         //Get the Players world -
