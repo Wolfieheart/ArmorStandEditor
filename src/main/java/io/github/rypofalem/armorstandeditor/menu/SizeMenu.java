@@ -58,11 +58,12 @@ public class SizeMenu extends ASEHolder {
         ItemStack remove110fromBase = createIcon(ItemStack.of(Material.GREEN_CONCRETE, 2), "scaleremove110");
         ItemStack backToMenu = createIcon(ItemStack.of(Material.RED_WOOL, 1), "backtomenu");
         ItemStack resetIcon = createIcon(ItemStack.of(Material.NETHER_STAR, 1), "reset");
+        ItemStack legacySmall = createIcon(ItemStack.of(Material.SLIME_BALL, 1), "legacySmall");
 
         ItemStack[] items = {
             backToMenu, blankSlot, base10, base20, base30, base40, base50, base60, blankSlot,
             resetIcon, blankSlot, base70, base80, base90, base100, blankSlot, add12toBase, remove12fromBase,
-            blankSlot, blankSlot, blankSlot, blankSlot, blankSlot, blankSlot, blankSlot, add110fromBase, remove110fromBase
+            legacySmall, blankSlot, blankSlot, blankSlot, blankSlot, blankSlot, blankSlot, add110fromBase, remove110fromBase
         };
 
         menuInv.setContents(items);
@@ -125,6 +126,8 @@ public class SizeMenu extends ASEHolder {
             handleBackToMenu(player);
         } else if (itemName.equals("reset")) {
             handleReset(player);
+        } else if (itemName.equals("legacySmall")) {
+            handleLegacySmall(player);
         }
     }
 
@@ -146,6 +149,18 @@ public class SizeMenu extends ASEHolder {
         playChimeSound(player);
         player.closeInventory();
     }
+
+    private void handleLegacySmall(Player player) {
+        debug.log("Setting the Scale of the ArmorStand to Legacy Small");
+
+        if (!as.isValid()) return;
+        if (!player.hasPermission("asedit.togglesize")) return;
+
+        playChimeSound(player);
+        as.setSmall(!as.isSmall());
+        player.closeInventory();
+    }
+
 
     private void playChimeSound(Player player) {
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 1);
