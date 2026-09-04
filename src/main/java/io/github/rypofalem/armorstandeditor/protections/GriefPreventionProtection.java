@@ -33,6 +33,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.GlowItemFrame;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 
 import java.util.function.Supplier;
@@ -61,11 +63,19 @@ public class GriefPreventionProtection implements Protection {
 
     @Override
     public boolean checkPermission(Entity entity, Player player) {
+
+        // We dont care about item frames or glow item frames, so just return true for those
+        if(entity instanceof ItemFrame) {
+             return true;
+        }
+
+        // Only hit here if the entity is an armor stand
         return checkPermission(
                 entity.getLocation().getBlock().getLocation(),
                 player
         );
     }
+
 
     public boolean checkPermission(Location loc, Player player) {
         if (!gpEnabled) return true;
