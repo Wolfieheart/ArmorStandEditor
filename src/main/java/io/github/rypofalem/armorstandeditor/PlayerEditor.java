@@ -590,6 +590,8 @@ public class PlayerEditor {
     }
 
     public void enforceVisibility(ArmorStand as) {
+        debug.log("enforceVisibility mode=" + plugin.getInvisibleEmptyMode()
+                + " visible=" + as.isVisible());
         InvisibleEmptyMode mode = plugin.getInvisibleEmptyMode();
         if (mode != InvisibleEmptyMode.OFF) {
             Util.applyEmptyStandMode(as, mode, plugin.getAutoGlowKey());

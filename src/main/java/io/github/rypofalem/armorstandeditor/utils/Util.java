@@ -19,6 +19,7 @@
 
 package io.github.rypofalem.armorstandeditor.utils;
 
+import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
 import io.github.rypofalem.armorstandeditor.modes.InvisibleEmptyMode;
 
 import org.bukkit.NamespacedKey;
@@ -93,6 +94,9 @@ public abstract class Util {
         boolean empty = eq == null
                 || Arrays.stream(ARMORSTAND_SLOTS).allMatch(s -> eq.getItem(s).getType().isAir());
         boolean orphan = !as.isVisible() && !as.isCustomNameVisible() && empty;
+        ArmorStandEditorPlugin.instance().debug.log("[DEBUG] empty=" + empty
+                + " nameVisible=" + as.isCustomNameVisible() + " orphan=" + orphan + " mode=" + mode);
+
 
         if (orphan && mode == InvisibleEmptyMode.VISIBLE) {
             as.setVisible(true);
