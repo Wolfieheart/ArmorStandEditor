@@ -76,10 +76,7 @@ public class PlayerEditor {
     EquipmentMenu equipMenu;
     PresetArmorPosesMenu presetPoseMenu;
     SizeMenu sizeModificationMenu;
-    long lastCancelled = 0;
-
-    Attribute scaleAttribute = Bukkit.getRegistry(Attribute.class)
-            .get(NamespacedKey.minecraft("scale"));
+    long lastCancelled = 0;;
 
     public PlayerEditor(UUID uuid, ArmorStandEditorPlugin plugin) {
         this.uuid = uuid;
@@ -396,7 +393,7 @@ public class PlayerEditor {
             armorStand.setRightLegPose(data.rightLegPos);
 
             if (VersionUtil.fromString(plugin.getNmsVersion()).isNewerThanOrEquals(MinecraftVersion.MINECRAFT_1_20_4)) {
-                armorStand.getAttribute(scaleAttribute).setBaseValue(data.attributeScale);
+                armorStand.getAttribute(Attribute.SCALE).setBaseValue(data.attributeScale);
             } else {
                 armorStand.setSmall(data.size);
             }
@@ -630,7 +627,7 @@ public class PlayerEditor {
 
                 //ArmorStand Attribute Reset
                 if (VersionUtil.fromString(plugin.getNmsVersion()).isNewerThanOrEquals(MinecraftVersion.MINECRAFT_1_20_4)) {
-                    standBeingReset.getAttribute(scaleAttribute).setBaseValue(1.0);
+                    standBeingReset.getAttribute(Attribute.SCALE).setBaseValue(1.0);
                 } else {
                     standBeingReset.setSmall(false);
                 }
