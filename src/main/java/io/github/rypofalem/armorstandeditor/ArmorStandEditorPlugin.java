@@ -21,6 +21,7 @@ package io.github.rypofalem.armorstandeditor;
 
 import io.github.rypofalem.armorstandeditor.coreprotect.CoreProtectExtension;
 import io.github.rypofalem.armorstandeditor.language.Language;
+import io.github.rypofalem.armorstandeditor.modes.InvisibleEmptyMode;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
@@ -81,7 +82,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     String versionLogPrefix;
 
     //Hardcode the ASE Version
-    public static final String ASE_VERSION = "26.2-51.1.Beta2";
+    public static final String ASE_VERSION = "26.3-52.RC1";
     public static final String SEPARATOR_FIELD = "================================";
 
     public PlayerEditorManager editorManager;

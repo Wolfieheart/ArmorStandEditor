@@ -12,7 +12,7 @@ public class Debug {
 
     public void log(String msg) {
         if (plugin.isDebug()) {
-            plugin.getLogger().log(Level.INFO, "[ArmorStandEditor-Debug] {0}", msg);
+            plugin.getLogger().log(Level.FINE, "[ArmorStandEditor-Debug] {0}", msg);
         }
     }
 }
