@@ -18,4 +18,19 @@
 */
 package io.github.rypofalem.armorstandeditor.modes;
 
-public enum InvisibleEmptyMode { OFF, VISIBLE, GLOW }
+import java.util.Locale;
+import java.util.logging.Logger;
+
+public enum InvisibleEmptyMode {
+    OFF, VISIBLE, GLOW;
+
+    public static InvisibleEmptyMode parse(String raw, Logger logger) {
+        try {
+            return valueOf(raw.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException | NullPointerException _) {
+            logger.warning("Invalid invisible-empty-stand.mode '" + raw + "', using OFF");
+            return OFF;
+        }
+    }
+
+}

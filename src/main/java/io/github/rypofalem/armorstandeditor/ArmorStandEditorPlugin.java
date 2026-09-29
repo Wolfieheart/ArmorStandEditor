@@ -484,13 +484,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
         // in your config loading code (and in onEnable for the key):
         autoGlowKey = new NamespacedKey(this, "auto_glow");
-        try {
-            invisibleEmptyMode = InvisibleEmptyMode.valueOf(
-                    getConfig().getString("invisible-empty-stand.mode", "OFF").toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException ex) {
-            getLogger().warning("Invalid invisible-empty-stand.mode, using OFF");
-            invisibleEmptyMode = InvisibleEmptyMode.OFF;
-        }
+        invisibleEmptyMode = InvisibleEmptyMode.parse(getConfig().getString("invisible-empty-stand.mode", "OFF"), getLogger());
 
         //Conditional Config Items
         allowCustomModelData = getConfig().getBoolean("allowCustomModelData", false);
