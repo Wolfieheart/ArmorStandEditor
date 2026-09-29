@@ -24,29 +24,21 @@ import io.github.rypofalem.armorstandeditor.menu.PresetArmorPosesMenu;
 import io.github.rypofalem.armorstandeditor.menu.SizeMenu;
 
 //Do not optimize these..... This will no work properly
-import io.github.rypofalem.armorstandeditor.modes.AdjustmentMode;
-import io.github.rypofalem.armorstandeditor.modes.ArmorStandData;
+import io.github.rypofalem.armorstandeditor.modes.*;
 import io.github.rypofalem.armorstandeditor.modes.Axis;
-import io.github.rypofalem.armorstandeditor.modes.CopySlots;
-import io.github.rypofalem.armorstandeditor.modes.EditMode;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.Util;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 
 import net.kyori.adventure.text.Component;
 
-import org.bukkit.Chunk;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.EulerAngle;
@@ -85,6 +77,9 @@ public class PlayerEditor {
     PresetArmorPosesMenu presetPoseMenu;
     SizeMenu sizeModificationMenu;
     long lastCancelled = 0;
+
+    Attribute scaleAttribute = Bukkit.getRegistry(Attribute.class)
+            .get(NamespacedKey.minecraft("scale"));
 
     public PlayerEditor(UUID uuid, ArmorStandEditorPlugin plugin) {
         this.uuid = uuid;
@@ -401,7 +396,7 @@ public class PlayerEditor {
             armorStand.setRightLegPose(data.rightLegPos);
 
             if (VersionUtil.fromString(plugin.getNmsVersion()).isNewerThanOrEquals(MinecraftVersion.MINECRAFT_1_20_4)) {
-                armorStand.getAttribute(Attribute.SCALE).setBaseValue(data.attributeScale);
+                armorStand.getAttribute(scaleAttribute).setBaseValue(data.attributeScale);
             } else {
                 armorStand.setSmall(data.size);
             }
@@ -410,7 +405,10 @@ public class PlayerEditor {
             armorStand.setBasePlate(data.basePlate);
             armorStand.setArms(data.showArms);
             armorStand.setVisible(data.visible);
+            enforceVisibility(armorStand);
             armorStand.setInvulnerable(data.inVulnerable);
+
+
 
             if(data.slotsLocked){
                 disableSlots(armorStand);
@@ -568,6 +566,8 @@ public class PlayerEditor {
             debug.log("Toggling the Glowing Ability of an ArmorStand near player: " + getPlayer().displayName());
             //Will only make it glow white - Not something we can do like with Locking. Do not request this!
             armorStand.setGlowing(!armorStand.isGlowing());
+            armorStand.getPersistentDataContainer().remove(plugin.getAutoGlowKey());
+            enforceVisibility(armorStand);
         } else {
             sendMessage("nopermoption", "warn", "armorstandglow");
         }
@@ -586,8 +586,16 @@ public class PlayerEditor {
         if (getPlayer().hasPermission("asedit.togglearmorstandvisibility") || plugin.getArmorStandVisibility()) {
             debug.log("Toggling the Visiblity of an ArmorStand near player: " + getPlayer().displayName());
             armorStand.setVisible(!armorStand.isVisible());
+            enforceVisibility(armorStand);
         } else { //Throw No Permission Message
             sendMessage("nopermoption", "warn", "armorstandvisibility");
+        }
+    }
+
+    public void enforceVisibility(ArmorStand as) {
+        InvisibleEmptyMode mode = plugin.getInvisibleEmptyMode();
+        if (mode != InvisibleEmptyMode.OFF) {
+            Util.applyEmptyStandMode(as, mode, plugin.getAutoGlowKey());
         }
     }
 
@@ -622,7 +630,7 @@ public class PlayerEditor {
 
                 //ArmorStand Attribute Reset
                 if (VersionUtil.fromString(plugin.getNmsVersion()).isNewerThanOrEquals(MinecraftVersion.MINECRAFT_1_20_4)) {
-                    standBeingReset.getAttribute(Attribute.SCALE).setBaseValue(1.0);
+                    standBeingReset.getAttribute(scaleAttribute).setBaseValue(1.0);
                 } else {
                     standBeingReset.setSmall(false);
                 }
@@ -799,6 +807,7 @@ public class PlayerEditor {
             final Runnable cleanup = () -> {
                 if (cleaned.compareAndSet(false, true)) {
                     armorStand.setGlowing(false);
+                    enforceVisibility(armorStand);
                     chunk.removePluginChunkTicket(plugin);
                 }
             };
@@ -810,6 +819,7 @@ public class PlayerEditor {
         } catch (Throwable throwable) {
             // not taking any chances
             armorStand.setGlowing(false);
+            enforceVisibility(armorStand);
             chunk.removePluginChunkTicket(plugin);
         }
     }

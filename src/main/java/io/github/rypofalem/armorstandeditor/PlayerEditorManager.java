@@ -20,6 +20,7 @@
 package io.github.rypofalem.armorstandeditor;
 
 import io.github.rypofalem.armorstandeditor.menu.ASEHolder;
+import io.github.rypofalem.armorstandeditor.modes.InvisibleEmptyMode;
 import io.github.rypofalem.armorstandeditor.protections.*;
 import io.github.rypofalem.armorstandeditor.utils.Util;
 
@@ -150,6 +151,14 @@ public class PlayerEditorManager implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onArmorStandManipulate(PlayerArmorStandManipulateEvent e) {
+        InvisibleEmptyMode mode = plugin.getInvisibleEmptyMode();
+        if (mode == InvisibleEmptyMode.OFF) return;
+        ArmorStand as = e.getRightClicked();
+        as.getScheduler().run(plugin, t -> Util.applyEmptyStandMode(as, mode, plugin.getAutoGlowKey()), null);
+    }
+
     @EventHandler(priority = EventPriority.LOWEST)
     void onArmorStandInteract(PlayerInteractAtEntityEvent event) {
         if (ignoreNextInteract) return;
@@ -175,7 +184,7 @@ public class PlayerEditorManager implements Listener {
                 ItemMeta meta = nameTag.getItemMeta();
                 if (meta != null && meta.hasDisplayName()) {
                     // The display name is stored as a raw MiniMessage string, so parse it into a Component
-                    Component displayName = meta.customName();
+                    Component displayName = meta.displayName();
                     if (!player.hasPermission("asedit.rename.color")) {
                         getName = Component.text(plainText().serialize(displayName));
                     } else {
@@ -486,7 +495,7 @@ public class PlayerEditorManager implements Listener {
             ItemStack item = e.getCurrentItem();
             if (item != null && item.hasItemMeta()) {
                 Player player = (Player) e.getWhoClicked();
-                String itemName = item.getPersistentDataContainer().get(plugin.getIconKey(), PersistentDataType.STRING);
+                String itemName = item.getItemMeta().getPersistentDataContainer().get(plugin.getIconKey(), PersistentDataType.STRING);
                 PlayerEditor pe = players.get(player.getUniqueId());
                 pe.presetPoseMenu.handlePresetPose(itemName, player);
                 scheduler.runForEntity(player, player::closeInventory);
@@ -498,7 +507,7 @@ public class PlayerEditorManager implements Listener {
             ItemStack item = e.getCurrentItem();
             if (item != null && item.hasItemMeta()) {
                 Player player = (Player) e.getWhoClicked();
-                String itemName = item.getPersistentDataContainer().get(plugin.getIconKey(), PersistentDataType.STRING);
+                String itemName = item.getItemMeta().getPersistentDataContainer().get(plugin.getIconKey(), PersistentDataType.STRING);
                 PlayerEditor pe = players.get(player.getUniqueId());
                 pe.sizeModificationMenu.handleAttributeScaling(itemName, player);
                 scheduler.runForEntity(player, player::closeInventory);
@@ -576,8 +585,7 @@ public class PlayerEditorManager implements Listener {
                 || Tag.FENCE_GATES.isTagged(type)
                 || Tag.BEDS.isTagged(type)
                 || Tag.ALL_SIGNS.isTagged(type)
-                || Tag.SHULKER_BOXES.isTagged(type)
-                || Tag.WOODEN_SHELVES.isTagged(type);
+                || Tag.SHULKER_BOXES.isTagged(type);
     }
 
     class TickCounter implements Runnable {

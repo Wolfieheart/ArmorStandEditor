@@ -148,6 +148,9 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
 
     private HeadDataManager headDataManager;
 
+    private InvisibleEmptyMode invisibleEmptyMode;
+    private NamespacedKey autoGlowKey;
+
     public ArmorStandEditorPlugin() {
         instance = this;
         unitTestMode = false;
@@ -479,6 +482,16 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
         requireToolLore = getConfig().getBoolean("requireToolLore", false);
         requireToolName = getConfig().getBoolean("requireToolName", false);
 
+        // in your config loading code (and in onEnable for the key):
+        autoGlowKey = new NamespacedKey(this, "auto_glow");
+        try {
+            invisibleEmptyMode = InvisibleEmptyMode.valueOf(
+                    getConfig().getString("invisible-empty-stand.mode", "OFF").toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            getLogger().warning("Invalid invisible-empty-stand.mode, using OFF");
+            invisibleEmptyMode = InvisibleEmptyMode.OFF;
+        }
+
         //Conditional Config Items
         allowCustomModelData = getConfig().getBoolean("allowCustomModelData", false);
         enablePerWorld = getConfig().getBoolean("enablePerWorldSupport", false);
@@ -646,6 +659,9 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     public HeadDataManager getHeadDataMananger() {
         return headDataManager;
     }
+
+    public InvisibleEmptyMode getInvisibleEmptyMode() { return invisibleEmptyMode; }
+    public NamespacedKey getAutoGlowKey() { return autoGlowKey; }
 
     /*
     * HELPERS FOR UNIT TESTING

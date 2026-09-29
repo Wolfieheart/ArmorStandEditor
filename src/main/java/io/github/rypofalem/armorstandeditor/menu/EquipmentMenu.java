@@ -40,9 +40,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-
-@SuppressWarnings("UnstableApiUsage")
-
 public class EquipmentMenu {
     // Equipment slot indices in the inventory
     private static final int EQUIP_SLOT_HELMET = 9;
@@ -188,6 +185,7 @@ public class EquipmentMenu {
         equipment.setItemInOffHand(currentLeftHand);
 
         checkForChanges();
+        pe.enforceVisibility(armorstand);
     }
 
     /**
