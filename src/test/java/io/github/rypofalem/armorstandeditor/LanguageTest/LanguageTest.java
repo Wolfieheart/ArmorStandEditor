@@ -15,6 +15,8 @@ import io.github.rypofalem.armorstandeditor.language.Language;
 import io.github.rypofalem.armorstandeditor.TestUtils.TestHelperFunctions;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.junit.jupiter.api.*;
 import org.mockbukkit.mockbukkit.MockBukkit;
@@ -50,6 +52,17 @@ class LanguageTest extends BasePluginTest {
     void tearDown() {
         plugin.debug.log("[LanguageTest] tearDown: unmocking (redundant with BasePluginTest, kept as-is)");
         MockBukkit.unmock();
+    }
+
+
+    @Test
+    @DisplayName("REGRESSION: Nametag rename converts legacy color codes when player has asedit.rename.color")
+    void renameAppliesLegacyColors() {
+        Component result = Language.safeDeserialize("&atest")
+                .decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+
+        assertEquals(TextColor.fromHexString("#55ff55"), result.color());
+        assertEquals(TextDecoration.State.FALSE, result.decoration(TextDecoration.ITALIC));
     }
 
     @Test
