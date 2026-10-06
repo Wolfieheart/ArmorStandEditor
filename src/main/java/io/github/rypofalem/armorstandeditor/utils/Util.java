@@ -91,8 +91,7 @@ public abstract class Util {
         boolean autoGlow = pdc.has(autoGlowKey, PersistentDataType.BYTE);
 
         EntityEquipment eq = as.getEquipment();
-        boolean empty = eq == null
-                || Arrays.stream(ARMORSTAND_SLOTS).allMatch(s -> eq.getItem(s).getType().isAir());
+        boolean empty = Arrays.stream(ARMORSTAND_SLOTS).allMatch(s -> eq.getItem(s).getType().isAir());
         boolean orphan = !as.isVisible() && !as.isCustomNameVisible() && empty;
         ArmorStandEditorPlugin.instance().debug.log("[DEBUG] empty=" + empty
                 + " nameVisible=" + as.isCustomNameVisible() + " orphan=" + orphan + " mode=" + mode);
