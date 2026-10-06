@@ -19,6 +19,7 @@
 
 package io.github.rypofalem.armorstandeditor;
 
+import io.github.rypofalem.armorstandeditor.language.Language;
 import io.github.rypofalem.armorstandeditor.menu.ASEHolder;
 import io.github.rypofalem.armorstandeditor.modes.InvisibleEmptyMode;
 import io.github.rypofalem.armorstandeditor.protections.*;
@@ -27,6 +28,9 @@ import io.github.rypofalem.armorstandeditor.utils.Util;
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
 
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -79,6 +83,10 @@ public class PlayerEditorManager implements Listener {
     private Integer noSize = 0;
     Team team;
     static final Set<UUID> foliaInUse = ConcurrentHashMap.newKeySet();
+    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.builder()
+            .character('&')
+            .hexColors()
+            .build();
 
     // Instantiate protections used to determine whether a player may edit an armor stand or item frame
     private final List<Protection> protections = List.of(
@@ -183,12 +191,12 @@ public class PlayerEditorManager implements Listener {
                 Component getName;
                 ItemMeta meta = nameTag.getItemMeta();
                 if (meta != null && meta.hasDisplayName()) {
-                    // The display name is stored as a raw MiniMessage string, so parse it into a Component
-                    Component displayName = meta.displayName();
+                    String raw = plainText().serialize(meta.displayName());
                     if (!player.hasPermission("asedit.rename.color")) {
-                        getName = Component.text(plainText().serialize(displayName));
+                        getName = Component.text(raw);
                     } else {
-                        getName = displayName;
+                        getName = Language.safeDeserialize(raw)
+                                .decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
                     }
                 } else {
                     getName = null;
@@ -207,6 +215,7 @@ public class PlayerEditorManager implements Listener {
                     // minecraft will set the name after this event even if the event is cancelled.
                     // change it 1 tick later to apply formatting without it being overwritten
                     final Component finalgetName = getName;
+
                     scheduler.runForEntity(as, () -> {
                         as.customName(finalgetName);
                         as.setCustomNameVisible(true);
