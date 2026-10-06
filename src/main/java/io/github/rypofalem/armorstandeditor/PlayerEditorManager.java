@@ -29,10 +29,8 @@ import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
 
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -51,6 +49,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -445,7 +444,7 @@ public class PlayerEditorManager implements Listener {
             return;
         }
 
-        if(e.getClickedBlock() != null && isInteractable(e.getClickedBlock())) return;
+        if(e.getClickedBlock() != null && isInteractable(e.getClickedBlock().getType())) return;
 
 
         e.setCancelled(true); // This cancels the event, preventing vanilla interaction
@@ -592,15 +591,42 @@ public class PlayerEditorManager implements Listener {
         return counter.ticks;
     }
 
-    private boolean isInteractable(Block block) {
-        Material type = block.getType();
+    public static boolean isInteractable(@UnknownNullability Material type) {
+
+        // Iron doors/trapdoors can't be opened by hand
+        if (type == Material.IRON_DOOR || type == Material.IRON_TRAPDOOR) return false;
+
         return Tag.DOORS.isTagged(type)
                 || Tag.TRAPDOORS.isTagged(type)
                 || Tag.BUTTONS.isTagged(type)
                 || Tag.FENCE_GATES.isTagged(type)
                 || Tag.BEDS.isTagged(type)
                 || Tag.ALL_SIGNS.isTagged(type)
-                || Tag.SHULKER_BOXES.isTagged(type);
+                || Tag.SHULKER_BOXES.isTagged(type)
+                || Tag.WOODEN_SHELVES.isTagged(type)
+                || Tag.COPPER_CHESTS.isTagged(type)
+                || Tag.COPPER_GOLEM_STATUES.isTagged(type)
+                || Tag.ANVIL.isTagged(type)
+                || Tag.CAULDRONS.isTagged(type)
+                || Tag.CAMPFIRES.isTagged(type)
+                || Tag.FLOWER_POTS.isTagged(type)
+                || Tag.CANDLE_CAKES.isTagged(type)
+                || Tag.BEEHIVES.isTagged(type)
+                || type.name().endsWith("_SHELF")
+                || Tag.CANDLES.isTagged(type)
+                || switch (type) {
+            // Containers
+            case CHEST, TRAPPED_CHEST, ENDER_CHEST, BARREL, HOPPER, DROPPER, DISPENSER,
+                 CRAFTER, FURNACE, BLAST_FURNACE, SMOKER, BREWING_STAND, LECTERN,
+                 CHISELED_BOOKSHELF, DECORATED_POT,
+                 // Switchable
+                 LEVER, REPEATER, COMPARATOR, DAYLIGHT_DETECTOR, NOTE_BLOCK, JUKEBOX,
+                 // Functional
+                 CRAFTING_TABLE, LOOM, GRINDSTONE, STONECUTTER, CARTOGRAPHY_TABLE,
+                 SMITHING_TABLE, ENCHANTING_TABLE, BEACON, BELL, COMPOSTER, CAKE,
+                 RESPAWN_ANCHOR -> true;
+            default -> false;
+        };
     }
 
     class TickCounter implements Runnable {
