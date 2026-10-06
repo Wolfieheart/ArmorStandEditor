@@ -123,6 +123,13 @@ permissions:
     description: Ability to view ArmorStand Stats.
     default: true
 
+  asedit.resetHeads:
+    description: Allows the resetting of player head retrieval counts.
+    default: false
+  asedit.resetheads.all:
+    description: Reset all players' head counts
+    default: op
+
   asedit.ignoreProtection.towny:
     description: Allows user to ignore Towny's Protection Limitations.
     default: false
@@ -201,6 +208,8 @@ permissions:
       asedit.give: false
       asedit.reload: false
       asedit.head: false
+      asedit.resetHeads: false
+      asedit.resetHeads.all: false
       asedit.rotation: true
       asedit.copy: true
       asedit.paste: true
@@ -243,3 +252,5 @@ permissions:
       asedit.togglegravity: true
       asedit.togglearmorstandvisibility: true
       asedit.toggleitemframevisibility: true
+      asedit.resetHeads: true
+      asedit.resetHeads.all: true

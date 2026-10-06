@@ -51,4 +51,16 @@ public class HeadDataManager {
         }
     }
 
+    public void reset(UUID uuid) {
+        data.set(uuid.toString(), null);
+        save();
+    }
+
+    public void resetAll() {
+        for (String key : data.getKeys(false)) {
+            data.set(key, null); // missing key -> getCount() returns 0
+        }
+        save();
+    }
+
 }

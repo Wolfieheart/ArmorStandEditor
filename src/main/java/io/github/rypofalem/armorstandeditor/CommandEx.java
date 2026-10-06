@@ -28,9 +28,7 @@ import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 
 import net.kyori.adventure.text.Component;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.command.*;
 import org.bukkit.entity.ArmorStand;
@@ -45,8 +43,7 @@ import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.AQUA;
@@ -66,8 +63,16 @@ public class CommandEx implements CommandExecutor {
     private final Component update = text("/ase update", YELLOW);
     private final Component reload = text("/ase reload", YELLOW);
     private final Component givePlayerHead = text("/ase playerhead", YELLOW);
-    private final Component getArmorStats = text("/ase stats", YELLOW);
+    private final Component getArmorStats = text("/ase stats", YELLOW);;
     Debug debug;
+
+    //For the aseResetHead Command - This is to prevent accidental resets of all player head retrieval counts
+    private final Component resetPlayerHeadCount = text("/ase resetHeads <all|player>", YELLOW);
+    private final Component resetPlayerHeadCountConfirm = text("/ase resetHeads all confirm", YELLOW);
+    private long confirmDeadline = 0;
+    private static final long CONFIRM_WINDOW_MS = 30_000;
+    private final Map<UUID, Long> pendingResetAll = new HashMap<>();
+
 
 
     public CommandEx(ArmorStandEditorPlugin armorStandEditorPlugin) {
@@ -148,6 +153,14 @@ public class CommandEx implements CommandExecutor {
             }
             case "resetwithinrange" -> {
                 commandResetWithinRange(player, args);
+                yield true;
+            }
+            case "resetallheads"       -> {
+                commandResetAllHeadCount(player, args);
+                yield true;
+            }
+            case "resetheads" -> {
+                commandResetHeadCount(player, args);
                 yield true;
             }
             default                  -> {
@@ -282,6 +295,60 @@ public class CommandEx implements CommandExecutor {
         headData.increment(player.getUniqueId());
         player.sendMessage(plugin.getLang().getMessage("playerhead", "info"));
     }
+
+    private void commandResetHeadCount(Player player, String[] args) {
+        if(!checkPermission(player, "resetHeads", true)) return;
+
+        if (args.length != 1) {
+            player.sendMessage(resetPlayerHeadCount);
+            return;
+        }
+
+        pendingResetAll.remove(player.getUniqueId()); // running this cancels a pending reset-all
+
+        @SuppressWarnings("deprecation")
+        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+
+        if (!target.hasPlayedBefore() && !target.isOnline()) {
+            player.sendMessage("Player '" + args[0] + "' has never joined this server.");
+            return;
+        }
+
+        plugin.getHeadDataMananger().reset(target.getUniqueId());
+        String name = target.getName() != null ? target.getName() : args[0];
+        player.sendMessage("Reset head count for " + name + " to 0.");
+    }
+
+    private void commandResetAllHeadCount(Player player, String[] args) {
+        //TODO: Remove the Hardcoded Messages - Make it Translatable
+         if(!checkPermission(player, "resetHeads.all", true)) return;
+
+         if(args.length > 1 || (args.length == 1 && !args[0].equalsIgnoreCase("confirm"))){
+             player.sendMessage(resetPlayerHeadCountConfirm);
+             return;
+         }
+
+        UUID senderId = player.getUniqueId();
+
+        // Step 1: arm
+        if (args.length == 0) {
+            pendingResetAll.put(senderId, System.currentTimeMillis() + CONFIRM_WINDOW_MS);
+            player.sendMessage("This will reset the head retrieval count for ALL players to 0. " +
+                    "If you are sure, run '/ase resetAllHeads confirm' within 30 seconds.");
+            return;
+        }
+
+        // Step 2: confirm
+        Long deadline = pendingResetAll.remove(senderId);
+        if (deadline == null || System.currentTimeMillis() > deadline) {
+            player.sendMessage("Nothing to confirm. Run '/ase resetAllHeads' first.");
+            return;
+        }
+
+        plugin.getHeadDataMananger().resetAll();
+        player.sendMessage("All player head counts have been reset to 0.");
+    }
+
 
     private void commandSlot(Player player, String[] args) {
 
