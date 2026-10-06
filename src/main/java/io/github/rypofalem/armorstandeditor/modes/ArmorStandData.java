@@ -25,12 +25,13 @@ import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 
 public class ArmorStandData {
     public EulerAngle headPos, leftArmPos, rightArmPos, bodyPos, leftLegPos, rightLegPos;
-    public boolean visible, size, basePlate, gravity, showArms;
+    public boolean visible, size, basePlate, gravity, showArms, inVulnerable, slotsLocked;
     public ItemStack head, body, legs, feetsies, rightHand, leftHand;
     public double attributeScale;
     private ArmorStandEditorPlugin plugin = ArmorStandEditorPlugin.instance();
@@ -42,6 +43,8 @@ public class ArmorStandData {
         this.bodyPos = as.getBodyPose();
         this.leftLegPos = as.getLeftLegPose();
         this.rightLegPos = as.getRightLegPose();
+        this.inVulnerable = as.isInvulnerable();
+        this.slotsLocked = as.hasEquipmentLock(EquipmentSlot.HAND, ArmorStand.LockType.REMOVING_OR_CHANGING);
         this.size = as.isSmall();
         if (VersionUtil.fromString(plugin.getNmsVersion()).isNewerThanOrEquals(MinecraftVersion.MINECRAFT_1_20_4)) {
             this.attributeScale = as.getAttribute(Attribute.SCALE).getValue();

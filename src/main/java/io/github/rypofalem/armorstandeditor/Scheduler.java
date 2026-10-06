@@ -57,14 +57,6 @@ public class Scheduler {
         }
     }
 
-    /** Recursive helper for Folia repeating tasks */
-    private void scheduleRepeating(Runnable task, long periodTicks) {
-        Bukkit.getGlobalRegionScheduler().run(plugin, _ -> {
-            task.run();
-            scheduleRepeating(task, periodTicks);
-        });
-    }
-
     /** Teleport an entity safely */
     public void teleport(Entity entity, Location location) {
         if (isFolia) {
@@ -78,24 +70,6 @@ public class Scheduler {
     public void runForEntity(Entity entity, Runnable task) {
         if (isFolia) {
             entity.getScheduler().run(plugin, _ -> task.run(), null);
-        } else {
-            runTask(task);
-        }
-    }
-
-    public void dropItem(Location location, ItemStack item) {
-        Runnable task = () -> location.getWorld().dropItemNaturally(location, item);
-        if (isFolia) {
-            Bukkit.getRegionScheduler().run(plugin, location, _ -> task.run());
-        } else {
-            task.run();
-        }
-    }
-
-    /** Run a task at a specific location (region-safe) */
-    public void runAtLocation(Location location, Runnable task) {
-        if (isFolia) {
-            Bukkit.getRegionScheduler().run(plugin, location, _ -> task.run());
         } else {
             runTask(task);
         }
