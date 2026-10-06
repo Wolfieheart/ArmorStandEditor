@@ -69,11 +69,8 @@ public class CommandEx implements CommandExecutor {
     //For the aseResetHead Command - This is to prevent accidental resets of all player head retrieval counts
     private final Component resetPlayerHeadCount = text("/ase resetHeads <all|player>", YELLOW);
     private final Component resetPlayerHeadCountConfirm = text("/ase resetHeads all confirm", YELLOW);
-    private long confirmDeadline = 0;
     private static final long CONFIRM_WINDOW_MS = 30_000;
-    private final Map<UUID, Long> pendingResetAll = new HashMap<>();
-
-
+    private static final Map<UUID, Long> pendingResetAll = new HashMap<>();
 
     public CommandEx(ArmorStandEditorPlugin armorStandEditorPlugin) {
         this.plugin = armorStandEditorPlugin;
@@ -296,59 +293,111 @@ public class CommandEx implements CommandExecutor {
         player.sendMessage(plugin.getLang().getMessage("playerhead", "info"));
     }
 
-    private void commandResetHeadCount(Player player, String[] args) {
-        if(!checkPermission(player, "resetHeads", true)) return;
+    private void debugResetHead(String msg) {
+        plugin.debug.log("[ResetHeads] " + msg);
+    }
 
-        if (args.length != 1) {
+    private void commandResetHeadCount(Player player, String[] args) {
+        debugResetHead(player.getName() + " ran resetHeads, args=" + Arrays.toString(args));
+
+        if (!checkPermission(player, "resetHeads", true)) {
+            debugResetHead(player.getName() + " denied: missing resetHeads permission");
+            return;
+        }
+
+        // args[0] = resetHeads, args[1] = <player|all>, args[2] = confirm (all only)
+        if (args.length < 2 || args.length > 3) {
+            debugResetHead("Bad arg count (" + args.length + "), sending usage");
             player.sendMessage(resetPlayerHeadCount);
             return;
         }
 
-        pendingResetAll.remove(player.getUniqueId()); // running this cancels a pending reset-all
+        if (args[1].equalsIgnoreCase("all")) {
+            debugResetHead("Routing to all flow");
+            commandResetAllHeadCount(player, args);
+            return;
+        }
+
+        if (args.length != 2) {
+            debugResetHead("Single-player flow got " + args.length + " args, sending usage");
+            player.sendMessage(resetPlayerHeadCount);
+            return;
+        }
+
+        boolean hadPending = pendingResetAll.remove(player.getUniqueId()) != null;
+        debugResetHead("Single-player flow for '" + args[1] + "', cancelled pending all=" + hadPending);
 
         @SuppressWarnings("deprecation")
-        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+        OfflinePlayer target = Bukkit.getOfflinePlayerIfCached(args[1]);
 
-        if (!target.hasPlayedBefore() && !target.isOnline()) {
-            player.sendMessage("Player '" + args[0] + "' has never joined this server.");
+
+        debugResetHead("Resolved '" + args[1] + "' -> uuid=" + target.getUniqueId()
+                + ", name=" + target.getName()
+                + ", hasPlayedBefore=" + target.hasPlayedBefore()
+                + ", online=" + target.isOnline());
+
+        if (!target.hasPlayedBefore() && !target.isOnline() || target == null) {
+            debugResetHead("Target rejected: never joined");
+            player.sendMessage(plugin.getLang().getMessage("resetheadsnoplayer", "warn", args[1]));
             return;
         }
 
         plugin.getHeadDataMananger().reset(target.getUniqueId());
-        String name = target.getName() != null ? target.getName() : args[0];
-        player.sendMessage("Reset head count for " + name + " to 0.");
+
+        String name = target.getName() != null ? target.getName() : args[1];
+        player.sendMessage(plugin.getLang().getMessage("resetheadsdone", "info", name));
     }
 
     private void commandResetAllHeadCount(Player player, String[] args) {
-        //TODO: Remove the Hardcoded Messages - Make it Translatable
-         if(!checkPermission(player, "resetHeads.all", true)) return;
+        debugResetHead(player.getName() + " entered all flow, args=" + Arrays.toString(args));
 
-         if(args.length > 1 || (args.length == 1 && !args[0].equalsIgnoreCase("confirm"))){
-             player.sendMessage(resetPlayerHeadCountConfirm);
-             return;
-         }
+        if (!checkPermission(player, "resetHeads.all", true)) {
+            debugResetHead(player.getName() + " denied: missing resetHeads.all permission");
+            return;
+        }
+
+        // args[0] = resetHeads, args[1] = all, args[2] = confirm (optional)
+        if (args.length == 3 && !args[2].equalsIgnoreCase("confirm")) {
+            debugResetHead("Invalid third arg '" + args[2] + "', sending usage");
+            player.sendMessage(resetPlayerHeadCountConfirm);
+            return;
+        }
 
         UUID senderId = player.getUniqueId();
 
         // Step 1: arm
-        if (args.length == 0) {
+        if (args.length == 2) {
             pendingResetAll.put(senderId, System.currentTimeMillis() + CONFIRM_WINDOW_MS);
-            player.sendMessage("This will reset the head retrieval count for ALL players to 0. " +
-                    "If you are sure, run '/ase resetAllHeads confirm' within 30 seconds.");
+            debugResetHead("Armed reset-all for " + player.getName() + ", window=" + CONFIRM_WINDOW_MS
+                    + "ms, pending entries=" + pendingResetAll.size());
+            player.sendMessage(plugin.getLang().getMessage("resetheadsallconfirm", "warn"));
             return;
         }
 
         // Step 2: confirm
         Long deadline = pendingResetAll.remove(senderId);
-        if (deadline == null || System.currentTimeMillis() > deadline) {
-            player.sendMessage("Nothing to confirm. Run '/ase resetAllHeads' first.");
+        if (deadline == null) {
+            debugResetHead("Confirm rejected for " + player.getName() + ": nothing pending");
+            player.sendMessage(plugin.getLang().getMessage("resetheadsallnothing", "warn"));
             return;
         }
 
+        long now = System.currentTimeMillis();
+        if (now > deadline) {
+            debugResetHead("Confirm rejected for " + player.getName() + ": expired " + (now - deadline) + "ms ago");
+            player.sendMessage(plugin.getLang().getMessage("resetheadsallexpired", "warn"));
+            return;
+        }
+
+        debugResetHead("Confirm accepted for " + player.getName() + " with " + (deadline - now) + "ms left, resetting all");
         plugin.getHeadDataMananger().resetAll();
-        player.sendMessage("All player head counts have been reset to 0.");
+        player.sendMessage(plugin.getLang().getMessage("resetheadsalldone", "info"));
     }
 
+    public static void clearPendingResetAll(UUID uuid) {
+        // Invalidate this player's pending reset-all confirmation (e.g. on quit)
+        pendingResetAll.remove(uuid);
+    }
 
     private void commandSlot(Player player, String[] args) {
 

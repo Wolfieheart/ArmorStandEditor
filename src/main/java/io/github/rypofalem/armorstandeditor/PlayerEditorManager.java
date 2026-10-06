@@ -515,6 +515,12 @@ public class PlayerEditorManager implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    void onQuit(PlayerQuitEvent e) {
+        Player player = e.getPlayer();
+        debug.log("Player Quit Event Triggered for Player: " + player.getName());
+        CommandEx.clearPendingResetAll(player.getUniqueId());
+    }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     void onPlayerMenuClose(InventoryCloseEvent e) {

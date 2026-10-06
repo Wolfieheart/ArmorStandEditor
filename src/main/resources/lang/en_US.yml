@@ -295,6 +295,18 @@ armorstandglow:
   description:
     msg: Turn ArmorStand Glowing on or off.
 
+#reset heads
+resetheadsdone:
+  msg: Reset head count for <x> to 0.
+resetheadsalldone:
+  msg: All player head counts have been reset to 0.
+resetheadsnoplayer:
+  msg: "Player '<x>' has never joined this server."
+resetheadsallconfirm:
+  msg: "This will reset the head retrieval count for ALL players to 0. If you are sure, run '/ase resetHeads all confirm' within 30 seconds."
+resetheadsallnothing:
+  msg: "Nothing to confirm. Run '/ase resetHeads all' first."
+
 #icons (equipment menu)
 disabled:
   msg: Disabled
