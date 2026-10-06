@@ -456,9 +456,14 @@ scaleremove110:
   msg: Scale - 0.1 (Fine)
   description:
     msg: Remove 0.1 to the current Scale of your ArmorStand
+legacySmall:
+  msg: Legacy Small
+  description:
+    msg: Set the Scale Attribute of your ArmorStand to Legacy Small (restores default small scale from 1.20 and lower)
 scalemaxwarn:
   msg: Please choose a different size, as this against the server maximum scale limits
 scaleminwarn:
   msg: Please choose a different size, as this against the server minimum scale limits
 scaleError:
   msg: That is not a valid scale option!
+

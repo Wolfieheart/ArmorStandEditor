@@ -330,13 +330,18 @@ public class CommandEx implements CommandExecutor {
         @SuppressWarnings("deprecation")
         OfflinePlayer target = Bukkit.getOfflinePlayerIfCached(args[1]);
 
+        if (target == null) {
+            debugResetHead("Target '" + args[1] + "' not in the profile cache, rejecting");
+            player.sendMessage(plugin.getLang().getMessage("resetheadsnoplayer", "warn", args[1]));
+            return;
+        }
 
         debugResetHead("Resolved '" + args[1] + "' -> uuid=" + target.getUniqueId()
                 + ", name=" + target.getName()
                 + ", hasPlayedBefore=" + target.hasPlayedBefore()
                 + ", online=" + target.isOnline());
 
-        if (!target.hasPlayedBefore() && !target.isOnline() || target == null) {
+        if (!target.hasPlayedBefore() && !target.isOnline()) {
             debugResetHead("Target rejected: never joined");
             player.sendMessage(plugin.getLang().getMessage("resetheadsnoplayer", "warn", args[1]));
             return;
