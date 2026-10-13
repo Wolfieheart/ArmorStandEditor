@@ -41,7 +41,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -478,10 +477,14 @@ public class CommandEx implements CommandExecutor {
         debug.log("Player '" + player.getName() + "' chose the mode: " + matched);
     }
 
-    @Nullable
     private void commandHelp(Player player) {
         player.closeInventory();
-        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
+
+        Location location = player.getLocation();
+        if (location != null) {
+            player.playSound(location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
+        }
+
         player.sendMessage(plugin.getLang().getMessage("help", "info", plugin.editTool.name()));
         player.sendMessage(Component.empty());
         player.sendMessage(plugin.getLang().getMessage("helptips", "info"));
