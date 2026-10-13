@@ -27,11 +27,7 @@ import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 import io.github.rypofalem.armorstandeditor.Metrics.DrilldownPie;
 import io.github.rypofalem.armorstandeditor.Metrics.SimplePie;
 
-import com.mojang.brigadier.Command;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import io.papermc.lib.PaperLib;
-import io.papermc.paper.command.brigadier.Commands;
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -40,8 +36,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
@@ -246,57 +240,12 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     
         //Register Commands and Tab Completers
         CommandEx execute = new CommandEx(this);
-        AseTabCompleter tabCompleter = new AseTabCompleter();
-        registerCommands(execute, tabCompleter);
+        AseTabCompleter aseTabCompleter = new AseTabCompleter();
+        new AseCommandRegistrar(this, execute, aseTabCompleter).register();
     
         //Register Events
         editorManager = new PlayerEditorManager(this);
         getServer().getPluginManager().registerEvents(editorManager, this);
-    }
-    
-    // Register commands using the Paper Lifecycle API (replaces getCommand() which is
-    // unsupported for Paper plugins). Wraps the existing CommandEx and TabCompleter so
-    // no other code needs to change.
-    private void registerCommands(CommandEx execute, TabCompleter tabCompleter) {
-        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
-            Commands commands = event.registrar();
-            for (String alias : List.of("ase", "armorstandeditor", "asedit")) {
-                // Stub Command so TabCompleter.onTabComplete() can call command.getName()
-                // without a NullPointerException — Brigadier has no equivalent object to pass.
-                org.bukkit.command.Command stubCommand = new org.bukkit.command.Command(alias) {
-                    @Override
-                    public boolean execute(CommandSender sender, String label, String[] args) {
-                        return false;
-                    }
-                };
-                commands.register(
-                        Commands.literal(alias)
-                                .executes(ctx -> {
-                                    CommandSender sender = ctx.getSource().getSender();
-                                    execute.onCommand(sender, stubCommand, alias, new String[0]);
-                                    return Command.SINGLE_SUCCESS;
-                                })
-                                .then(
-                                        Commands.argument("args", StringArgumentType.greedyString())
-                                                .suggests((ctx, builder) -> {
-                                                    CommandSender sender = ctx.getSource().getSender();
-                                                    String[] args = builder.getRemaining().split(" ", -1);
-                                                    List<String> completions = tabCompleter.onTabComplete(sender, stubCommand, alias, args);
-                                                    if (completions != null) completions.forEach(builder::suggest);
-                                                    return builder.buildFuture();
-                                                })
-                                                .executes(ctx -> {
-                                                    CommandSender sender = ctx.getSource().getSender();
-                                                    String[] args = ctx.getArgument("args", String.class).split(" ", -1);
-                                                    execute.onCommand(sender, stubCommand, alias, args);
-                                                    return Command.SINGLE_SUCCESS;
-                                                })
-                                )
-                                .build(),
-                        "ArmorStandEditor command"
-                );
-            }
-        });
     }
 
     private void doVersionCheck() {
