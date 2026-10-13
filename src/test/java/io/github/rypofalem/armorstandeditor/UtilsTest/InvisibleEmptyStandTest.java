@@ -25,6 +25,9 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 class InvisibleEmptyStandTest {
 
@@ -205,18 +208,11 @@ class InvisibleEmptyStandTest {
     @Test
     @DisplayName("Invalid mode logs a warning and falls back to OFF")
     void invalidModeFallsBackToOff() {
-        Logger logger = Logger.getLogger("InvisibleEmptyStandTest");
-        logger.setUseParentHandlers(false);
-        List<LogRecord> records = new ArrayList<>();
-        logger.addHandler(new Handler() {
-            @Override public void publish(LogRecord r) { records.add(r); }
-            @Override public void flush() { }
-            @Override public void close() { }
-        });
+        Logger logger = mock(Logger.class);
 
         assertEquals(InvisibleEmptyMode.OFF, InvisibleEmptyMode.parse("banana", logger));
-        assertEquals(1, records.size());
-        assertEquals(java.util.logging.Level.WARNING, records.get(0).getLevel());
+
+        verify(logger).warning(anyString());
     }
 
     @Test
