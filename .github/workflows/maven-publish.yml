@@ -19,7 +19,7 @@ jobs:
     steps:
       # 1. Check out the repository
       - name: Checkout ArmorStandEditor Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -36,7 +36,7 @@ jobs:
 
       # 3. Cache Gradle packages
       - name: Cache Gradle packages
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ~/.gradle/caches
@@ -47,22 +47,27 @@ jobs:
 
       # Cache SonarCloud for analysis
       - name: Cache SonarCloud for Analysis
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      # Build and analyze via Gradle + SonarCloud
-      - name: Build and Analyze via Gradle
+      # Build and analyze via Gradle + SonarCloud + Upload the report
+      - name: Build, Test and Analyze via Gradle
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew clean shadowJar sonar --no-daemon -Dsonar.projectKey=wolfieheart_ArmorStandEditor
+        run: ./gradlew clean test shadowJar sonar --no-daemon -Dsonar.projectKey=wolfieheart_ArmorStandEditor
 
-      # 5. Optional: Run tests
-      - name: Run tests
-        run: ./gradlew test --no-daemon
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            build/reports/tests/test/
+            build/test-results/test/
 
       # 6. Get Version from JAR name
       - name: Get Version

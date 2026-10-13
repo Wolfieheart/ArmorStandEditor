@@ -31,6 +31,8 @@ public class BoltProtection implements Protection {
         //Failsafe: Only use the API if the plugin is enabled, otherwise it will throw an error
         BoltAPI boltAPI = Bukkit.getServer().getServicesManager().load(BoltAPI.class);
         if(boltAPI == null) return true;
+
+        debug.log("Is Entity Protected?: " + boltAPI.isProtected(entity));
         if (!boltAPI.isProtected(entity)) return true;
 
         return boltAPI.canAccess(entity, player, "interact");

@@ -22,36 +22,33 @@ import io.github.rypofalem.armorstandeditor.menu.EquipmentMenu;
 import io.github.rypofalem.armorstandeditor.menu.Menu;
 import io.github.rypofalem.armorstandeditor.menu.PresetArmorPosesMenu;
 import io.github.rypofalem.armorstandeditor.menu.SizeMenu;
+
 //Do not optimize these..... This will no work properly
-import io.github.rypofalem.armorstandeditor.modes.AdjustmentMode;
-import io.github.rypofalem.armorstandeditor.modes.ArmorStandData;
+import io.github.rypofalem.armorstandeditor.modes.*;
 import io.github.rypofalem.armorstandeditor.modes.Axis;
-import io.github.rypofalem.armorstandeditor.modes.CopySlots;
-import io.github.rypofalem.armorstandeditor.modes.EditMode;
 import io.github.rypofalem.armorstandeditor.utils.MinecraftVersion;
 import io.github.rypofalem.armorstandeditor.utils.Util;
 import io.github.rypofalem.armorstandeditor.utils.VersionUtil;
 
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.EulerAngle;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PlayerEditor {
     public ArmorStandEditorPlugin plugin;
@@ -65,18 +62,18 @@ public class PlayerEditor {
     EditMode eMode;
     AdjustmentMode adjMode;
     CopySlots copySlots;
-    Axis axis;
-    double eulerAngleChange;
+    public Axis axis;
+    public double eulerAngleChange;
     double degreeAngleChange;
     double movChange;
     Menu chestMenu;
     ArmorStand target;
-    ArrayList<ArmorStand> targetList = null;
+    List<ArmorStand> targetList = null;
     ArrayList<ArmorStand> armorStandInRange = null;
 
     //NEW: ItemFrame Stuff
     ItemFrame frameTarget;
-    ArrayList<ItemFrame> frameTargetList = null;
+    List<ItemFrame> frameTargetList = null;
     int targetIndex = 0;
     int frameTargetIndex = 0;
     EquipmentMenu equipMenu;
@@ -206,7 +203,7 @@ public class PlayerEditor {
                     break;
 
             }
-        } else return;
+        }
     }
 
     public void editItemFrame(ItemFrame itemFrame) {
@@ -223,7 +220,7 @@ public class PlayerEditor {
                     sendMessage("nomodeif", null);
                     break;
             }
-        } else return;
+        }
     }
 
     private void openEquipment(ArmorStand armorStand) {
@@ -408,6 +405,16 @@ public class PlayerEditor {
             armorStand.setBasePlate(data.basePlate);
             armorStand.setArms(data.showArms);
             armorStand.setVisible(data.visible);
+            enforceVisibility(armorStand);
+            armorStand.setInvulnerable(data.inVulnerable);
+
+
+
+            if(data.slotsLocked){
+                disableSlots(armorStand);
+            } else{
+                enableSlots(armorStand);
+            }
 
             //Only Paste the Items on the stand if in Creative Mode
             // - Do not run elsewhere for good fecking reason!
@@ -425,6 +432,95 @@ public class PlayerEditor {
         }
     }
 
+    private void toggleDisableSlots(ArmorStand armorStand) {
+        if (!getPlayer().hasPermission("asedit.disableSlots")) {
+            sendMessage("nopermoption", "warn", "disableslots");
+        } else {
+            if (armorStand.hasEquipmentLock(EquipmentSlot.HAND, ArmorStand.LockType.REMOVING_OR_CHANGING)) { //Adds a lock to every slot or removes it
+                enableSlots(armorStand);
+                sendMessage("enabledslots", null);
+            } else {
+                disableSlots(armorStand);
+                sendMessage("disabledslots", null);
+            }
+        }
+    }
+
+    private void enableSlots(ArmorStand armorStand){
+        debug.log("Removing Disabled Slots on ArmorStand near the player "+ getPlayer().getName());
+
+        team = plugin.getHasFolia() ? null : plugin.scoreboard.getTeam(plugin.lockedTeam);
+        boolean lockChanged = false;
+
+        for(final EquipmentSlot slot : EquipmentSlot.values()){
+            if(armorStand.hasEquipmentLock(slot, ArmorStand.LockType.REMOVING_OR_CHANGING)){
+                armorStand.removeEquipmentLock(slot, ArmorStand.LockType.REMOVING_OR_CHANGING);
+                lockChanged = true;
+            }
+            if(armorStand.hasEquipmentLock(slot, ArmorStand.LockType.ADDING)){
+                armorStand.removeEquipmentLock(slot, ArmorStand.LockType.ADDING);
+                lockChanged = true;
+            }
+        }
+
+        Player player = getPlayer();
+        if (lockChanged && player != null) {
+            Location location = player.getLocation();
+            if (location != null) {
+                player.playSound(location, Sound.ENTITY_ITEM_BREAK, SoundCategory.PLAYERS, 1.0f, 1.0f);
+            }
+        }
+
+        armorStandID = armorStand.getUniqueId();
+
+        if(team != null){
+            team.removeEntry(armorStandID.toString());
+
+            if(lockChanged){
+                highlight(armorStand);
+            }
+        }
+
+    }
+
+    private void disableSlots(ArmorStand armorStand) {
+        debug.log("Adding Disabled Slots on ArmorStand near the player "+ getPlayer().getName());
+
+        team = plugin.getHasFolia() ? null : plugin.scoreboard.getTeam(plugin.lockedTeam);
+        boolean lockChanged = false;
+
+        for(final EquipmentSlot slot : EquipmentSlot.values()){
+
+            if(!armorStand.hasEquipmentLock(slot, ArmorStand.LockType.REMOVING_OR_CHANGING)){
+                armorStand.addEquipmentLock(slot, ArmorStand.LockType.REMOVING_OR_CHANGING);
+                armorStand.addEquipmentLock(slot, ArmorStand.LockType.ADDING);
+                lockChanged = true;
+            }
+
+            if(!armorStand.hasEquipmentLock(slot, ArmorStand.LockType.ADDING)) {
+                armorStand.addEquipmentLock(slot, ArmorStand.LockType.ADDING);
+                lockChanged = true;
+            }
+        }
+
+        Player player = getPlayer();
+        if (lockChanged && player != null) {
+            Location location = Objects.requireNonNull(player.getLocation());
+            player.playSound(location, Sound.ENTITY_ITEM_BREAK, SoundCategory.PLAYERS, 1.0f, 1.0f);
+        }
+
+        armorStandID = armorStand.getUniqueId();
+
+        if(team != null){
+            team.addEntry(armorStandID.toString());
+
+            if(lockChanged){
+                highlight(armorStand);
+            }
+        }
+
+    }
+
     private void resetPosition(ArmorStand armorStand) {
         if (getPlayer().hasPermission("asedit.reset")) {
             debug.log("Resetting ArmorStand near the Player " + getPlayer().displayName());
@@ -437,47 +533,6 @@ public class PlayerEditor {
         } else {
             sendMessage("nopermoption", "warn", "reset");
         }
-    }
-
-    private void toggleDisableSlots(ArmorStand armorStand) {
-        if (!getPlayer().hasPermission("asedit.disableSlots")) {
-            sendMessage("nopermoption", "warn", "disableslots");
-        } else {
-            debug.log("Remove DisabledSlots on ArmorStand near the Player " + getPlayer().displayName());
-            if (armorStand.hasEquipmentLock(EquipmentSlot.HAND, ArmorStand.LockType.REMOVING_OR_CHANGING)) { //Adds a lock to every slot or removes it
-                team = plugin.getHasFolia() ? null : plugin.scoreboard.getTeam(plugin.lockedTeam);
-                armorStandID = armorStand.getUniqueId();
-
-                for (final EquipmentSlot slot : EquipmentSlot.values()) { // UNLOCKED
-                    armorStand.removeEquipmentLock(slot, ArmorStand.LockType.REMOVING_OR_CHANGING);
-                    armorStand.removeEquipmentLock(slot, ArmorStand.LockType.ADDING);
-                }
-                getPlayer().playSound(getPlayer().getLocation(), Sound.ENTITY_ITEM_BREAK, SoundCategory.PLAYERS, 1.0f, 1.0f);
-
-                if (team != null) {
-                    team.removeEntry(armorStandID.toString());
-                    armorStand.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 50, 1, false, false)); //300 Ticks = 15 seconds
-                }
-
-
-            } else {
-                debug.log("Adding DisabledSlots on ArmorStand near the Player " + getPlayer().displayName());
-                for (final EquipmentSlot slot : EquipmentSlot.values()) { //LOCKED
-                    armorStand.addEquipmentLock(slot, ArmorStand.LockType.REMOVING_OR_CHANGING);
-                    armorStand.addEquipmentLock(slot, ArmorStand.LockType.ADDING);
-                }
-
-                getPlayer().playSound(getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_WOLF, SoundCategory.PLAYERS, 1.0f, 1.0f);
-
-                if (team != null) {
-                    team.addEntry(armorStandID.toString());
-                    armorStand.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 50, 1, false, false)); //300 Ticks = 15 seconds
-                }
-            }
-
-            sendMessage("disabledslots", null);
-        }
-
     }
 
     private void toggleInvulnerability(ArmorStand armorStand) { //See NewFeature-Request #256 for more info
@@ -516,6 +571,8 @@ public class PlayerEditor {
             debug.log("Toggling the Glowing Ability of an ArmorStand near player: " + getPlayer().displayName());
             //Will only make it glow white - Not something we can do like with Locking. Do not request this!
             armorStand.setGlowing(!armorStand.isGlowing());
+            armorStand.getPersistentDataContainer().remove(plugin.getAutoGlowKey());
+            enforceVisibility(armorStand);
         } else {
             sendMessage("nopermoption", "warn", "armorstandglow");
         }
@@ -534,8 +591,18 @@ public class PlayerEditor {
         if (getPlayer().hasPermission("asedit.togglearmorstandvisibility") || plugin.getArmorStandVisibility()) {
             debug.log("Toggling the Visiblity of an ArmorStand near player: " + getPlayer().displayName());
             armorStand.setVisible(!armorStand.isVisible());
+            enforceVisibility(armorStand);
         } else { //Throw No Permission Message
             sendMessage("nopermoption", "warn", "armorstandvisibility");
+        }
+    }
+
+    public void enforceVisibility(ArmorStand as) {
+        debug.log("enforceVisibility mode=" + plugin.getInvisibleEmptyMode()
+                + " visible=" + as.isVisible());
+        InvisibleEmptyMode mode = plugin.getInvisibleEmptyMode();
+        if (mode != InvisibleEmptyMode.OFF) {
+            Util.applyEmptyStandMode(as, mode, plugin.getAutoGlowKey());
         }
     }
 
@@ -633,92 +700,87 @@ public class PlayerEditor {
         return angle;
     }
 
-
-    public void setTarget(ArrayList<ArmorStand> armorStands) {
+    public void setTarget(List<ArmorStand> armorStands) {
         if (armorStands == null || armorStands.isEmpty()) {
             target = null;
             targetList = null;
             sendMessage("notarget", "armorstand");
-        } else {
-            if (targetList == null) {
-                targetList = armorStands;
-                targetIndex = 0;
-                sendMessage("target", null);
-            } else {
-                boolean same = targetList.size() == armorStands.size();
-                if (same) for (ArmorStand as : armorStands) {
-                    same = targetList.contains(as);
-                    if (!same) break;
-                }
-
-                if (same) {
-                    targetIndex = ++targetIndex % targetList.size();
-                } else {
-                    targetList = armorStands;
-                    targetIndex = 0;
-                    sendMessage("target", null);
-                }
-            }
-
-            target = targetList.get(targetIndex);
-            highlight(target); //NOTE: If Targeted and Locked, it displays the TEAM Color Glow: RED
-            //      Otherwise, its unlocked and will display WHITE as its not in a team by default
-
+            return;
         }
+
+        if (targetList != null && isSameTargetList(armorStands)) {
+            targetIndex = (targetIndex + 1) % targetList.size();
+        } else {
+            targetList = armorStands;
+            targetIndex = 0;
+            sendMessage("target", null);
+        }
+
+        target = targetList.get(targetIndex);
+        highlight(target); //NOTE: If Targeted and Locked, it displays the TEAM Color Glow: RED
+        //      Otherwise, its unlocked and will display WHITE as its not in a team by default
     }
 
+    private boolean isSameTargetList(List<ArmorStand> armorStands) {
+        return targetList.size() == armorStands.size()
+                && targetList.containsAll(armorStands);
+    }
 
-    public void setFrameTarget(ArrayList<ItemFrame> itemFrames) {
+    public void setFrameTarget(List<ItemFrame> itemFrames) {
         if (itemFrames == null || itemFrames.isEmpty()) {
             frameTarget = null;
             frameTargetList = null;
             sendMessage("notarget", "itemframe");
-        } else {
-
-            if (frameTargetList == null) {
-                frameTargetList = itemFrames;
-                frameTargetIndex = 0;
-                sendMessage("frametarget", null);
-            } else {
-                boolean same = frameTargetList.size() == itemFrames.size();
-                if (same) for (final ItemFrame itemf : itemFrames) {
-                    same = frameTargetList.contains(itemf);
-                    if (!same) break;
-                }
-
-                if (same) {
-                    frameTargetIndex = ++frameTargetIndex % frameTargetList.size();
-                } else {
-                    frameTargetList = itemFrames;
-                    frameTargetIndex = 0;
-                    sendMessage("frametarget", null);
-                }
-
-                frameTarget = frameTargetList.get(frameTargetIndex);
-            }
+            return;
         }
+
+        if (frameTargetList == null) {
+            startNewFrameTargetList(itemFrames);
+            return;
+        }
+
+        if (isSameFrameList(itemFrames)) {
+            frameTargetIndex = (frameTargetIndex + 1) % frameTargetList.size();
+        } else {
+            startNewFrameTargetList(itemFrames);
+        }
+
+        frameTarget = frameTargetList.get(frameTargetIndex);
     }
 
+    private boolean isSameFrameList(@UnknownNullability List<ItemFrame> itemFrames) {
+        return frameTargetList.size() == itemFrames.size()
+                && frameTargetList.containsAll(itemFrames);
+    }
+
+    private void startNewFrameTargetList(List<ItemFrame> itemFrames) {
+        frameTargetList = itemFrames;
+        frameTargetIndex = 0;
+        sendMessage("frametarget", null);
+    }
 
     ArmorStand attemptTarget(ArmorStand armorStand) {
-        if (target == null
-            || !target.isValid()
-            || target.getWorld() != getPlayer().getWorld()
-            || target.getLocation().distanceSquared(getPlayer().getLocation()) > 100)
+        Player player = getPlayer();
+        if (player == null || target == null || !target.isValid()) return armorStand;
+        if (target.getWorld() != player.getWorld()) return armorStand;
+
+        Location playerLocation = player.getLocation();
+        if (playerLocation == null || target.getLocation().distanceSquared(playerLocation) > 100) {
             return armorStand;
-        armorStand = target;
-        return armorStand;
+        }
+
+        return target;
     }
 
     void sendMessage(String path, String format, String option) {
         Component message = plugin.getLang().getMessage(path, format, option);
         Player player = plugin.getServer().getPlayer(getUUID());
         if (plugin.sendToActionBar) {
-            if (ArmorStandEditorPlugin.instance().getHasPaper() || ArmorStandEditorPlugin.instance().getHasFolia()) { //Paper and Spigot having the same Interaction for sendToActionBar
-                Audience.audience(player).sendActionBar(message);
+            if (plugin.getHasPaper() || plugin.getHasFolia()) { //Paper and Spigot having the same Interaction for sendToActionBar
+                player.sendActionBar(message);
             }
         } else {
-            Audience.audience(player).sendMessage(message);
+           player.sendMessage(message);
         }
     }
 
@@ -728,7 +790,28 @@ public class PlayerEditor {
 
     private void highlight(ArmorStand armorStand) {
         armorStand.removePotionEffect(PotionEffectType.GLOWING);
-        armorStand.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 50, 1, false, false)); //300 Ticks = 15 seconds
+        final Chunk chunk = armorStand.getChunk();
+        chunk.addPluginChunkTicket(plugin);
+        try {
+            final AtomicBoolean cleaned = new AtomicBoolean(false);
+            final Runnable cleanup = () -> {
+                if (cleaned.compareAndSet(false, true)) {
+                    armorStand.setGlowing(false);
+                    enforceVisibility(armorStand);
+                    chunk.removePluginChunkTicket(plugin);
+                }
+            };
+            armorStand.setGlowing(true);
+            boolean scheduled = armorStand.getScheduler().runDelayed(plugin, _ -> cleanup.run(), cleanup, 50) != null;
+            if (!scheduled) {
+                cleanup.run();
+            }
+        } catch (Exception _) {
+            // not taking any chances
+            armorStand.setGlowing(false);
+            enforceVisibility(armorStand);
+            chunk.removePluginChunkTicket(plugin);
+        }
     }
 
     public PlayerEditorManager getManager() {
@@ -737,10 +820,6 @@ public class PlayerEditor {
 
     public Player getPlayer() {
         return plugin.getServer().getPlayer(getUUID());
-    }
-
-    public Scheduler getScheduler() {
-        return scheduler;
     }
 
     public UUID getUUID() {
@@ -757,7 +836,7 @@ public class PlayerEditor {
         lastCancelled = getManager().getTime();
     }
 
-    boolean isMenuCancelled() {
+    public boolean isMenuCancelled() {
         return getManager().getTime() - lastCancelled < 2;
     }
 

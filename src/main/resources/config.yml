@@ -104,9 +104,21 @@ sendMessagesToActionBar: true
 #If true, players can make itemFrames glow by right-clicking with a Glow Ink Sac
 glowingItemFrame: true
 
+# Prevents players from leaving invisible armor stands with nothing equipped around the world.
+# Stands with a visible custom name (holograms) are ignored.
+#   OFF     - Do nothing (default)
+#   VISIBLE - Make the stand visible again
+#   GLOW    - Keep the stand invisible, but make it glow so it can be found and removed
+invisible-empty-stand:
+  mode: OFF   # OFF | VISIBLE | GLOW
+
+
 #(Optional) Allow Players to get Player Heads from a Command. You can set this up either here or giving players
 #asedit.head.
 allowedToRetrieveOwnPlayerHead: false
+
+#Limit the number of times that players can get their head on the server
+maxNumberOfHeadRetrievals: 5
 
 #Each time the command is used, the admins will be notified that this has been ran but only
 #if this setting is made true

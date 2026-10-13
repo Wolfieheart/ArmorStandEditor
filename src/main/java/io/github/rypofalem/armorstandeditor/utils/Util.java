@@ -19,9 +19,28 @@
 
 package io.github.rypofalem.armorstandeditor.utils;
 
+import io.github.rypofalem.armorstandeditor.ArmorStandEditorPlugin;
+import io.github.rypofalem.armorstandeditor.modes.InvisibleEmptyMode;
+
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
+
+import java.util.Arrays;
+
+
 public abstract class Util {
 
     public static final double FULL_CIRCLE = Math.PI * 2;
+
+    private static final EquipmentSlot[] ARMORSTAND_SLOTS = {
+            EquipmentSlot.HAND, EquipmentSlot.OFF_HAND,
+            EquipmentSlot.HEAD, EquipmentSlot.CHEST,
+            EquipmentSlot.LEGS, EquipmentSlot.FEET
+    };
 
     public static <T extends Enum<?>> String getEnumList(Class<T> enumType) {
         return getEnumList(enumType, " | ");
@@ -65,5 +84,30 @@ public abstract class Util {
         }
 
         return angle;
+    }
+
+    public static void applyEmptyStandMode(ArmorStand as, InvisibleEmptyMode mode, NamespacedKey autoGlowKey) {
+        PersistentDataContainer pdc = as.getPersistentDataContainer();
+        boolean autoGlow = pdc.has(autoGlowKey, PersistentDataType.BYTE);
+
+        EntityEquipment eq = as.getEquipment();
+        boolean empty = Arrays.stream(ARMORSTAND_SLOTS).allMatch(s -> eq.getItem(s).getType().isAir());
+        boolean orphan = !as.isVisible() && !as.isCustomNameVisible() && empty;
+        ArmorStandEditorPlugin.instance().debug.log("[DEBUG] empty=" + empty
+                + " nameVisible=" + as.isCustomNameVisible() + " orphan=" + orphan + " mode=" + mode);
+
+
+        if (orphan && mode == InvisibleEmptyMode.VISIBLE) {
+            as.setVisible(true);
+        } else if (orphan && mode == InvisibleEmptyMode.GLOW) {
+            if (!as.isGlowing()) {
+                as.setGlowing(true);
+                pdc.set(autoGlowKey, PersistentDataType.BYTE, (byte) 1);
+            }
+        } else if (autoGlow) {
+            // Only undo glow we applied; never touch ASE's own targeting/lock glow
+            as.setGlowing(false);
+            pdc.remove(autoGlowKey);
+        }
     }
 }
