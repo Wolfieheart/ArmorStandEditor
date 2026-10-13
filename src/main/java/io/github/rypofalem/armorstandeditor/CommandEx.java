@@ -243,7 +243,7 @@ public class CommandEx implements CommandExecutor {
 
     private void commandResetWithinRange(Player player, String[] args) {
 
-        if(args == null || args.length <= 1) { //Add in a safety check for the argument to prevent errors
+        if(args == null || args.length <= 2) { //Add in a safety check for the argument to prevent errors
             player.sendMessage(resetWithinRange);
             return;
         }
@@ -251,7 +251,7 @@ public class CommandEx implements CommandExecutor {
         if (player.hasPermission("asedit.reset.withinRange")) {
             debug.log(" Player '" + player.getName() + "' is resetting armor stands within range.");
 
-            double range = Double.parseDouble(args[1]);
+            double range = Double.parseDouble(args[2]);
             debug.log(" Range Chosen: " + range);
 
             if (range > plugin.getMaxResetRange()) {
