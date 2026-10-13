@@ -90,7 +90,7 @@ public class PlayerEditorManager implements Listener {
         new SkyblockProtection(),
         new TownyProtection(),
         new WorldGuardProtection(),
-        new itemAdderProtection(),
+        new ItemAdderProtection(),
         new BoltProtection(),
         new BentoBoxProtection(),
         new DominionProtection());
