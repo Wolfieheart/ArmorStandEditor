@@ -42,8 +42,11 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.EulerAngle;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -65,18 +68,18 @@ public class PlayerEditor {
     double movChange;
     Menu chestMenu;
     ArmorStand target;
-    ArrayList<ArmorStand> targetList = null;
+    List<ArmorStand> targetList = null;
     ArrayList<ArmorStand> armorStandInRange = null;
 
     //NEW: ItemFrame Stuff
     ItemFrame frameTarget;
-    ArrayList<ItemFrame> frameTargetList = null;
+    List<ItemFrame> frameTargetList = null;
     int targetIndex = 0;
     int frameTargetIndex = 0;
     EquipmentMenu equipMenu;
     PresetArmorPosesMenu presetPoseMenu;
     SizeMenu sizeModificationMenu;
-    long lastCancelled = 0;;
+    long lastCancelled = 0;
 
     public PlayerEditor(UUID uuid, ArmorStandEditorPlugin plugin) {
         this.uuid = uuid;
@@ -200,7 +203,7 @@ public class PlayerEditor {
                     break;
 
             }
-        } else return;
+        }
     }
 
     public void editItemFrame(ItemFrame itemFrame) {
@@ -217,7 +220,7 @@ public class PlayerEditor {
                     sendMessage("nomodeif", null);
                     break;
             }
-        } else return;
+        }
     }
 
     private void openEquipment(ArmorStand armorStand) {
@@ -460,11 +463,15 @@ public class PlayerEditor {
             }
         }
 
-        if(lockChanged){
-            getPlayer().playSound(getPlayer().getLocation(), Sound.ENTITY_ITEM_BREAK, SoundCategory.PLAYERS,
-                    1.0f, 1.0f);
+        Player player = getPlayer();
+        if (lockChanged && player != null) {
+            Location location = player.getLocation();
+            if (location != null) {
+                player.playSound(location, Sound.ENTITY_ITEM_BREAK, SoundCategory.PLAYERS, 1.0f, 1.0f);
+            }
         }
-        UUID armorStandID = armorStand.getUniqueId();
+
+        armorStandID = armorStand.getUniqueId();
 
         if(team != null){
             team.removeEntry(armorStandID.toString());
@@ -496,12 +503,13 @@ public class PlayerEditor {
             }
         }
 
-        if(lockChanged){
-            getPlayer().playSound(getPlayer().getLocation(), Sound.ENTITY_ITEM_BREAK, SoundCategory.PLAYERS,
-                    1.0f, 1.0f);
+        Player player = getPlayer();
+        if (lockChanged && player != null) {
+            Location location = Objects.requireNonNull(player.getLocation());
+            player.playSound(location, Sound.ENTITY_ITEM_BREAK, SoundCategory.PLAYERS, 1.0f, 1.0f);
         }
 
-        UUID armorStandID = armorStand.getUniqueId();
+        armorStandID = armorStand.getUniqueId();
 
         if(team != null){
             team.addEntry(armorStandID.toString());
@@ -692,93 +700,76 @@ public class PlayerEditor {
         return angle;
     }
 
-
-    public void setTarget(ArrayList<ArmorStand> armorStands) {
+    public void setTarget(List<ArmorStand> armorStands) {
         if (armorStands == null || armorStands.isEmpty()) {
             target = null;
             targetList = null;
             sendMessage("notarget", "armorstand");
-        } else {
-            if (targetList == null) {
-                targetList = armorStands;
-                targetIndex = 0;
-                sendMessage("target", null);
-            } else {
-                boolean same = targetList.size() == armorStands.size();
-                if (same)
-                    for (ArmorStand as : armorStands) {
-                        same = targetList.contains(as);
-                        if (!same) break;
-                    }
-
-                if (same) {
-                    targetIndex = ++targetIndex % targetList.size();
-                } else {
-                    targetList = armorStands;
-                    targetIndex = 0;
-                    sendMessage("target", null);
-                }
-            }
-
-            target = targetList.get(targetIndex);
-            highlight(target); //NOTE: If Targeted and Locked, it displays the TEAM Color Glow: RED
-            //      Otherwise, its unlocked and will display WHITE as its not in a team by default
-
+            return;
         }
+
+        if (targetList != null && isSameTargetList(armorStands)) {
+            targetIndex = (targetIndex + 1) % targetList.size();
+        } else {
+            targetList = armorStands;
+            targetIndex = 0;
+            sendMessage("target", null);
+        }
+
+        target = targetList.get(targetIndex);
+        highlight(target); //NOTE: If Targeted and Locked, it displays the TEAM Color Glow: RED
+        //      Otherwise, its unlocked and will display WHITE as its not in a team by default
     }
 
+    private boolean isSameTargetList(List<ArmorStand> armorStands) {
+        return targetList.size() == armorStands.size()
+                && targetList.containsAll(armorStands);
+    }
 
-    public void setFrameTarget(ArrayList<ItemFrame> itemFrames) {
+    public void setFrameTarget(List<ItemFrame> itemFrames) {
         if (itemFrames == null || itemFrames.isEmpty()) {
             frameTarget = null;
             frameTargetList = null;
             sendMessage("notarget", "itemframe");
-        } else {
-
-            if (frameTargetList == null) {
-                frameTargetList = itemFrames;
-                frameTargetIndex = 0;
-                sendMessage("frametarget", null);
-            } else {
-                boolean same = frameTargetList.size() == itemFrames.size();
-                if (same)
-                    for (final ItemFrame itemf : itemFrames) {
-                        same = frameTargetList.contains(itemf);
-                        if (!same) break;
-                    }
-
-                if (same) {
-                    frameTargetIndex = ++frameTargetIndex % frameTargetList.size();
-                } else {
-                    frameTargetList = itemFrames;
-                    frameTargetIndex = 0;
-                    sendMessage("frametarget", null);
-                }
-
-                frameTarget = frameTargetList.get(frameTargetIndex);
-            }
+            return;
         }
+
+        if (frameTargetList == null) {
+            startNewFrameTargetList(itemFrames);
+            return;
+        }
+
+        if (isSameFrameList(itemFrames)) {
+            frameTargetIndex = (frameTargetIndex + 1) % frameTargetList.size();
+        } else {
+            startNewFrameTargetList(itemFrames);
+        }
+
+        frameTarget = frameTargetList.get(frameTargetIndex);
     }
 
+    private boolean isSameFrameList(@UnknownNullability List<ItemFrame> itemFrames) {
+        return frameTargetList.size() == itemFrames.size()
+                && frameTargetList.containsAll(itemFrames);
+    }
+
+    private void startNewFrameTargetList(List<ItemFrame> itemFrames) {
+        frameTargetList = itemFrames;
+        frameTargetIndex = 0;
+        sendMessage("frametarget", null);
+    }
 
     ArmorStand attemptTarget(ArmorStand armorStand) {
-        if (target == null
-            || !target.isValid()
-            || target.getWorld() != getPlayer().getWorld()
-            || target.getLocation().distanceSquared(getPlayer().getLocation()) > 100)
-            return armorStand;
-        armorStand = target;
-        return armorStand;
-    }
+        Player player = getPlayer();
+        if (player == null || target == null || !target.isValid()) return armorStand;
+        if (target.getWorld() != player.getWorld()) return armorStand;
 
-    ItemFrame attemptTarget(ItemFrame itemFrame) {
-        if (frameTarget == null
-            || !frameTarget.isValid()
-            || frameTarget.getWorld() != getPlayer().getWorld()
-            || frameTarget.getLocation().distanceSquared(getPlayer().getLocation()) > 100)
-            return itemFrame;
-        itemFrame = frameTarget;
-        return itemFrame;
+        Location playerLocation = player.getLocation();
+        if (playerLocation == null || target.getLocation().distanceSquared(playerLocation) > 100) {
+            return armorStand;
+        }
+
+        return target;
     }
 
     void sendMessage(String path, String format, String option) {
@@ -815,7 +806,7 @@ public class PlayerEditor {
             if (!scheduled) {
                 cleanup.run();
             }
-        } catch (Throwable throwable) {
+        } catch (Exception _) {
             // not taking any chances
             armorStand.setGlowing(false);
             enforceVisibility(armorStand);
