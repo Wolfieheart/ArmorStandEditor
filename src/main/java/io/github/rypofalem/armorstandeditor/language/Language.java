@@ -250,7 +250,7 @@ public class Language {
      * @deprecated use {@link #resolveFormatValue(String)}; kept for backward
      * compatibility with existing callers.
      */
-    @Deprecated
+    @Deprecated(since = "26.3-52")
     public String getFormat(String format) {
         return resolveFormatValue(format);
     }

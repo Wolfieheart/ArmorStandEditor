@@ -11,7 +11,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
 
-import static cn.lunadeer.dominion.api.dtos.flag.Flags.PLACE;
 import static org.bukkit.Material.*;
 
 public class DominionProtection implements Protection {
