@@ -63,7 +63,7 @@ public class CommandEx implements CommandExecutor {
     private final Component update = text("/ase update", YELLOW);
     private final Component reload = text("/ase reload", YELLOW);
     private final Component givePlayerHead = text("/ase playerhead", YELLOW);
-    private final Component getArmorStats = text("/ase stats", YELLOW);;
+    private final Component getArmorStats = text("/ase stats", YELLOW);
     Debug debug;
 
     //For the aseResetHead Command - This is to prevent accidental resets of all player head retrieval counts
@@ -228,7 +228,7 @@ public class CommandEx implements CommandExecutor {
                 meta.displayName(plugin.editToolName);
             }
             if (plugin.getRequiredToolLore() && plugin.editToolLore != null) {
-                meta.lore((List<Component>) plugin.editToolLore);
+                meta.lore(plugin.editToolLore);
             }
 
             meta.setUnbreakable(true);
