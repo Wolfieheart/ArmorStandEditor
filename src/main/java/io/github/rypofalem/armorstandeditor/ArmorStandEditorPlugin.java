@@ -41,6 +41,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
@@ -245,7 +246,7 @@ public class ArmorStandEditorPlugin extends JavaPlugin {
     
         //Register Commands and Tab Completers
         CommandEx execute = new CommandEx(this);
-        TabCompleter tabCompleter = new TabCompleter();
+        AseTabCompleter tabCompleter = new AseTabCompleter();
         registerCommands(execute, tabCompleter);
     
         //Register Events

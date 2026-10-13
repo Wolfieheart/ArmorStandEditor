@@ -3,7 +3,6 @@ package io.github.rypofalem.armorstandeditor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 /**
