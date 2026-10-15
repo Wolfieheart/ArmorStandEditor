@@ -89,7 +89,7 @@ dependencies {
     compileOnly "com.sk89q.worldguard:worldguard-bukkit:7.0.19"
 
     // PlotSquared
-    compileOnly("com.intellectualsites.plotsquared:plotsquared-core:7.5.12") {
+    compileOnly("com.intellectualsites.plotsquared:plotsquared-core:7.6.0") {
         exclude group: "net.kyori"
     }
     compileOnly("com.intellectualsites.plotsquared:plotsquared-bukkit:7.5.12") {
@@ -141,7 +141,7 @@ dependencies {
     testImplementation 'org.mockbukkit.mockbukkit:mockbukkit-v26.1.2:4.+'
     testImplementation 'io.papermc.paper:paper-api:26.1.2.build.+'
     testImplementation 'com.palmergames.bukkit.towny:towny:0.102.0.13'
-    testImplementation 'com.intellectualsites.plotsquared:plotsquared-core:7.5.12'
+    testImplementation 'com.intellectualsites.plotsquared:plotsquared-core:7.6.0'
     testImplementation 'com.intellectualsites.plotsquared:plotsquared-bukkit:7.5.12'
     testImplementation 'com.sk89q.worldguard:worldguard-bukkit:7.0.17'
     testImplementation 'com.github.GriefPrevention:GriefPrevention:16.18.2'
