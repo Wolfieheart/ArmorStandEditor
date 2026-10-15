@@ -48,12 +48,16 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      # Build and analyze via Gradle + SonarCloud
+      # Smoke test
       - name: Run Smoke Test Only
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew clean test --no-daemon --tests "io.github.rypofalem.armorstandeditor.SmokeTest.ArmorStandEditorPluginLifeCycleTest"
+
+      # Build the shaded jar (this was missing)
+      - name: Build Shaded Jar
+        run: ./gradlew shadowJar --no-daemon
 
       # Get the current date and time
       - name: Get Current Date and Time
@@ -63,13 +67,16 @@ jobs:
       # Get version from JAR filename
       - name: Get Version
         id: get_version
-        run: echo "version=$(ls build/libs/ArmorStandEditor-*-all.jar | sed 's/.*ArmorStandEditor-\(.*\)-all.jar/\1/')" >> $GITHUB_OUTPUT
+        run: |
+          JAR=$(ls build/libs/ArmorStandEditor-*-all.jar | head -n 1)
+          VERSION=$(basename "$JAR" | sed 's/^ArmorStandEditor-\(.*\)-all\.jar$/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       # Rename the artifact with date and Java version
       - name: Rename Artifact
         run: |
           mv build/libs/ArmorStandEditor-*-all.jar \
-          build/libs/ArmorStandEditor-${{ steps.get_version.outputs.version }}-${{ env.DATE }}-Java${{ matrix.java_version }}.jar
+             build/libs/ArmorStandEditor-${{ steps.get_version.outputs.version }}-${{ env.DATE }}-Java${{ matrix.java_version }}.jar
 
       # Upload the renamed artifact
       - name: Upload Artifact for Debugging
